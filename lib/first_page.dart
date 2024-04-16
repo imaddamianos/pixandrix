@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pixandrix/admin_pass.dart';
 
 class FirstPage extends StatelessWidget {
   const FirstPage({super.key});
@@ -64,8 +65,10 @@ class FirstPage extends StatelessWidget {
             const SizedBox(height: 20),
             TextButton(
               onPressed: () {
-                // Handle admin panel button press
-                // Navigate to admin panel login page
+               Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const  AdminPassPage()),
+      );
               },
               child: const Text(
                 'Admin Panel',
