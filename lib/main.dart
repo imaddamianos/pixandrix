@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/first_page.dart';
+import 'package:pixandrix/theme/custom_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,10 +12,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        useMaterial3: true, colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 255, 101, 101)).copyWith(background: Colors.black),
-      ),
-      home: FirstPage(),
+      theme: customTheme,
+      home: const FirstPage(),
     );
   }
 }

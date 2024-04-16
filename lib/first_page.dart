@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pixandrix/admin_pass.dart';
+import 'package:pixandrix/admin/admin_pass.dart';
 
 class FirstPage extends StatelessWidget {
   const FirstPage({super.key});

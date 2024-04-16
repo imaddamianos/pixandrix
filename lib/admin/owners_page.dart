@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-class AdminPanelPage extends StatelessWidget {
-  const AdminPanelPage({super.key});
+class OwnersPage extends StatelessWidget {
+  const OwnersPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Panel'),
+        title: const Text('Owners Page'),
       ),
       body: const Center(
         child: Text(
-          'Welcome to the Admin Panel!',
+          'Owners Page Content',
           style: TextStyle(fontSize: 20),
         ),
       ),
