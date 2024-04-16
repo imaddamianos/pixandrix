@@ -14,6 +14,16 @@ class FirstPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            const Text(
+  'Who are you?',
+  style: TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+    color: Colors.red, // Example color, replace with your desired color
+    // Add more text style properties as needed
+  ),
+),
+            const SizedBox(height: 70),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -29,16 +39,16 @@ class FirstPage extends StatelessWidget {
                   children: [
                     Image.asset(
                       'assets/images/driver_icon.png',
-                      width: 50,
-                      height: 50,
+                      width: 100,
+                      height: 100,
                     ),
-                    const SizedBox(height: 8),
-                    const Text('Drivers'),
+                    // const SizedBox(height: 8),
+                    // const Text('Drivers'),
                   ],
                 ),
               ),
             ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 70),
                SizedBox(
               width: 120,
               height: 120,
@@ -51,11 +61,11 @@ class FirstPage extends StatelessWidget {
                   children: [
                     Image.asset(
                       'assets/images/stores_icon.png',
-                      width: 50,
-                      height: 50,
+                      width: 100,
+                      height: 100,
                     ),
-                    const SizedBox(height: 8),
-                    const Text('Store'),
+                    // const SizedBox(height: 8),
+                    // const Text('Store'),
                   ],
                 ),
               ),
