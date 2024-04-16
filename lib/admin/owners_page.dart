@@ -5,11 +5,11 @@ class OwnersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Owners Page'),
-      ),
-      body: const Center(
+    return const Scaffold(
+      // appBar: AppBar(
+      //   title: const Text('Owners Page'),
+      // ),
+      body: Center(
         child: Text(
           'Owners Page Content',
           style: TextStyle(fontSize: 20),

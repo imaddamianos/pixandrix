@@ -5,11 +5,11 @@ class OrdersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Orders Page'),
-      ),
-      body: const Center(
+    return const Scaffold(
+      // appBar: AppBar(
+      //   title: const Text('Orders Page'),
+      // ),
+      body: Center(
         child: Text(
           'Orders Page Content',
           style: TextStyle(fontSize: 20),

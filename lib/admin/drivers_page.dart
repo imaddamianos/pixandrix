@@ -5,11 +5,11 @@ class DriversPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Drivers Page'),
-      ),
-      body: const Center(
+    return const Scaffold(
+      // appBar: AppBar(
+      //   title: const Text('Drivers Page'),
+      // ),
+      body: Center(
         child: Text(
           'Drivers Page Content',
           style: TextStyle(fontSize: 20),
