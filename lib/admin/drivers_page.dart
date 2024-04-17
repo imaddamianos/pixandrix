@@ -13,7 +13,7 @@ class DriversPage extends StatelessWidget {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(8.0), // Add space on all sides
-        child: AddButton(text: 'Add Owner', onPressed: addDriver),
+        child: AddButton(text: 'Add Driver', onPressed: addDriver),
       ),
     );
   }
