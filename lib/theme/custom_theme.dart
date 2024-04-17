@@ -22,12 +22,4 @@ final ThemeData customTheme = ThemeData(
   inputDecorationTheme: const InputDecorationTheme(
     hintStyle: TextStyle(color: placeholderColor),
   ),
-  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-    selectedItemColor: Color.fromARGB(255, 54, 251, 0), // Change the selected item color
-    unselectedItemColor: Colors.grey, // Change the unselected item color
-    selectedLabelStyle: TextStyle(color: Color.fromARGB(101, 255, 0, 0)), // Change the selected label color
-    unselectedLabelStyle: TextStyle(color: Colors.grey), // Change the unselected label color
-    // Define selected background color
-    backgroundColor: Colors.red, // Set your desired selected background color
-  ),
 );

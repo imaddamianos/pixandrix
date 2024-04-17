@@ -55,8 +55,8 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
       ),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Color.fromARGB(255, 255, 255, 255), // Change the selected item color
-        unselectedItemColor: Color.fromARGB(255, 153, 153, 153), // Change the unselected item color
+        selectedItemColor: const Color.fromARGB(255, 255, 255, 255), // Change the selected item color
+        unselectedItemColor: const Color.fromARGB(255, 153, 153, 153), // Change the unselected item color
         selectedLabelStyle: const TextStyle(color: Color.fromARGB(101, 255, 0, 0)), // Change the selected label color
         unselectedLabelStyle: const TextStyle(color: Colors.grey),
         backgroundColor: Colors.red,
