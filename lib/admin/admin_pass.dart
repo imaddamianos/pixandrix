@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'admin_panel.dart';
 
 class AdminPassPage extends StatefulWidget {
@@ -47,10 +48,10 @@ class _AdminPassPageState extends State<AdminPassPage> {
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _checkPassword,
-              child: const Text('Continue'),
-            ),
+            CustomButton(
+          text: 'Continue',
+          onPressed: _checkPassword,
+        ),
           ],
         ),
       ),

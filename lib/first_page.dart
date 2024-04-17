@@ -17,7 +17,7 @@ class FirstPage extends StatelessWidget {
             const Text(
   'Who are you?',
   style: TextStyle(
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: FontWeight.bold,
     color: Colors.red, // Example color, replace with your desired color
     // Add more text style properties as needed
