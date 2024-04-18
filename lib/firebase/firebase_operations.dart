@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
 
 class FirebaseOperations {
@@ -23,43 +24,12 @@ class FirebaseOperations {
     }
   }
 
-// Future<Owner?> getOwners() async {
-//     try {
-//       final ref = FirebaseDatabase.instance.ref();
-//       final snapshot = await ref
-//           .child('owners')
-//           .get();
-
-//       if (snapshot.exists) {
-//         final userData = snapshot.value as Map<dynamic, dynamic>?;
-
-//         if (userData != null) {
-//           Owner userInfo = Owner(
-//             name: userData['name'],
-//             location: userData['location'],
-//             phoneNumber: userData['phoneNumber'],
-//             ownerImage: userData['ownerImage'],
-//           );
-
-//           return userInfo;
-//         }
-//       } else {
-//         print('No data available.');
-//         return null;
-//       }
-//     } catch (error) {
-//       print('Error getting user info: $error');
-//       return null;
-//     }
-//     return null;
-//   }
-
    static Future<List<OwnerData>> getOwners() async {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot =
           await FirebaseFirestore.instance.collection('owners').get();
 
-      List<OwnerData> stores =
+      List<OwnerData> owners =
           await Future.wait(querySnapshot.docs.map((doc) async {
         Map<String, dynamic> data = doc.data();
 
@@ -71,7 +41,30 @@ class FirebaseOperations {
         );
       }).toList());
 
-      return stores;
+      return owners;
+    } catch (e) {
+      print('Error fetching stores: $e');
+      throw e;
+    }
+  }
+
+  static Future<List<DriverData>> getDrivers() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance.collection('drivers').get();
+
+      List<DriverData> drivers =
+          await Future.wait(querySnapshot.docs.map((doc) async {
+        Map<String, dynamic> data = doc.data();
+
+        return DriverData(
+          name: data['name'],
+          phoneNumber: data['phoneNumber'],
+          driverImage: data['driverImage'],
+        );
+      }).toList());
+
+      return drivers;
     } catch (e) {
       print('Error fetching stores: $e');
       throw e;
