@@ -1,9 +1,10 @@
 import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:pixandrix/models/owner_model.dart';
 
 class FirebaseOperations {
-  final _databaseReference = FirebaseDatabase.instance.reference();
   // Create an instance of AuthService
 
   Future<String> uploadImage(String user, File selectedImage) async {
@@ -22,28 +23,59 @@ class FirebaseOperations {
     }
   }
 
-  Future<void> sendDriverData({
-    required String name,
-    required String phoneNumber,
-    required File? driverImage,
-  }) async {
+// Future<Owner?> getOwners() async {
+//     try {
+//       final ref = FirebaseDatabase.instance.ref();
+//       final snapshot = await ref
+//           .child('owners')
+//           .get();
+
+//       if (snapshot.exists) {
+//         final userData = snapshot.value as Map<dynamic, dynamic>?;
+
+//         if (userData != null) {
+//           Owner userInfo = Owner(
+//             name: userData['name'],
+//             location: userData['location'],
+//             phoneNumber: userData['phoneNumber'],
+//             ownerImage: userData['ownerImage'],
+//           );
+
+//           return userInfo;
+//         }
+//       } else {
+//         print('No data available.');
+//         return null;
+//       }
+//     } catch (error) {
+//       print('Error getting user info: $error');
+//       return null;
+//     }
+//     return null;
+//   }
+
+   static Future<List<OwnerData>> getOwners() async {
     try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance.collection('owners').get();
 
-      final imageUrl = await uploadImage(name, driverImage!);
+      List<OwnerData> stores =
+          await Future.wait(querySnapshot.docs.map((doc) async {
+        Map<String, dynamic> data = doc.data();
 
-      final driverData = {
-        'name': name,
-        'phoneNumber': phoneNumber,
-        'image': imageUrl,
-      };
+        return OwnerData(
+          location: data['location'],
+          name: data['name'],
+          phoneNumber: data['phoneNumber'],
+          ownerImage: data['ownerImage'],
+        );
+      }).toList());
 
-      await _databaseReference
-          .child('drivers')
-          .child(name)
-          .set(driverData);
-    } catch (error) {
-      print('Error sending user data: $error');
-      // Handle error (show a message, log, etc.)
+      return stores;
+    } catch (e) {
+      print('Error fetching stores: $e');
+      throw e;
     }
   }
+
 }
