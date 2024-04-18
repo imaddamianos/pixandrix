@@ -1,6 +1,11 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pixandrix/admin/admin_panel.dart';
+import 'package:pixandrix/firebase/firebase_operations.dart';
+import 'package:pixandrix/helpers/profile_pic.dart';
+
+File? _selectedImage;
 
 class AddOwnerPage extends StatefulWidget {
   const AddOwnerPage({super.key});
@@ -31,17 +36,22 @@ class _AddOwnerPageState extends State<AddOwnerPage> {
     super.dispose();
   }
 
-  void _submitForm() {
+     Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       String name = _nameController.text;
       String phoneNumber = _phoneNumberController.text;
       String location = _locationController.text;
 
+      try {
+      // Upload image and get download URL
+      final imageUrl = await FirebaseOperations().uploadImage(name, _selectedImage!);
+
       // Save data to Firestore
-      FirebaseFirestore.instance.collection('owners').add({
+      await FirebaseFirestore.instance.collection('owners').add({
         'name': name,
         'phoneNumber': phoneNumber,
         'location': location,
+        'ownerImage': imageUrl,
       });
 
       // Clear the form fields
@@ -52,6 +62,10 @@ class _AddOwnerPageState extends State<AddOwnerPage> {
         context,
         MaterialPageRoute(builder: (context) => const AdminPanelPage()),
       );
+      } catch (error) {
+      print('Error submitting form: $error');
+      // Handle error (show a message, log, etc.)
+    }
     }
   }
 
@@ -68,6 +82,12 @@ class _AddOwnerPageState extends State<AddOwnerPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              ProfilePic(
+              onPickImage: (File pickedImage) {
+                _selectedImage = pickedImage;
+              },
+              imageUrl: '',
+            ),
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: 'Name'),
