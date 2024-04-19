@@ -5,7 +5,48 @@ import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
 
 class FirebaseOperations {
-  // Create an instance of AuthService
+
+  static Future<void> removeOwner(String name) async {
+    try {
+      // Query the Firestore collection to find the document with the specified name
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+          .collection('owners')
+          .where('name', isEqualTo: name)
+          .get();
+
+      // Check if any documents with the specified name were found
+      if (querySnapshot.docs.isNotEmpty) {
+        // Delete the first document found (assuming there's only one document with the same name)
+        await querySnapshot.docs.first.reference.delete();
+      } else {
+        print('No owner found with the name: $name');
+      }
+    } catch (e) {
+      print('Error removing owner: $e');
+      throw e;
+    }
+  }
+
+ static Future<void> removeDriver(String name) async {
+    try {
+      // Query the Firestore collection to find the document with the specified name
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+          .collection('drivers')
+          .where('name', isEqualTo: name)
+          .get();
+
+      // Check if any documents with the specified name were found
+      if (querySnapshot.docs.isNotEmpty) {
+        // Delete the first document found (assuming there's only one document with the same name)
+        await querySnapshot.docs.first.reference.delete();
+      } else {
+        print('No driver found with the name: $name');
+      }
+    } catch (e) {
+      print('Error removing driver: $e');
+      throw e;
+    }
+  }
 
   Future<String> uploadImage(String user, File selectedImage) async {
     try {

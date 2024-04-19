@@ -6,7 +6,7 @@ import 'package:pixandrix/theme/buttons/add_button.dart';
 import 'package:pixandrix/widgets/users_card.dart';
 
 class OwnersPage extends StatefulWidget {
-  const OwnersPage({Key? key}) : super(key: key);
+  const OwnersPage({super.key});
 
   @override
   _OwnersPageState createState() => _OwnersPageState();
@@ -28,6 +28,15 @@ class _OwnersPageState extends State<OwnersPage> {
 
     if (mounted) {
       setState(() {}); // Trigger a rebuild to reflect the updated owners data
+    }
+  }
+
+  Future<void> _removeOwner(int index) async {
+    // Remove the driver at the specified index from the list
+    if (index >= 0 && index < owners!.length) {
+      final ownerToRemove = owners![index];
+      await FirebaseOperations.removeOwner(ownerToRemove.name);
+      _loadOwners(); // Refresh the drivers list after removing the driver
     }
   }
 
@@ -67,7 +76,9 @@ class _OwnersPageState extends State<OwnersPage> {
                   location: owners![index].location,
                   press: () {
                     // Handle onTap event here
-                  }, onDelete: () {  },
+                  }, onDelete: () { 
+                    _removeOwner(index);
+                  },
                 ),
                 const SizedBox(height: 20), // Add space between each section
               ],

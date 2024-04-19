@@ -1,6 +1,5 @@
-// special_offer_card.dart
 import 'package:flutter/material.dart';
-// import 'package:location/location.dart';
+import 'package:flutter/widgets.dart';
 
 class UsersCard extends StatelessWidget {
   const UsersCard({
@@ -58,24 +57,6 @@ class UsersCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Padding(
-                //   padding: const EdgeInsets.symmetric(
-                //     horizontal: 15,
-                //     vertical: 10,
-                //   ),
-                //   child: 
-                // ),
-                  Container(
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.all(10),
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.delete,
-                      color: Colors.red,
-                    ),
-                    onPressed: onDelete,
-                  ),
-                ),
                 Container(
                   alignment: Alignment.centerLeft,
                   padding: const EdgeInsets.all(10),
@@ -97,9 +78,23 @@ class UsersCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                
+                 Positioned(
+                   top: 10,
+                   right: 10,
+                     child: Container(
+                    decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.red,
+                  ),
+                    child: IconButton(
+                    icon: const Icon(Icons.delete),
+                    color: Colors.white,
+                    onPressed: onDelete,
+                   ),
+                  ),
+                ),
               ],
-            ),
+            ),  
           ),
         ),
       ),

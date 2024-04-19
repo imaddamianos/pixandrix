@@ -22,12 +22,21 @@ class _DriversPageState extends State<DriversPage> {
   }
 
   Future<void> _loadDrivers() async {
-   // Fetch owners data and cast it to a List<OwnerData>
+    // Fetch drivers data and cast it to a List<DriverData>
     final fetchedDrivers = await FirebaseOperations.getDrivers();
     drivers = fetchedDrivers.cast<DriverData>();
 
     if (mounted) {
-      setState(() {}); // Trigger a rebuild to reflect the updated owners data
+      setState(() {}); // Trigger a rebuild to reflect the updated drivers data
+    }
+  }
+
+  Future<void> _removeDriver(int index) async {
+    // Remove the driver at the specified index from the list
+    if (index >= 0 && index < drivers!.length) {
+      final driverToRemove = drivers![index];
+      await FirebaseOperations.removeDriver(driverToRemove.name);
+      _loadDrivers(); // Refresh the drivers list after removing the driver
     }
   }
 
@@ -47,33 +56,37 @@ class _DriversPageState extends State<DriversPage> {
                   context,
                   MaterialPageRoute(builder: (context) => const AddDriverPage()),
                 );
-                // Refresh the driverss list after adding a new driver
+                // Refresh the drivers list after adding a new driver
                 _loadDrivers();
               },
             ),
             const SizedBox(height: 20),
             Expanded(
-  child: drivers == null
-      ? const Center(child: CircularProgressIndicator()) // Show loading indicator if owners data is null
-      : ListView.builder(
-          itemCount: drivers!.length,
-          itemBuilder: (context, index) {
-            return Column(
-              children: [
-                UsersCard(
-                  name: drivers![index].name,
-                  image: drivers![index].driverImage,
-                  mobile: drivers![index].phoneNumber,
-                  press: () {
-                    // Handle onTap event here
-                  }, location: '', onDelete: () {  },
-                ),
-                const SizedBox(height: 20), // Add space between each section
-              ],
-            );
-          },
-        ),
-),
+              child: drivers == null
+                  ? const Center(child: CircularProgressIndicator()) // Show loading indicator if drivers data is null
+                  : ListView.builder(
+                      itemCount: drivers!.length,
+                      itemBuilder: (context, index) {
+                        return Column(
+                          children: [
+                            UsersCard(
+                              name: drivers![index].name,
+                              image: drivers![index].driverImage,
+                              mobile: drivers![index].phoneNumber,
+                              location: '', // Pass the location here
+                              press: () {
+
+                              },
+                              onDelete: () {
+                                 _removeDriver(index);
+                              },
+                            ),
+                            const SizedBox(height: 20), // Add space between each section
+                          ],
+                        );
+                      },
+                    ),
+            ),
           ],
         ),
       ),
