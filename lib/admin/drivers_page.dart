@@ -3,6 +3,7 @@ import 'package:pixandrix/admin/add%20drivers/add_driver.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/theme/buttons/add_button.dart';
+import 'package:pixandrix/widgets/users_card.dart';
 
 class DriversPage extends StatefulWidget {
   const DriversPage({super.key});
@@ -21,18 +22,18 @@ class _DriversPageState extends State<DriversPage> {
   }
 
   Future<void> _loadDrivers() async {
-    drivers = (await FirebaseOperations.getDrivers()) as List<DriverData>?;
+   // Fetch owners data and cast it to a List<OwnerData>
+    final fetchedDrivers = await FirebaseOperations.getDrivers();
+    drivers = fetchedDrivers.cast<DriverData>();
+
     if (mounted) {
-      setState(() {}); // Trigger a rebuild to reflect the updated user info
+      setState(() {}); // Trigger a rebuild to reflect the updated owners data
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Drivers'),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -52,34 +53,30 @@ class _DriversPageState extends State<DriversPage> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: _buildDriversTable(),
-            ),
+  child: drivers == null
+      ? const Center(child: CircularProgressIndicator()) // Show loading indicator if owners data is null
+      : ListView.builder(
+          itemCount: drivers!.length,
+          itemBuilder: (context, index) {
+            return Column(
+              children: [
+                UsersCard(
+                  name: drivers![index].name,
+                  image: drivers![index].driverImage,
+                  mobile: drivers![index].phoneNumber,
+                  press: () {
+                    // Handle onTap event here
+                  }, location: '',
+                ),
+                const SizedBox(height: 20), // Add space between each section
+              ],
+            );
+          },
+        ),
+),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildDriversTable() {
-    if (drivers == null) {
-      return const Center(
-        child: CircularProgressIndicator(), // Show loading indicator while data is being fetched
-      );
-    }
-
-    return DataTable(
-      columns: const [
-        DataColumn(label: Text('Name')),
-        DataColumn(label: Text('Mobile')),
-      ],
-      rows: drivers!.map((driver) {
-        return DataRow(
-          cells: [
-            DataCell(Text(driver.name)),
-            DataCell(Text(driver.phoneNumber)),
-          ],
-        );
-      }).toList(),
     );
   }
 }

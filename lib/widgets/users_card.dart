@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 // import 'package:location/location.dart';
 
-class SpecialOfferCard extends StatelessWidget {
-  const SpecialOfferCard({
+class UsersCard extends StatelessWidget {
+  const UsersCard({
     super.key,
     required this.name,
     required this.image,

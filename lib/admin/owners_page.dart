@@ -3,7 +3,7 @@ import 'package:pixandrix/admin/add%20owners/add_owner.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/theme/buttons/add_button.dart';
-import 'package:pixandrix/widgets/special_offer_card.dart';
+import 'package:pixandrix/widgets/users_card.dart';
 
 class OwnersPage extends StatefulWidget {
   const OwnersPage({Key? key}) : super(key: key);
@@ -34,9 +34,6 @@ class _OwnersPageState extends State<OwnersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Owners'),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -63,7 +60,7 @@ class _OwnersPageState extends State<OwnersPage> {
           itemBuilder: (context, index) {
             return Column(
               children: [
-                SpecialOfferCard(
+                UsersCard(
                   name: owners![index].name,
                   image: owners![index].ownerImage,
                   mobile: owners![index].phoneNumber,
