@@ -67,7 +67,7 @@ class _OwnersPageState extends State<OwnersPage> {
                   location: owners![index].location,
                   press: () {
                     // Handle onTap event here
-                  },
+                  }, onDelete: () {  },
                 ),
                 const SizedBox(height: 20), // Add space between each section
               ],

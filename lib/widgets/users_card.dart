@@ -4,16 +4,18 @@ import 'package:flutter/material.dart';
 
 class UsersCard extends StatelessWidget {
   const UsersCard({
-    super.key,
+    Key? key,
     required this.name,
     required this.image,
     required this.mobile,
     required this.location,
     required this.press,
-  });
+    required this.onDelete,
+  }) : super(key: key);
 
   final String name, image, mobile, location;
   final GestureTapCallback press;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +31,57 @@ class UsersCard extends StatelessWidget {
             child: Stack(
               children: [
                 Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        mobile,
+                        style: const TextStyle(color: Colors.green),
+                      ),
+                      Text(
+                        location,
+                        style: const TextStyle(
+                          color: Color.fromARGB(255, 175, 155, 76),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(
+                //     horizontal: 15,
+                //     vertical: 10,
+                //   ),
+                //   child: 
+                // ),
+                  Container(
                   alignment: Alignment.centerRight,
                   padding: const EdgeInsets.all(10),
-                  child: Image(
-                    image: NetworkImage(image),
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.delete,
+                      color: Colors.red,
+                    ),
+                    onPressed: onDelete,
+                  ),
+                ),
+                Container(
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.all(10),
+                  child: CircleAvatar(
+                    radius: 30,
+                    backgroundImage: NetworkImage(image),
                   ),
                 ),
                 Container(
@@ -41,8 +90,6 @@ class UsersCard extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        // Color.fromARGB(150, 184, 184, 183),
-                        // Color.fromARGB(200, 184, 184, 183),
                         Color.fromARGB(255, 184, 184, 183),
                         Colors.transparent,
                         Color.fromARGB(200, 184, 184, 183),
@@ -50,32 +97,7 @@ class UsersCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 10,
-                  ),
-                  child: Text.rich(
-                    TextSpan(
-                      style: const TextStyle(color: Colors.white),
-                      children: [
-                        TextSpan(
-                          text: "$name\n",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        TextSpan(
-                            text: "$mobile\n",
-                            style: const TextStyle(color: Colors.green)),
-                        TextSpan(
-                            text: "$location\n",
-                            style: const TextStyle(color: Color.fromARGB(255, 175, 155, 76))),
-                      ],
-                    ),
-                  ),
-                ),
+                
               ],
             ),
           ),

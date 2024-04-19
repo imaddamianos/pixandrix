@@ -66,7 +66,7 @@ class _DriversPageState extends State<DriversPage> {
                   mobile: drivers![index].phoneNumber,
                   press: () {
                     // Handle onTap event here
-                  }, location: '',
+                  }, location: '', onDelete: () {  },
                 ),
                 const SizedBox(height: 20), // Add space between each section
               ],
