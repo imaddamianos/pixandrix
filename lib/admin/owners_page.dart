@@ -3,6 +3,7 @@ import 'package:pixandrix/admin/add%20owners/add_owner.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/theme/buttons/add_button.dart';
+import 'package:pixandrix/widgets/special_offer_card.dart';
 
 class OwnersPage extends StatefulWidget {
   const OwnersPage({Key? key}) : super(key: key);
@@ -21,9 +22,12 @@ class _OwnersPageState extends State<OwnersPage> {
   }
 
   Future<void> _loadOwners() async {
-    owners = (await FirebaseOperations.getOwners()) as List<OwnerData>?;
+    // Fetch owners data and cast it to a List<OwnerData>
+    final fetchedOwners = await FirebaseOperations.getOwners();
+    owners = fetchedOwners.cast<OwnerData>();
+
     if (mounted) {
-      setState(() {}); // Trigger a rebuild to reflect the updated user info
+      setState(() {}); // Trigger a rebuild to reflect the updated owners data
     }
   }
 
@@ -52,36 +56,32 @@ class _OwnersPageState extends State<OwnersPage> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: _buildOwnersTable(),
-            ),
+  child: owners == null
+      ? const Center(child: CircularProgressIndicator()) // Show loading indicator if owners data is null
+      : ListView.builder(
+          itemCount: owners!.length,
+          itemBuilder: (context, index) {
+            return Column(
+              children: [
+                SpecialOfferCard(
+                  name: owners![index].name,
+                  image: owners![index].ownerImage,
+                  mobile: owners![index].phoneNumber,
+                  location: owners![index].location,
+                  press: () {
+                    // Handle onTap event here
+                  },
+                ),
+                const SizedBox(height: 20), // Add space between each section
+              ],
+            );
+          },
+        ),
+),
+
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildOwnersTable() {
-    if (owners == null) {
-      return const Center(
-        child: CircularProgressIndicator(), // Show loading indicator while data is being fetched
-      );
-    }
-
-    return DataTable(
-      columns: const [
-        DataColumn(label: Text('Name')),
-        DataColumn(label: Text('Mobile')),
-        DataColumn(label: Text('Location')),
-      ],
-      rows: owners!.map((owner) {
-        return DataRow(
-          cells: [
-            DataCell(Text(owner.name)),
-            DataCell(Text(owner.phoneNumber)),
-            DataCell(Text(owner.location)),
-          ],
-        );
-      }).toList(),
     );
   }
 }
