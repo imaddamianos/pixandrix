@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/admin/admin_pass.dart';
+import 'package:pixandrix/owners/owners_login.dart';
 
 class FirstPage extends StatelessWidget {
   const FirstPage({super.key});
@@ -54,8 +55,10 @@ class FirstPage extends StatelessWidget {
               height: 120,
               child: ElevatedButton(
                 onPressed: () {
-                  // Handle driver button press
-                  // Navigate to driver login/register page
+                  Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const  StoreLoginPage()),
+      );
                 },
                 child: Column(
                   children: [
