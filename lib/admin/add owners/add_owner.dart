@@ -44,7 +44,7 @@ class _AddOwnerPageState extends State<AddOwnerPage> {
 
       try {
       // Upload image and get download URL
-      final imageUrl = await FirebaseOperations().uploadImage(name, _selectedImage!);
+      final imageUrl = await FirebaseOperations().uploadImage('Stores_images',name, _selectedImage!);
 
       // Save data to Firestore
       await FirebaseFirestore.instance.collection('owners').add({

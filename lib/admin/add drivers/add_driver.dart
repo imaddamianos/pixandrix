@@ -3,9 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pixandrix/admin/admin_panel.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
+import 'package:pixandrix/helpers/image_id.dart';
 import 'package:pixandrix/helpers/profile_pic.dart';
 
 File? _selectedImage;
+File? _selectedIDImage;
 
 class AddDriverPage extends StatefulWidget {
   const AddDriverPage({super.key});
@@ -40,13 +42,15 @@ class _AddOwnerPageState extends State<AddDriverPage> {
     
     try {
       // Upload image and get download URL
-      final imageUrl = await FirebaseOperations().uploadImage(name, _selectedImage!);
+      final imageUrl = await FirebaseOperations().uploadImage('Drivers_images', name, _selectedImage!);
+      final imageIDUrl = await FirebaseOperations().uploadImage('Drivers_ID', name, _selectedIDImage!);
 
       // Save data to Firestore
       await FirebaseFirestore.instance.collection('drivers').add({
         'name': name,
         'phoneNumber': phoneNumber,
         'driverImage': imageUrl,
+        'driverID' : imageIDUrl,
         
       });
 
@@ -104,6 +108,12 @@ class _AddOwnerPageState extends State<AddDriverPage> {
                   return null;
                 },
               ),
+              PersonalIdUploader(
+              onPickImage: (File pickedImage) {
+                _selectedIDImage = pickedImage;
+              },
+              imageUrl: '',
+            ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _submitForm,

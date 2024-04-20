@@ -64,10 +64,10 @@ class FirebaseOperations {
     }
   }
 
-  Future<String> uploadImage(String user, File selectedImage) async {
+  Future<String> uploadImage(String path,String user, File selectedImage) async {
     try {
       final Reference storageRef =
-          FirebaseStorage.instance.ref().child('driver_image').child('$user.jpg');
+          FirebaseStorage.instance.ref().child(path).child('$user.jpg');
       await storageRef.putFile(selectedImage);
 
       // Get the download URL of the uploaded image

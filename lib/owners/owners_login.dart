@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
-import 'package:pixandrix/firebase/firebase_options.dart';
 
 class StoreLoginPage extends StatefulWidget {
   const StoreLoginPage({super.key});
