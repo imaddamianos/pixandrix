@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_options.dart';
 import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/theme/custom_theme.dart';
+import 'package:pixandrix/helpers/permission_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,6 +11,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   ); // Initialize Firebase
   runApp(const MyApp());
+  getLocationPermission;
 }
 
 

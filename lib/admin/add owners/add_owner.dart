@@ -41,7 +41,6 @@ class _AddOwnerPageState extends State<AddOwnerPage> {
       String name = _nameController.text;
       String phoneNumber = _phoneNumberController.text;
       String location = _locationController.text;
-
       try {
       // Upload image and get download URL
       final imageUrl = await FirebaseOperations().uploadImage('Stores_images',name, _selectedImage!);
@@ -52,6 +51,10 @@ class _AddOwnerPageState extends State<AddOwnerPage> {
         'phoneNumber': phoneNumber,
         'location': location,
         'ownerImage': imageUrl,
+        'password' : '',
+        'orderTime' : '',
+        'orderLocation' : '',
+
       });
 
       // Clear the form fields

@@ -51,6 +51,7 @@ class _AddOwnerPageState extends State<AddDriverPage> {
         'phoneNumber': phoneNumber,
         'driverImage': imageUrl,
         'driverID' : imageIDUrl,
+        'password' : '',
         
       });
 

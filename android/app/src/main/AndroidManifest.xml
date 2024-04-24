@@ -1,8 +1,19 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+package="com.example.pixandrix">
+
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+<uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:label="pixandrix"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+    <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBtxQM3Nsop1fd4lMD9Ub0nigX6Am4BzEY"/>   
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

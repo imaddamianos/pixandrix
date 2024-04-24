@@ -22,6 +22,22 @@ class FirebaseOperations {
     }
   }
 
+   static Future<bool> checkRestaurantPassword() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+          .collection('owners')
+          .where('password', isEqualTo: '')
+          .limit(1) // Limit to 1 document since we only need to check if it exists
+          .get();
+
+      // If there's at least one document with the given restaurant name, return true
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      print('Error checking restaurant password: $e');
+      return false;
+    }
+  }
+
   static Future<void> removeOwner(String name) async {
     try {
       // Query the Firestore collection to find the document with the specified name

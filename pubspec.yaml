@@ -43,6 +43,10 @@ dependencies:
   flutter_svg: ^2.0.10+1
   image_picker: ^1.1.0
   firebase_database: ^10.5.2
+  google_maps_flutter: ^2.6.1
+  permission_handler: ^11.3.1
+  geolocator: ^11.0.0
+  location: ^6.0.1
 
 dev_dependencies:
   flutter_test:
