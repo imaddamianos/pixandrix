@@ -9,6 +9,7 @@ import 'package:pixandrix/helpers/form_helper.dart';
 import 'package:pixandrix/helpers/location_helper.dart';
 import 'package:pixandrix/helpers/profile_pic.dart';
 import 'package:pixandrix/models/owner_model.dart';
+import 'package:pixandrix/helpers/alert_dialog.dart';
 
 class StoreLoginPage extends StatefulWidget {
   const StoreLoginPage({super.key, this.ownerInfo});
@@ -112,9 +113,11 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
         rate: rate,
       );
     } catch (error) {
-      print('Error submitting form: $error');
-      // Handle error (show a message, log, etc.)
-      // You can show a snackbar or display an error message to the user
+      showAlertDialog(
+      context,
+      'Error',
+      'Enter all the information',
+    );
     }
   }
 }

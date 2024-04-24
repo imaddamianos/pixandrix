@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pixandrix/admin/admin_panel.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
+import 'package:pixandrix/owners/owners_home_page.dart';
 
 Future<void> submitForm({
   required String imageUrl,
@@ -43,7 +44,7 @@ Future<void> submitForm({
     // Clear the form fields
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const AdminPanelPage()),
+      MaterialPageRoute(builder: (context) => const OwnersHomePage()),
     );
   } catch (error) {
     print('Error submitting form: $error');
