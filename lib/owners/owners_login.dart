@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pixandrix/admin/admin_panel.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
+import 'package:pixandrix/helpers/form_helper.dart';
 import 'package:pixandrix/helpers/location_helper.dart';
 import 'package:pixandrix/helpers/profile_pic.dart';
 import 'package:pixandrix/models/owner_model.dart';
@@ -32,14 +30,14 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
   String _passMessage = '';
   bool _restaurantNameAvailable = false;
   bool _saveCredentials = false;
-  late LatLng _userLocation;
-  Completer<GoogleMapController> _mapController = Completer();
+  LatLng? userLocation;
+  final Completer<GoogleMapController> _mapController = Completer();
 
   @override
   void initState() {
     super.initState();
     _restaurantNameController.addListener(_checkName);
-    _userLocation = LatLng(
+    userLocation = LatLng(
       widget.ownerInfo?.latitude ?? 35.5399434,
       widget.ownerInfo?.longitude ?? 33.8748934,
     );
@@ -68,13 +66,16 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
     try {
       LatLng location = await getUserLocation();
       setState(() {
-        _userLocation = location;
+        userLocation = location;
       });
       final controller = await _mapController.future;
       controller.animateCamera(
         CameraUpdate.newCameraPosition(
           CameraPosition(
-            target: _userLocation,
+             target: LatLng(
+                  userLocation!.latitude,
+                  userLocation!.longitude,
+                ),
             zoom: 15.0,
           ),
         ),
@@ -86,41 +87,38 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
   }
 
   Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      String name = _restaurantNameController.text;
-      String phoneNumber = _numberController.text;
-      String location = ''; // You need to implement getting the location
-      try {
-        // Upload image and get download URL
-        final imageUrl = await FirebaseOperations()
-            .uploadImage('Stores_images', name, _selectedImage!);
+  if (_formKey.currentState!.validate()) {
+    String name = _restaurantNameController.text;
+    String phoneNumber = _numberController.text;
+    String password = _passwordController.text;
+    String rate = _rateController.text; // You need to implement getting the location
+    try {
+      // Upload image and get download URL
+      final imageUrl = await FirebaseOperations().uploadImage('Stores_images', name, _selectedImage!);
 
-        // Save data to Firestore
-        await FirebaseFirestore.instance.collection('owners').add({
-          'name': name,
-          'phoneNumber': phoneNumber,
-          'location': location,
-          'ownerImage': imageUrl,
-          'password': '',
-          'orderTime': '',
-          'orderLocation': '',
-        });
+      // Get user's latitude and longitude as a string
+      String latitude = userLocation!.latitude.toString();
+      String longitude = userLocation!.longitude.toString();
+      String locationString = '$latitude,$longitude';
 
-        // Clear the form fields
-        _restaurantNameController.clear();
-        _passwordController.clear();
-        _numberController.clear();
-        _rateController.clear();
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const AdminPanelPage()),
-        );
-      } catch (error) {
-        print('Error submitting form: $error');
-        // Handle error (show a message, log, etc.)
-      }
+      await submitForm(
+        name: name,
+        phoneNumber: phoneNumber,
+        location: locationString, // Pass location as a string
+        imageUrl: imageUrl,
+        selectedImage: _selectedImage!,
+        context: context,
+        password: password,
+        rate: rate,
+      );
+    } catch (error) {
+      print('Error submitting form: $error');
+      // Handle error (show a message, log, etc.)
+      // You can show a snackbar or display an error message to the user
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -204,13 +202,19 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
                         _mapController.complete(controller);
                       },
                       initialCameraPosition: CameraPosition(
-                        target: _userLocation,
+                        target: LatLng(
+                  userLocation!.latitude,
+                  userLocation!.longitude,
+                ),
                         zoom: 15.0,
                       ),
                       markers: {
                         Marker(
                           markerId: const MarkerId("userLocation"),
-                          position: _userLocation,
+                          position: LatLng(
+                  userLocation!.latitude,
+                  userLocation!.longitude,
+                ),
                           infoWindow: const InfoWindow(title: "User Location"),
                         ),
                       },
