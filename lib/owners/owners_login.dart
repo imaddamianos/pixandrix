@@ -39,8 +39,8 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
     super.initState();
     _restaurantNameController.addListener(_checkName);
     userLocation = LatLng(
-      widget.ownerInfo?.latitude ?? 35.5399434,
-      widget.ownerInfo?.longitude ?? 33.8748934,
+      widget.ownerInfo?.latitude ?? 33.8657637,
+      widget.ownerInfo?.longitude ?? 35.5203407,
     );
   }
 
@@ -59,7 +59,7 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
         await FirebaseOperations.checkRestaurantNameExists(enteredName);
     setState(() {
       _restaurantNameAvailable = available;
-      _passMessage = available ? '' : 'Enter a new password';
+      // _passMessage = available ? '' : 'Enter a new password';
     });
   }
 
@@ -96,11 +96,6 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
     try {
       // Upload image and get download URL
       final imageUrl = await FirebaseOperations().uploadImage('Stores_images', name, _selectedImage!);
-
-      // Get user's latitude and longitude as a string
-      String latitude = userLocation!.latitude.toString();
-      String longitude = userLocation!.longitude.toString();
-      String locationString = '$latitude,$longitude';
 
       await submitForm(
         name: name,
@@ -158,17 +153,14 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
                   controller: _restaurantNameController,
                   onChanged: (_) => _checkName(),
                   decoration: InputDecoration(
-                    labelText: 'Restaurant Name',
+                    labelText: 'Restaurant Name *',
                     errorText: _errorMessage.isNotEmpty ? _errorMessage : null,
                     suffixIcon: _restaurantNameAvailable
                         ? const Icon(
                             Icons.check,
                             color: Colors.green,
                           )
-                        : const Icon(
-                            Icons.close,
-                            color: Colors.red,
-                          ),
+                        :null
                   ),
                 ),
                 const SizedBox(height: 16.0),
@@ -176,24 +168,26 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
                   controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
-                    labelText: 'Password',
-                    errorText: _passMessage.isNotEmpty ? _passMessage : '',
+                    labelText: 'Password *',
+                    errorText: _passMessage.isNotEmpty ? _passMessage : null,
                   ),
                 ),
                 // const SizedBox(height: 16.0),
                 Visibility(
                   visible: !_restaurantNameAvailable,
                   child: TextFormField(
+                    keyboardType: TextInputType.phone,
                     controller: _numberController,
-                    decoration: const InputDecoration(labelText: 'Number'),
+                    decoration: const InputDecoration(labelText: 'Number*'),
                   ),
                 ),
                 // const SizedBox(height: 16.0),
                 Visibility(
                   visible: !_restaurantNameAvailable,
                   child: TextFormField(
+                    keyboardType: TextInputType.phone,
                     controller: _rateController,
-                    decoration: const InputDecoration(labelText: 'Rate'),
+                    decoration: const InputDecoration(labelText: 'Rate*'),
                   ),
                 ),
                 const SizedBox(height: 16.0),
