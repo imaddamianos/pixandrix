@@ -22,6 +22,22 @@ class FirebaseOperations {
     }
   }
 
+   static Future<bool> checkDriverNameExists(String driverName) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+          .collection('drivers')
+          .where('name', isEqualTo: driverName)
+          .limit(1) // Limit to 1 document since we only need to check if it exists
+          .get();
+
+      // If there's at least one document with the given restaurant name, return true
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      print('Error checking driver name: $e');
+      return false;
+    }
+  }
+
    static Future<bool> checkRestaurantPassword() async {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance

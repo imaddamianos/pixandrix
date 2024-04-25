@@ -53,18 +53,25 @@ class _PersonalIdUploaderState extends State<PersonalIdUploader> {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 115,
-      width: 115,
+      width: 230,
       child: Stack(
         fit: StackFit.expand,
         clipBehavior: Clip.none,
         children: [
-          CircleAvatar(
-            backgroundImage: _image != null
-                ? FileImage(_image!) as ImageProvider<Object>
-                : NetworkImage(widget.imageUrl),
-          ),
+          Container(
+  decoration: BoxDecoration(
+    shape: BoxShape.rectangle,
+    image: DecorationImage(
+      fit: BoxFit.cover,
+      image: _image != null
+          ? FileImage(_image!) as ImageProvider<Object>
+          : NetworkImage(widget.imageUrl),
+    ),
+  ),
+),
+
           Positioned(
-            right: -16,
+            right: 0,
             bottom: 0,
             child: SizedBox(
               height: 46,

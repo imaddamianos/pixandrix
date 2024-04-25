@@ -28,7 +28,7 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
   final TextEditingController _numberController = TextEditingController();
   final TextEditingController _rateController = TextEditingController();
   final String _errorMessage = '';
-  String _passMessage = '';
+  final String _passMessage = '';
   bool _restaurantNameAvailable = false;
   bool _saveCredentials = false;
   LatLng? userLocation;
@@ -97,7 +97,7 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
       // Upload image and get download URL
       final imageUrl = await FirebaseOperations().uploadImage('Stores_images', name, _selectedImage!);
 
-      await submitForm(
+      await submitFormStore(
         name: name,
         phoneNumber: phoneNumber,
         latitude: userLocation?.latitude,
@@ -134,7 +134,7 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Text(
-                  'Log in to enter',
+                  'Enter you information',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -142,12 +142,15 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                ProfilePic(
+                Visibility(
+                  visible: !_restaurantNameAvailable,
+                  child: ProfilePic(
                   onPickImage: (File pickedImage) {
                     _selectedImage = pickedImage;
                   },
                   imageUrl: '',
                 ),
+            ),
                 const SizedBox(height: 30),
                 TextFormField(
                   controller: _restaurantNameController,
