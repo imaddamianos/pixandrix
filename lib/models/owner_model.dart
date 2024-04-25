@@ -1,17 +1,15 @@
 class OwnerData {
   String name;
   String phoneNumber;
-  String location;
   String ownerImage;
-  double? latitude;
-  double? longitude;
+  double latitude;
+  double longitude;
 
   OwnerData({
     required this.name,
     required this.phoneNumber,
-    required this.location,
     required this.ownerImage,
-    this.latitude,
-    this.longitude,
+    required this.latitude,
+    required this.longitude,
   });
 }

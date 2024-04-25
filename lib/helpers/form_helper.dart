@@ -11,7 +11,8 @@ Future<void> submitForm({
   required String password,
   required String phoneNumber,
   required String rate,
-  required String location,
+  required double? latitude,
+    required double? longitude,
   
   required File selectedImage,
   required BuildContext context,
@@ -21,27 +22,16 @@ Future<void> submitForm({
     await FirebaseFirestore.instance.collection('owners').add({
       'name': name,
       'phoneNumber': phoneNumber,
-      'location': location,
+      'userLocation': {
+          'latitude': latitude,
+          'longitude': longitude,
+        },
       'ownerImage': imageUrl,
       'password': password,
       'rate' : rate,
       'orderTime': '',
       'orderLocation': '',
     });
-
-    // Clear the form fields
-    // You may need to pass controllers to clear them if needed
-    // Clear the form fields
-    // Clear the form fields
-    // Clear the form fields
-    // Clear the form fields
-    // Clear the form fields
-    // Clear the form fields
-    // Clear the form fields
-    // Clear the form fields
-    // Clear the form fields
-    // Clear the form fields
-    // Clear the form fields
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const OwnersHomePage()),

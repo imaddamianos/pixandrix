@@ -105,7 +105,8 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
       await submitForm(
         name: name,
         phoneNumber: phoneNumber,
-        location: locationString, // Pass location as a string
+        latitude: userLocation?.latitude,
+          longitude: userLocation?.longitude, // Pass location as a string
         imageUrl: imageUrl,
         selectedImage: _selectedImage!,
         context: context,

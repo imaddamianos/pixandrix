@@ -73,12 +73,13 @@ class _OwnersPageState extends State<OwnersPage> {
                   name: owners![index].name,
                   image: owners![index].ownerImage,
                   mobile: owners![index].phoneNumber,
-                  location: owners![index].location,
+                  latitude: owners![index].latitude,
+                  longitude: owners![index].longitude,
                   press: () {
                     // Handle onTap event here
                   }, onDelete: () { 
                     _removeOwner(index);
-                  },
+                  }, 
                 ),
                 const SizedBox(height: 20), // Add space between each section
               ],

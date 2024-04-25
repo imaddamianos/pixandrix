@@ -106,7 +106,8 @@ class FirebaseOperations {
         Map<String, dynamic> data = doc.data();
 
         return OwnerData(
-          location: data['location'],
+          latitude: data['userLocation']['latitude'],
+          longitude: data['userLocation']['longitude'],
           name: data['name'],
           phoneNumber: data['phoneNumber'],
           ownerImage: data['ownerImage'],
