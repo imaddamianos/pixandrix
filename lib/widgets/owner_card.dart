@@ -8,12 +8,9 @@ class OwnerCard extends StatelessWidget {
     required this.mobile,
     required this.press,
     required this.onDelete,
-    required this.latitude,
-    required this.longitude,
   });
 
   final String name, image, mobile;
-  final double latitude, longitude;
   final GestureTapCallback press;
   final VoidCallback onDelete;
 
@@ -48,12 +45,6 @@ class OwnerCard extends StatelessWidget {
                       Text(
                         mobile,
                         style: const TextStyle(color: Colors.green),
-                      ),
-                      Text(
-                        'Latitude: $latitude, Longitude: $longitude',
-                        style: const TextStyle(
-                          color: Color.fromARGB(255, 175, 155, 76),
-                        ),
                       ),
                     ],
                   ),

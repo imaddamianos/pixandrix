@@ -4,6 +4,7 @@ import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/theme/buttons/add_button.dart';
 import 'package:pixandrix/widgets/owner_card.dart';
+import 'package:pixandrix/widgets/owner_card_window.dart';
 
 class OwnersPage extends StatefulWidget {
   const OwnersPage({super.key});
@@ -73,10 +74,18 @@ class _OwnersPageState extends State<OwnersPage> {
                   name: owners![index].name,
                   image: owners![index].ownerImage,
                   mobile: owners![index].phoneNumber,
-                  latitude: owners![index].latitude,
-                  longitude: owners![index].longitude,
                   press: () {
-                    // Handle onTap event here
+                    showDialog(
+            context: context,
+            builder: (context) => OwnerCardWindow(
+              ownerName: owners![index].name,
+              ownerImage: owners![index].ownerImage,
+              ownerMobile: owners![index].phoneNumber,
+              latitude: owners![index].latitude,
+              longitude: owners![index].longitude,
+              rate: owners![index].rate,
+            ),
+          );
                   }, onDelete: () { 
                     _removeOwner(index);
                   }, 

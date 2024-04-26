@@ -127,6 +127,7 @@ class FirebaseOperations {
           name: data['name'],
           phoneNumber: data['phoneNumber'],
           ownerImage: data['ownerImage'],
+          rate: data['rate'],
         );
       }).toList());
 

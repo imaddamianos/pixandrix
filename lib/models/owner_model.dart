@@ -4,6 +4,7 @@ class OwnerData {
   String ownerImage;
   double latitude;
   double longitude;
+  String rate;
 
   OwnerData({
     required this.name,
@@ -11,5 +12,6 @@ class OwnerData {
     required this.ownerImage,
     required this.latitude,
     required this.longitude,
+    required this.rate,
   });
 }
