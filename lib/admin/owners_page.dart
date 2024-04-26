@@ -3,7 +3,7 @@ import 'package:pixandrix/admin/add%20owners/add_owner.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/theme/buttons/add_button.dart';
-import 'package:pixandrix/widgets/users_card.dart';
+import 'package:pixandrix/widgets/owner_card.dart';
 
 class OwnersPage extends StatefulWidget {
   const OwnersPage({super.key});
@@ -69,7 +69,7 @@ class _OwnersPageState extends State<OwnersPage> {
           itemBuilder: (context, index) {
             return Column(
               children: [
-                UsersCard(
+                OwnerCard(
                   name: owners![index].name,
                   image: owners![index].ownerImage,
                   mobile: owners![index].phoneNumber,

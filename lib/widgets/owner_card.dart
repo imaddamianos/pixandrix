@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class UsersCard extends StatelessWidget {
-  const UsersCard({
+class OwnerCard extends StatelessWidget {
+  const OwnerCard({
     super.key,
     required this.name,
     required this.image,

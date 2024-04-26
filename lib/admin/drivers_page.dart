@@ -3,6 +3,7 @@ import 'package:pixandrix/admin/add%20drivers/add_driver.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/theme/buttons/add_button.dart';
+import 'package:pixandrix/widgets/driver_card.dart';
 
 class DriversPage extends StatefulWidget {
   const DriversPage({super.key});
@@ -68,18 +69,18 @@ class _DriversPageState extends State<DriversPage> {
                       itemBuilder: (context, index) {
                         return Column(
                           children: [
-                            // UsersCard(
-                            //   name: drivers![index].name,
-                            //   image: drivers![index].driverImage,
-                            //   mobile: drivers![index].phoneNumber,
-                            //   userLocation: null,
-                            //   press: () {
+                            DriverCard(
+                              name: drivers![index].name,
+                              image: drivers![index].driverImage,
+                              mobile: drivers![index].phoneNumber,
+                              
+                              press: () {
 
-                            //   },
-                            //   onDelete: () {
-                            //      _removeDriver(index);
-                            //   }
-                            // ),
+                              },
+                              onDelete: () {
+                                 _removeDriver(index);
+                              }
+                            ),
                             const SizedBox(height: 20), // Add space between each section
                           ],
                         );

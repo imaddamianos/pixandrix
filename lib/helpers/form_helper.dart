@@ -56,7 +56,7 @@ Future<void> submitFormStore({
       await FirebaseFirestore.instance.collection('drivers').add({
         'name': name,
         'phoneNumber': phoneNumber,
-        'ownerImage': imageUrl,
+        'driverImage': imageUrl,
         'password': password,
         'driverID' : imageIDUrl,
       });
