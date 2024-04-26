@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pixandrix/helpers/loader.dart';
 import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'admin_panel.dart';
 
@@ -12,17 +13,21 @@ class AdminPassPage extends StatefulWidget {
 class _AdminPassPageState extends State<AdminPassPage> {
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
+  final GlobalLoader _globalLoader = GlobalLoader();
 
   void _checkPassword() {
+     _globalLoader.showLoader(context);
     String enteredPassword = _passwordController.text.trim();
     if (enteredPassword == '123456') {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const AdminPanelPage()),
       );
+      _globalLoader.hideLoader();
     } else {
       setState(() {
         _errorMessage = 'Incorrect password. Please try again.';
+        _globalLoader.hideLoader();
       });
     }
   }

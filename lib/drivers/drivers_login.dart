@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/helpers/form_helper.dart';
 import 'package:pixandrix/helpers/image_id.dart';
+import 'package:pixandrix/helpers/loader.dart';
 import 'package:pixandrix/helpers/profile_pic.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/models/driver_model.dart';
@@ -28,6 +29,7 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
   final String _passMessage = '';
   bool _driverNameAvailable = false;
   bool _saveCredentials = false;
+  final GlobalLoader _globalLoader = GlobalLoader();
 
   @override
   void initState() {
@@ -53,6 +55,7 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
   }
 
   Future<void> _submitForm() async {
+    _globalLoader.showLoader(context);
   if (_formKey.currentState!.validate()) {
     String name = _driverNameController.text;
     String phoneNumber = _numberController.text;
@@ -71,6 +74,7 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
         password: password,
         imageIDUrl: imageIdUrl,
       );
+      _globalLoader.hideLoader();
     } catch (error) {
       showAlertDialog(
       context,

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/helpers/form_helper.dart';
+import 'package:pixandrix/helpers/loader.dart';
 import 'package:pixandrix/helpers/location_helper.dart';
 import 'package:pixandrix/helpers/profile_pic.dart';
 import 'package:pixandrix/models/owner_model.dart';
@@ -33,6 +34,7 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
   bool _saveCredentials = false;
   LatLng? userLocation;
   final Completer<GoogleMapController> _mapController = Completer();
+  final GlobalLoader _globalLoader = GlobalLoader();
 
   @override
   void initState() {
@@ -88,6 +90,7 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
   }
 
   Future<void> _submitForm() async {
+    _globalLoader.showLoader(context);
   if (_formKey.currentState!.validate()) {
     String name = _restaurantNameController.text;
     String phoneNumber = _numberController.text;
@@ -108,6 +111,7 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
         password: password,
         rate: rate,
       );
+      _globalLoader.hideLoader();
     } catch (error) {
       showAlertDialog(
       context,
