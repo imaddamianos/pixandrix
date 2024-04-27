@@ -5,7 +5,7 @@ const Color primaryColor = Colors.blue;
 const Color accentColor = Colors.green;
 const Color backgroundColor = Color.fromARGB(255, 0, 0, 0);
 const Color textColor = Color.fromARGB(255, 255, 255, 255);
-const Color placeholderColor = Color.fromARGB(150, 255, 255, 255); // Adjust opacity as needed
+const Color placeholderColor = Color.fromARGB(149, 255, 255, 255); // Adjust opacity as needed
 const Color highlightColor = Colors.green; // Define the color when highlighting
 
 // Define custom theme
