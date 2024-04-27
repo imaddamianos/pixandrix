@@ -60,10 +60,10 @@ Future<void> submitFormStore({
         'password': password,
         'driverID' : imageIDUrl,
       });
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const DriversHomePage()),
-      );
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => const DriversHomePage()),
+      // );
     } catch (error) {
       print('Error submitting form: $error');
       // Handle error (show a message, log, etc.)
@@ -71,3 +71,4 @@ Future<void> submitFormStore({
       rethrow;
     }
   }
+  

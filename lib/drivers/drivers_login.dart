@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:pixandrix/drivers/drivers_home_page.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/helpers/form_helper.dart';
 import 'package:pixandrix/helpers/image_id.dart';
@@ -21,8 +22,7 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
   late File? _selectedImage;
   File? _selectedIDImage;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _driverNameController =
-      TextEditingController();
+  final TextEditingController _driverNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _numberController = TextEditingController();
   final String _errorMessage = '';
@@ -56,31 +56,61 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
 
   Future<void> _submitForm() async {
     _globalLoader.showLoader(context);
+    if (_formKey.currentState!.validate()) {
+      String name = _driverNameController.text;
+      String phoneNumber = _numberController.text;
+      String password = _passwordController.text;
+      try {
+        // Upload image and get download URL
+        final imageUrl = await FirebaseOperations()
+            .uploadImage('Drivers_images', name, _selectedImage!);
+        final imageIdUrl = await FirebaseOperations()
+            .uploadImage('Drivers_ID', name, _selectedIDImage!);
+
+        await submitFormDriver(
+          name: name,
+          phoneNumber: phoneNumber,
+          imageUrl: imageUrl,
+          selectedImage: _selectedImage!,
+          context: context,
+          password: password,
+          imageIDUrl: imageIdUrl,
+        );
+        _globalLoader.hideLoader();
+      } catch (error) {
+        showAlertDialog(
+          context,
+          'Error',
+          'Enter all the information',
+        );
+      }
+    }
+  }
+
+  Future<void> _logIn() async {
   if (_formKey.currentState!.validate()) {
     String name = _driverNameController.text;
-    String phoneNumber = _numberController.text;
     String password = _passwordController.text;
     try {
-      // Upload image and get download URL
-      final imageUrl = await FirebaseOperations().uploadImage('Drivers_images', name, _selectedImage!);
-      final imageIdUrl = await FirebaseOperations().uploadImage('Drivers_ID', name, _selectedIDImage!);
-
-      await submitFormDriver(
-        name: name,
-        phoneNumber: phoneNumber,
-        imageUrl: imageUrl,
-        selectedImage: _selectedImage!,
-        context: context,
-        password: password,
-        imageIDUrl: imageIdUrl,
+      final driverAuth = await FirebaseOperations.checkLoginCredentials(name, password);
+      if (driverAuth) {
+        Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const DriversHomePage()),
       );
-      _globalLoader.hideLoader();
-    } catch (error) {
-      showAlertDialog(
+        print('Login successful for driver: $name');
+      } else {
+        // Show error message or take appropriate action if driver name is not available
+        showAlertDialog(
       context,
       'Error',
-      'Enter all the information',
+      'Wrong password',
     );
+      }
+    } catch (error) {
+      print('Error submitting form: $error');
+      // Handle error (show a message, log, etc.)
+      // You can show a snackbar or display an error message to the user
     }
   }
 }
@@ -109,29 +139,29 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-               Visibility(
+                Visibility(
                   visible: !_driverNameAvailable,
                   child: ProfilePic(
-                  onPickImage: (File pickedImage) {
-                    _selectedImage = pickedImage;
-                  },
-                  imageUrl: '',
+                    onPickImage: (File pickedImage) {
+                      _selectedImage = pickedImage;
+                    },
+                    imageUrl: '',
+                  ),
                 ),
-            ),
                 const SizedBox(height: 30),
                 TextFormField(
                   controller: _driverNameController,
                   onChanged: (_) => _checkName(),
                   decoration: InputDecoration(
-                    labelText: 'Driver Name *',
-                    errorText: _errorMessage.isNotEmpty ? _errorMessage : null,
-                    suffixIcon: _driverNameAvailable
-                        ? const Icon(
-                            Icons.check,
-                            color: Colors.green,
-                          )
-                        :null
-                  ),
+                      labelText: 'Driver Name *',
+                      errorText:
+                          _errorMessage.isNotEmpty ? _errorMessage : null,
+                      suffixIcon: _driverNameAvailable
+                          ? const Icon(
+                              Icons.check,
+                              color: Colors.green,
+                            )
+                          : null),
                 ),
                 const SizedBox(height: 16.0),
                 TextFormField(
@@ -151,14 +181,20 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
                   ),
                 ),
                 const SizedBox(height: 16.0),
-                const Text('upload your ID'),
+                Visibility(
+                  visible: !_driverNameAvailable,
+                  child:const Text('upload your ID'),
+                ),
                 const SizedBox(height: 16.0),
-                PersonalIdUploader(
-              onPickImage: (File pickedImage) {
-                _selectedIDImage = pickedImage;
-              },
-              imageUrl: '',
-            ),
+                Visibility(
+                  visible: !_driverNameAvailable,
+                  child: PersonalIdUploader(
+                    onPickImage: (File pickedImage) {
+                      _selectedIDImage = pickedImage;
+                    },
+                    imageUrl: '',
+                  ),
+                ),
                 const SizedBox(height: 16.0),
                 Row(
                   children: [
@@ -175,7 +211,13 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
                 ),
                 const SizedBox(height: 16.0),
                 ElevatedButton(
-                  onPressed: _submitForm,
+                  onPressed: () {
+                    if (_driverNameAvailable) {
+                      _logIn();
+                    } else {
+                      _submitForm();
+                    }
+                  },
                   child: const Text('Login'),
                 ),
               ],
