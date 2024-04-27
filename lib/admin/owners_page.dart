@@ -63,40 +63,43 @@ class _OwnersPageState extends State<OwnersPage> {
             ),
             const SizedBox(height: 20),
             Expanded(
-  child: owners == null
-      ? const Center(child: CircularProgressIndicator()) // Show loading indicator if owners data is null
-      : ListView.builder(
-          itemCount: owners!.length,
-          itemBuilder: (context, index) {
-            return Column(
-              children: [
-                OwnerCard(
-                  name: owners![index].name,
-                  image: owners![index].ownerImage,
-                  mobile: owners![index].phoneNumber,
-                  press: () {
-                    showDialog(
-            context: context,
-            builder: (context) => OwnerCardWindow(
-              ownerName: owners![index].name,
-              ownerImage: owners![index].ownerImage,
-              ownerMobile: owners![index].phoneNumber,
-              latitude: owners![index].latitude,
-              longitude: owners![index].longitude,
-              rate: owners![index].rate,
+              child: owners == null
+                  ? const Center(
+                      child:
+                          CircularProgressIndicator()) // Show loading indicator if owners data is null
+                  : ListView.builder(
+                      itemCount: owners!.length,
+                      itemBuilder: (context, index) {
+                        return Column(
+                          children: [
+                            OwnerCard(
+                              name: owners![index].name,
+                              image: owners![index].ownerImage,
+                              mobile: owners![index].phoneNumber,
+                              press: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => OwnerCardWindow(
+                                    ownerName: owners![index].name,
+                                    ownerImage: owners![index].ownerImage,
+                                    ownerMobile: owners![index].phoneNumber,
+                                    latitude: owners![index].latitude,
+                                    longitude: owners![index].longitude,
+                                    rate: owners![index].rate,
+                                  ),
+                                );
+                              },
+                              onDelete: () {
+                                _removeOwner(index);
+                              },
+                            ),
+                            const SizedBox(
+                                height: 20), // Add space between each section
+                          ],
+                        );
+                      },
+                    ),
             ),
-          );
-                  }, onDelete: () { 
-                    _removeOwner(index);
-                  }, 
-                ),
-                const SizedBox(height: 20), // Add space between each section
-              ],
-            );
-          },
-        ),
-),
-
           ],
         ),
       ),

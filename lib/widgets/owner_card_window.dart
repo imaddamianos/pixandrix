@@ -45,7 +45,7 @@ class OwnerCardWindow extends StatelessWidget {
               ),
               const SizedBox(height: 10,),
               Text(
-                'Mobile: $ownerMobile L.L',
+                'Mobile: $ownerMobile',
                 style: const TextStyle(
                   fontSize: 16,
                   color: Color.fromARGB(255, 152, 152, 152),

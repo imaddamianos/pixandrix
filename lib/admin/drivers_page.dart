@@ -4,6 +4,7 @@ import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/theme/buttons/add_button.dart';
 import 'package:pixandrix/widgets/driver_card.dart';
+import 'package:pixandrix/widgets/driver_card_window.dart';
 
 class DriversPage extends StatefulWidget {
   const DriversPage({super.key});
@@ -69,17 +70,24 @@ class _DriversPageState extends State<DriversPage> {
                       itemBuilder: (context, index) {
                         return Column(
                           children: [
-                            DriverCard(
+                             DriverCard(
                               name: drivers![index].name,
                               image: drivers![index].driverImage,
                               mobile: drivers![index].phoneNumber,
-                              
                               press: () {
-
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => DriverCardWindow(
+                                    driverName: drivers![index].name,
+                                    driverImage: drivers![index].driverImage,
+                                    driverMobile: drivers![index].phoneNumber,
+                                    driverID: drivers![index].driverID,
+                                  ),
+                                );
                               },
                               onDelete: () {
-                                 _removeDriver(index);
-                              }
+                                _removeDriver(index);
+                              },
                             ),
                             const SizedBox(height: 20), // Add space between each section
                           ],
