@@ -161,11 +161,11 @@ class FirebaseOperations {
       throw e;
     }
   }
-  static Future<bool> checkLoginCredentials(String name, String password) async {
+  static Future<bool> checkLoginCredentials(String type,String name, String password) async {
     try {
       // Access Firestore collection and check if the provided name and password match
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('drivers')
+          .collection(type)
           .where('name', isEqualTo: name)
           .where('password', isEqualTo: password)
           .get();

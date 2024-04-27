@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:pixandrix/drivers/drivers_home_page.dart';
+import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/owners/owners_home_page.dart';
 
 Future<void> submitFormStore({
@@ -60,10 +60,11 @@ Future<void> submitFormStore({
         'password': password,
         'driverID' : imageIDUrl,
       });
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => const DriversHomePage()),
-      // );
+      showAlertDialog(
+      context,
+      'Success',
+      'Account created, you can log in',
+    );
     } catch (error) {
       print('Error submitting form: $error');
       // Handle error (show a message, log, etc.)

@@ -87,12 +87,12 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
     }
   }
 
-  Future<void> _logIn() async {
+  Future<void> _driverLogIn() async {
   if (_formKey.currentState!.validate()) {
     String name = _driverNameController.text;
     String password = _passwordController.text;
     try {
-      final driverAuth = await FirebaseOperations.checkLoginCredentials(name, password);
+      final driverAuth = await FirebaseOperations.checkLoginCredentials('drivers', name, password);
       if (driverAuth) {
         Navigator.pushReplacement(
         context,
@@ -100,7 +100,6 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
       );
         print('Login successful for driver: $name');
       } else {
-        // Show error message or take appropriate action if driver name is not available
         showAlertDialog(
       context,
       'Error',
@@ -213,7 +212,7 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
                 ElevatedButton(
                   onPressed: () {
                     if (_driverNameAvailable) {
-                      _logIn();
+                      _driverLogIn();
                     } else {
                       _submitForm();
                     }

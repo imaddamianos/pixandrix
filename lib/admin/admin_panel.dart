@@ -44,9 +44,9 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                 icon: const Icon(Icons.logout),
                 onPressed: () {
                   Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const FirstPage()),
-      );
+                    context,
+                    MaterialPageRoute(builder: (context) => const FirstPage()),
+                  );
                 },
               ),
             ],

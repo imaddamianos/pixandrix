@@ -11,6 +11,7 @@ import 'package:pixandrix/helpers/location_helper.dart';
 import 'package:pixandrix/helpers/profile_pic.dart';
 import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
+import 'package:pixandrix/owners/owners_home_page.dart';
 
 class StoreLoginPage extends StatefulWidget {
   const StoreLoginPage({super.key, this.ownerInfo});
@@ -122,7 +123,32 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
   }
 }
 
-
+Future<void> _ownerLogIn() async {
+  if (_formKey.currentState!.validate()) {
+    String name = _restaurantNameController.text;
+    String password = _passwordController.text;
+    try {
+      final ownerAuth = await FirebaseOperations.checkLoginCredentials('owners', name, password);
+      if (ownerAuth) {
+        Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const OwnersHomePage()),
+      );
+        print('Login successful for owner: $name');
+      } else {
+        showAlertDialog(
+      context,
+      'Error',
+      'Wrong password',
+    );
+      }
+    } catch (error) {
+      print('Error submitting form: $error');
+      // Handle error (show a message, log, etc.)
+      // You can show a snackbar or display an error message to the user
+    }
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -255,7 +281,13 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
                 ),
                 const SizedBox(height: 16.0),
                 ElevatedButton(
-                  onPressed: _submitForm,
+                  onPressed: (){
+                    if (_restaurantNameAvailable) {
+                      _ownerLogIn();
+                    } else {
+                      _submitForm();
+                    }
+                  },
                   child: const Text('Login'),
                 ),
               ],
