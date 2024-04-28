@@ -4,7 +4,6 @@ import 'package:pixandrix/first_page.dart';
 class DriversHomePage extends StatefulWidget {
   const DriversHomePage({Key? key, this.driverInfo}) : super(key: key);
   final Map<String, dynamic>? driverInfo;
-  
   @override
   _DriversHomePageState createState() => _DriversHomePageState();
 }
@@ -16,6 +15,9 @@ class _DriversHomePageState extends State<DriversHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.driverInfo?['name']),
+        leading: CircleAvatar( // Display owner's image in the leading of app bar
+        backgroundImage: NetworkImage(widget.driverInfo?['driverImage']), // Assuming image is a URL
+      ),
         actions: [
           Row(
             children: [

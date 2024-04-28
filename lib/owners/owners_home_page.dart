@@ -18,6 +18,9 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.ownerInfo?['name']),
+        leading: CircleAvatar( // Display owner's image in the leading of app bar
+        backgroundImage: NetworkImage(widget.ownerInfo?['ownerImage']), // Assuming image is a URL
+      ),
         actions: [
           Row(
             children: [
