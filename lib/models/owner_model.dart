@@ -2,6 +2,7 @@ class OwnerData {
   String name;
   String phoneNumber;
   String ownerImage;
+  String password;
   double latitude;
   double longitude;
   String rate;
@@ -13,5 +14,6 @@ class OwnerData {
     required this.latitude,
     required this.longitude,
     required this.rate,
+    required this.password,
   });
 }

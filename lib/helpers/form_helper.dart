@@ -2,27 +2,29 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
-import 'package:pixandrix/owners/owners_home_page.dart';
+import 'package:pixandrix/models/driver_model.dart';
+import 'package:pixandrix/models/order_model.dart';
+import 'package:pixandrix/models/owner_model.dart';
 
-Future<void> submitFormStore({
+OwnerData submitFormStore({
   required String imageUrl,
   required String name,
   required String password,
   required String phoneNumber,
   required String rate,
-  required double? latitude,
-  required double? longitude,
-  required File selectedImage,
+  required double olatitude,
+  required double olongitude,
   required BuildContext context,
-}) async {
+  required File selectedImage,
+}) {
   try {
     // Save data to Firestore
-    await FirebaseFirestore.instance.collection('owners').add({
+    FirebaseFirestore.instance.collection('owners').add({
       'name': name,
       'phoneNumber': phoneNumber,
       'userLocation': {
-        'latitude': latitude,
-        'longitude': longitude,
+        'latitude': olatitude,
+        'longitude': olongitude,
       },
       'ownerImage': imageUrl,
       'password': password,
@@ -30,9 +32,16 @@ Future<void> submitFormStore({
       'orderTime': '',
       'orderLocation': '',
     });
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const OwnersHomePage()),
+
+    // Create and return the OwnerData instance
+    return OwnerData(
+      name: name,
+      phoneNumber: phoneNumber,
+      latitude: olatitude,
+      longitude: olongitude,
+      ownerImage: imageUrl,
+      password: password,
+      rate: rate,
     );
   } catch (error) {
     print('Error submitting form: $error');
@@ -41,6 +50,7 @@ Future<void> submitFormStore({
     rethrow;
   }
 }
+
 
   Future<void> submitFormDriver({
     required String imageUrl,
@@ -64,6 +74,38 @@ Future<void> submitFormStore({
       context,
       'Success',
       'Account created, you can log in',
+    );
+    } catch (error) {
+      print('Error submitting form: $error');
+      // Handle error (show a message, log, etc.)
+      // You can throw the error to handle it in the caller function if needed
+      rethrow;
+    }
+  }
+
+  Future<void> submitFormOrder({
+    required DateTime orderTime,
+    required String orderLocation,
+    required OrderStatus status,
+    required bool isTaken,
+    required DriverData driverInfo,
+    required OwnerData storeInfo,
+    required BuildContext context,
+  }) async {
+    try {
+      // Save data to Firestore
+      await FirebaseFirestore.instance.collection('orders').add({
+        'orderTime': orderTime,
+        'orderLocation': orderLocation,
+        'status': status,
+        'isTaken': isTaken,
+        'driverInfo' : driverInfo,
+        'OwnerData' : storeInfo
+      });
+      showAlertDialog(
+      context,
+      'Success',
+      'Order created',
     );
     } catch (error) {
       print('Error submitting form: $error');

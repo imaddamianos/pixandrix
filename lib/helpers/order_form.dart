@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pixandrix/helpers/form_helper.dart';
 import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
@@ -7,7 +7,8 @@ import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'package:pixandrix/theme/custom_theme.dart';
 
 class OrderForm extends StatefulWidget {
-  const OrderForm({super.key});
+  const OrderForm({super.key}); // Explicitly define type as OwnerModel
+  // ..
 
   @override
   _OrderFormState createState() => _OrderFormState();
@@ -18,8 +19,6 @@ class _OrderFormState extends State<OrderForm> {
   final TextEditingController _locationController = TextEditingController();
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
-  List<OwnerData>? owner;
-  List<DriverData>? driver;
 
   @override
   Widget build(BuildContext context) {
@@ -117,24 +116,9 @@ class _OrderFormState extends State<OrderForm> {
                       _selectedTime!.hour,
                       _selectedTime!.minute,
                     );
-
-                    // Create an order object
-                    // Order newOrder = Order(
-                    //   orderTime: orderTime,
-                    //   orderLocation: _locationController.text,
-                    //   status: OrderStatus.pending,
-                    //   isTaken: false,
-                    //   driverInfo: drivers, // Provide driver information
-                    //   storeInfo: owners, // Provide store information
-                    // );
-
-                    // Send the order to Firestore
-                    // await FirebaseFirestore.instance
-                    //     .collection('orders')
-                    //     .add(newOrder.toJson());
-
-                    // Navigate back after successful submission
-                    Navigator.pop(context);
+                    // submitFormOrder(orderTime: orderTime, orderLocation: _locationController.text, status: OrderStatus.pending  , isTaken: false, driverInfo: DriverData(name: '', phoneNumber: '', driverImage: '', driverID: ''), storeInfo: widget.ownerLoginInfo, context: context);
+                    
+                    // Navigator.pop(context);
                   }
                 },
                 text: 'Submit Order',

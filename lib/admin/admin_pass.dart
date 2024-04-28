@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/helpers/loader.dart';
+import 'package:pixandrix/helpers/secure_storage.dart';
 import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'admin_panel.dart';
+
+final _secureStorage = SecureStorage();
 
 class AdminPassPage extends StatefulWidget {
   const AdminPassPage({super.key});
@@ -14,9 +18,18 @@ class _AdminPassPageState extends State<AdminPassPage> {
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
   final GlobalLoader _globalLoader = GlobalLoader();
+  bool? remember = true;
+  bool _passwordAvailable = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(_checkName);
+    _loadSavedCredentials();
+  }
 
   void _checkPassword() {
-     _globalLoader.showLoader(context);
+    _globalLoader.showLoader(context);
     String enteredPassword = _passwordController.text.trim();
     if (enteredPassword == '123456') {
       Navigator.pushReplacement(
@@ -24,10 +37,31 @@ class _AdminPassPageState extends State<AdminPassPage> {
         MaterialPageRoute(builder: (context) => const AdminPanelPage()),
       );
       _globalLoader.hideLoader();
+      _secureStorage.saveAdmin(enteredPassword);
     } else {
       setState(() {
         _errorMessage = 'Incorrect password. Please try again.';
         _globalLoader.hideLoader();
+      });
+    }
+  }
+
+  void _checkName() async {
+    String enteredName = _passwordController.text.trim();
+    bool available =
+        await FirebaseOperations.checkDriverNameExists(enteredName);
+    setState(() {
+      _passwordAvailable = available;
+    });
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    final savedPass = await _secureStorage.getAdminPassword();
+    if (savedPass != null) {
+      _passwordController.text = savedPass;
+      setState(() {
+        remember = true; // Set _saveCredentials to true if password is saved
+        _passwordAvailable = true;
       });
     }
   }
@@ -52,11 +86,21 @@ class _AdminPassPageState extends State<AdminPassPage> {
                 errorText: _errorMessage.isNotEmpty ? _errorMessage : null,
               ),
             ),
+            Checkbox(
+              activeColor: const Color.fromARGB(255, 255, 0, 0),
+              value: remember,
+              onChanged: (value) {
+                setState(() {
+                  remember = value!;
+                });
+              },
+            ),
+            const Text('Save Credentials'),
             const SizedBox(height: 20),
             CustomButton(
-          text: 'Continue',
-          onPressed: _checkPassword,
-        ),
+              text: 'Continue',
+              onPressed: _checkPassword,
+            ),
           ],
         ),
       ),

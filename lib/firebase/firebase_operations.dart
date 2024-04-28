@@ -128,6 +128,7 @@ class FirebaseOperations {
           phoneNumber: data['phoneNumber'],
           ownerImage: data['ownerImage'],
           rate: data['rate'],
+          password: data['password'],
         );
       }).toList());
 
@@ -161,21 +162,29 @@ class FirebaseOperations {
       throw e;
     }
   }
-  static Future<bool> checkLoginCredentials(String type,String name, String password) async {
-    try {
-      // Access Firestore collection and check if the provided name and password match
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection(type)
-          .where('name', isEqualTo: name)
-          .where('password', isEqualTo: password)
-          .get();
+  static Future<Object?> checkLoginCredentials(String type, String name, String password) async {
+  try {
+    // Access Firestore collection and check if the provided name and password match
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(type)
+        .where('name', isEqualTo: name)
+        .where('password', isEqualTo: password)
+        .get();
 
-      // If a document is found with matching name and password, return true
-      return querySnapshot.docs.isNotEmpty;
-    } catch (error) {
-      // If an error occurs, print the error and return false
-      print('Error checking login credentials: $error');
-      return false;
+    // If a document is found with matching name and password, return owner information
+    if (querySnapshot.docs.isNotEmpty) {
+      // Extract owner information from the first document
+      var ownerData = querySnapshot.docs.first.data();
+      return ownerData;
+    } else {
+      // If no documents are found, return null
+      return null;
     }
+  } catch (error) {
+    // If an error occurs, print the error and return null
+    print('Error checking login credentials: $error');
+    return null;
   }
+}
+
 }

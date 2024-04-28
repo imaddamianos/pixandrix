@@ -9,13 +9,16 @@ import 'package:pixandrix/helpers/form_helper.dart';
 import 'package:pixandrix/helpers/loader.dart';
 import 'package:pixandrix/helpers/location_helper.dart';
 import 'package:pixandrix/helpers/profile_pic.dart';
+import 'package:pixandrix/helpers/secure_storage.dart';
 import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/owners/owners_home_page.dart';
 
+final _secureStorage = SecureStorage();
+
 class StoreLoginPage extends StatefulWidget {
-  const StoreLoginPage({super.key, this.ownerInfo});
-  final OwnerData? ownerInfo;
+  const StoreLoginPage({super.key, this.ownerLoginInfo});
+  final OwnerData? ownerLoginInfo;
 
   @override
   _StoreLoginPageState createState() => _StoreLoginPageState();
@@ -32,19 +35,34 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
   final String _errorMessage = '';
   final String _passMessage = '';
   bool _restaurantNameAvailable = false;
-  bool _saveCredentials = false;
   LatLng? userLocation;
   final Completer<GoogleMapController> _mapController = Completer();
   final GlobalLoader _globalLoader = GlobalLoader();
+  bool? remember = true;
 
   @override
   void initState() {
     super.initState();
     _restaurantNameController.addListener(_checkName);
     userLocation = LatLng(
-      widget.ownerInfo?.latitude ?? 33.8657637,
-      widget.ownerInfo?.longitude ?? 35.5203407,
+      widget.ownerLoginInfo?.latitude ?? 33.8657637,
+      widget.ownerLoginInfo?.longitude ?? 35.5203407,
     );
+    _loadSavedCredentials();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    final savedOwner = await _secureStorage.getOnwer();
+    final savedPassword = await _secureStorage.getOwnerPassword();
+    if (savedOwner != null) {
+      // Set the text controllers with saved credentials
+      _restaurantNameController.text = savedOwner;
+      _passwordController.text = savedPassword!;
+      _restaurantNameAvailable = true;
+      setState(() {
+        remember = true;
+      });
+    }
   }
 
   @override
@@ -76,10 +94,10 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
       controller.animateCamera(
         CameraUpdate.newCameraPosition(
           CameraPosition(
-             target: LatLng(
-                  userLocation!.latitude,
-                  userLocation!.longitude,
-                ),
+            target: LatLng(
+              userLocation!.latitude,
+              userLocation!.longitude,
+            ),
             zoom: 15.0,
           ),
         ),
@@ -92,63 +110,70 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
 
   Future<void> _submitForm() async {
     _globalLoader.showLoader(context);
-  if (_formKey.currentState!.validate()) {
-    String name = _restaurantNameController.text;
-    String phoneNumber = _numberController.text;
-    String password = _passwordController.text;
-    String rate = _rateController.text; // You need to implement getting the location
-    try {
-      // Upload image and get download URL
-      final imageUrl = await FirebaseOperations().uploadImage('Stores_images', name, _selectedImage!);
+    if (_formKey.currentState!.validate()) {
+      String name = _restaurantNameController.text;
+      String phoneNumber = _numberController.text;
+      String password = _passwordController.text;
+      String rate =
+          _rateController.text; // You need to implement getting the location
+      try {
+        // Upload image and get download URL
+        final imageUrl = await FirebaseOperations()
+            .uploadImage('Stores_images', name, _selectedImage!);
 
-      await submitFormStore(
-        name: name,
-        phoneNumber: phoneNumber,
-        latitude: userLocation?.latitude,
-          longitude: userLocation?.longitude, // Pass location as a string
-        imageUrl: imageUrl,
-        selectedImage: _selectedImage!,
-        context: context,
-        password: password,
-        rate: rate,
-      );
-      _globalLoader.hideLoader();
-    } catch (error) {
-      showAlertDialog(
-      context,
-      'Error',
-      'Enter all the information',
-    );
-    }
-  }
-}
-
-Future<void> _ownerLogIn() async {
-  if (_formKey.currentState!.validate()) {
-    String name = _restaurantNameController.text;
-    String password = _passwordController.text;
-    try {
-      final ownerAuth = await FirebaseOperations.checkLoginCredentials('owners', name, password);
-      if (ownerAuth) {
-        Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const OwnersHomePage()),
-      );
-        print('Login successful for owner: $name');
-      } else {
+        await submitFormStore(
+          name: name,
+          phoneNumber: phoneNumber, // Pass location as a string
+          imageUrl: imageUrl,
+          selectedImage: _selectedImage!,
+          context: context,
+          password: password,
+          rate: rate,
+          olatitude: userLocation!.latitude,
+          olongitude: userLocation!.longitude,
+        );
+        _globalLoader.hideLoader();
+      } catch (error) {
         showAlertDialog(
-      context,
-      'Error',
-      'Wrong password',
-    );
+          context,
+          'Error',
+          'Enter all the information',
+        );
       }
-    } catch (error) {
-      print('Error submitting form: $error');
-      // Handle error (show a message, log, etc.)
-      // You can show a snackbar or display an error message to the user
     }
   }
-}
+
+  Future<void> _ownerLogIn() async {
+    if (_formKey.currentState!.validate()) {
+      String name = _restaurantNameController.text;
+      String password = _passwordController.text;
+
+      try {
+        final ownerAuth = await FirebaseOperations.checkLoginCredentials(
+            'owners', name, password);
+        if (ownerAuth != null) {
+          if (remember == true) {
+            // Save credentials only if the checkbox is selected
+            _secureStorage.saveOwner(name, password);
+          }
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const OwnersHomePage()),
+          );
+          print('Login successful for owner: $name');
+        } else {
+          showAlertDialog(
+            context,
+            'Error',
+            'Wrong password',
+          );
+        }
+      } catch (error) {
+        print('Error submitting form: $error');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,7 +189,7 @@ Future<void> _ownerLogIn() async {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Text(
-                  'Enter you information',
+                  'Enter your information',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -175,26 +200,26 @@ Future<void> _ownerLogIn() async {
                 Visibility(
                   visible: !_restaurantNameAvailable,
                   child: ProfilePic(
-                  onPickImage: (File pickedImage) {
-                    _selectedImage = pickedImage;
-                  },
-                  imageUrl: '',
+                    onPickImage: (File pickedImage) {
+                      _selectedImage = pickedImage;
+                    },
+                    imageUrl: '',
+                  ),
                 ),
-            ),
                 const SizedBox(height: 30),
                 TextFormField(
                   controller: _restaurantNameController,
                   onChanged: (_) => _checkName(),
                   decoration: InputDecoration(
-                    labelText: 'Restaurant Name *',
-                    errorText: _errorMessage.isNotEmpty ? _errorMessage : null,
-                    suffixIcon: _restaurantNameAvailable
-                        ? const Icon(
-                            Icons.check,
-                            color: Colors.green,
-                          )
-                        :null
-                  ),
+                      labelText: 'Restaurant Name *',
+                      errorText:
+                          _errorMessage.isNotEmpty ? _errorMessage : null,
+                      suffixIcon: _restaurantNameAvailable
+                          ? const Icon(
+                              Icons.check,
+                              color: Colors.green,
+                            )
+                          : null),
                 ),
                 const SizedBox(height: 16.0),
                 TextFormField(
@@ -234,18 +259,18 @@ Future<void> _ownerLogIn() async {
                       },
                       initialCameraPosition: CameraPosition(
                         target: LatLng(
-                  userLocation!.latitude,
-                  userLocation!.longitude,
-                ),
+                          userLocation!.latitude,
+                          userLocation!.longitude,
+                        ),
                         zoom: 15.0,
                       ),
                       markers: {
                         Marker(
                           markerId: const MarkerId("userLocation"),
                           position: LatLng(
-                  userLocation!.latitude,
-                  userLocation!.longitude,
-                ),
+                            userLocation!.latitude,
+                            userLocation!.longitude,
+                          ),
                           infoWindow: const InfoWindow(title: "User Location"),
                         ),
                       },
@@ -269,10 +294,20 @@ Future<void> _ownerLogIn() async {
                 Row(
                   children: [
                     Checkbox(
-                      value: _saveCredentials,
+                      value: remember,
+                      activeColor: const Color.fromARGB(255, 255, 0, 0),
                       onChanged: (value) {
                         setState(() {
-                          _saveCredentials = value!;
+                          remember = value;
+                          if (value == true) {
+                            // Save name and password to secure storage
+                            _secureStorage.saveOwner(
+                                _restaurantNameController.text,
+                                _passwordController.text);
+                          } else {
+                            // Clear saved credentials if checkbox is unchecked
+                            _secureStorage.clearEmailAndPassword();
+                          }
                         });
                       },
                     ),
@@ -281,7 +316,7 @@ Future<void> _ownerLogIn() async {
                 ),
                 const SizedBox(height: 16.0),
                 ElevatedButton(
-                  onPressed: (){
+                  onPressed: () {
                     if (_restaurantNameAvailable) {
                       _ownerLogIn();
                     } else {

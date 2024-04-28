@@ -9,6 +9,9 @@ import 'package:pixandrix/helpers/loader.dart';
 import 'package:pixandrix/helpers/profile_pic.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/models/driver_model.dart';
+import 'package:pixandrix/helpers/secure_storage.dart';
+
+final _secureStorage = SecureStorage();
 
 class DriversLoginPage extends StatefulWidget {
   const DriversLoginPage({super.key, this.driverInfo});
@@ -28,13 +31,14 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
   final String _errorMessage = '';
   final String _passMessage = '';
   bool _driverNameAvailable = false;
-  bool _saveCredentials = false;
   final GlobalLoader _globalLoader = GlobalLoader();
+  bool? remember = true;
 
   @override
   void initState() {
     super.initState();
     _driverNameController.addListener(_checkName);
+    _loadSavedCredentials();
   }
 
   @override
@@ -43,6 +47,19 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
     _passwordController.dispose();
     _numberController.dispose();
     super.dispose();
+  }
+
+   Future<void> _loadSavedCredentials() async {
+    final savedOwner = await _secureStorage.getDriver();
+    final savedPassword = await _secureStorage.getDriverPassword();
+    if (savedOwner != null) {
+      _driverNameController.text = savedOwner;
+      _passwordController.text = savedPassword!;
+      _driverNameAvailable = true;
+      setState(() {
+        remember = true;
+      });
+    }
   }
 
   void _checkName() async {
@@ -87,32 +104,36 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
     }
   }
 
-  Future<void> _driverLogIn() async {
-  if (_formKey.currentState!.validate()) {
-    String name = _driverNameController.text;
-    String password = _passwordController.text;
-    try {
-      final driverAuth = await FirebaseOperations.checkLoginCredentials('drivers', name, password);
-      if (driverAuth) {
-        Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const DriversHomePage()),
-      );
-        print('Login successful for driver: $name');
-      } else {
-        showAlertDialog(
-      context,
-      'Error',
-      'Wrong password',
-    );
+ Future<void> _driverLogIn() async {
+    if (_formKey.currentState!.validate()) {
+      String name = _driverNameController.text;
+      String password = _passwordController.text;
+
+      try {
+        final driverAuth = await FirebaseOperations.checkLoginCredentials(
+            'drivers', name, password);
+        if (driverAuth != null) {
+          if (remember == true) {
+            // Save credentials only if the checkbox is selected
+            _secureStorage.saveDriver(name, password);
+          }
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const DriversHomePage()),
+          );
+          print('Login successful for owner: $name');
+        } else {
+          showAlertDialog(
+            context,
+            'Error',
+            'Wrong password',
+          );
+        }
+      } catch (error) {
+        print('Error submitting form: $error');
       }
-    } catch (error) {
-      print('Error submitting form: $error');
-      // Handle error (show a message, log, etc.)
-      // You can show a snackbar or display an error message to the user
     }
   }
-}
 
 
   @override
@@ -130,7 +151,7 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Text(
-                  'Enter you information',
+                  'Enter your information',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -198,10 +219,11 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
                 Row(
                   children: [
                     Checkbox(
-                      value: _saveCredentials,
+                      value: remember,
+                      activeColor: const Color.fromARGB(255, 255, 0, 0),
                       onChanged: (value) {
                         setState(() {
-                          _saveCredentials = value!;
+                          remember = value!;
                         });
                       },
                     ),
