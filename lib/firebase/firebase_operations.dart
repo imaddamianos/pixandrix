@@ -162,7 +162,7 @@ class FirebaseOperations {
       throw e;
     }
   }
-  static Future<Object?> checkLoginCredentials(String type, String name, String password) async {
+  static Future<Map<String, dynamic>?> checkLoginCredentials(String type, String name, String password) async {
   try {
     // Access Firestore collection and check if the provided name and password match
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
@@ -171,11 +171,10 @@ class FirebaseOperations {
         .where('password', isEqualTo: password)
         .get();
 
-    // If a document is found with matching name and password, return owner information
     if (querySnapshot.docs.isNotEmpty) {
       // Extract owner information from the first document
-      var ownerData = querySnapshot.docs.first.data();
-      return ownerData;
+      Map<String, dynamic> Data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+      return Data;
     } else {
       // If no documents are found, return null
       return null;
@@ -186,5 +185,7 @@ class FirebaseOperations {
     return null;
   }
 }
+
+
 
 }

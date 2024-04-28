@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/first_page.dart';
 
-class DriversHomePage extends StatelessWidget {
-  const DriversHomePage({Key? key}) : super(key: key);
+class DriversHomePage extends StatefulWidget {
+  const DriversHomePage({Key? key, this.driverInfo}) : super(key: key);
+  final Map<String, dynamic>? driverInfo;
+  
+  @override
+  _DriversHomePageState createState() => _DriversHomePageState();
+}
+
+class _DriversHomePageState extends State<DriversHomePage> {
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pix and Rix'),
+        title: Text(widget.driverInfo?['name']),
         actions: [
           Row(
             children: [

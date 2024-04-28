@@ -110,8 +110,7 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
       String password = _passwordController.text;
 
       try {
-        final driverAuth = await FirebaseOperations.checkLoginCredentials(
-            'drivers', name, password);
+        final driverAuth = await FirebaseOperations.checkLoginCredentials('drivers', name, password);
         if (driverAuth != null) {
           if (remember == true) {
             // Save credentials only if the checkbox is selected
@@ -119,7 +118,7 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
           }
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const DriversHomePage()),
+            MaterialPageRoute(builder: (context) => DriversHomePage(driverInfo: driverAuth)),
           );
           print('Login successful for owner: $name');
         } else {

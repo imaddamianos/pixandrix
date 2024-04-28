@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/order_form.dart';
-import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/theme/buttons/main_button.dart';
 
 class OwnersHomePage extends StatefulWidget {
-const OwnersHomePage({super.key});
 
+  const OwnersHomePage({Key? key, this.ownerInfo}) : super(key: key);
+ final Map<String, dynamic>? ownerInfo;
   @override
   _OwnersHomePageState createState() => _OwnersHomePageState();
 }
 
 class _OwnersHomePageState extends State<OwnersHomePage> {
-
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pix and Rix'),
+        title: Text(widget.ownerInfo?['name']),
         actions: [
           Row(
             children: [
