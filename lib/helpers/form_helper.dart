@@ -88,7 +88,7 @@ OwnerData submitFormStore({
     required String orderLocation,
     required OrderStatus status,
     required bool isTaken,
-    required DriverData driverInfo,
+    required String driverInfo,
     required String storeInfo,
     required BuildContext context,
   }) async {
@@ -99,7 +99,7 @@ OwnerData submitFormStore({
         'orderLocation': orderLocation,
         'status': status.toString(),
         'isTaken': isTaken,
-        'driverInfo' : driverInfo.name,
+        'driverInfo' : driverInfo,
         'OwnerData' : storeInfo,
       });
       showAlertDialog(

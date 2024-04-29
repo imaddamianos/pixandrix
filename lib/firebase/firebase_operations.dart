@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pixandrix/models/driver_model.dart';
+import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
 
 class FirebaseOperations {
@@ -71,6 +72,27 @@ class FirebaseOperations {
       }
     } catch (e) {
       print('Error removing owner: $e');
+      throw e;
+    }
+  }
+
+  static Future<void> removeOrder(String name) async {
+    try {
+      // Query the Firestore collection to find the document with the specified name
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+          .collection('orders')
+          .where('OwnerData', isEqualTo: name)
+          .get();
+
+      // Check if any documents with the specified name were found
+      if (querySnapshot.docs.isNotEmpty) {
+        // Delete the first document found (assuming there's only one document with the same name)
+        await querySnapshot.docs.first.reference.delete();
+      } else {
+        print('No order found with the name: $name');
+      }
+    } catch (e) {
+      print('Error removing order: $e');
       throw e;
     }
   }
@@ -162,6 +184,33 @@ class FirebaseOperations {
       throw e;
     }
   }
+
+  static Future<List<OrderData>> getOrders() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance.collection('orders').get();
+
+      List<OrderData> orders =
+          await Future.wait(querySnapshot.docs.map((doc) async {
+        Map<String, dynamic> data = doc.data();
+
+        return OrderData(
+          orderLocation: data['orderLocation'],
+          // status: data['status'],
+          // isTaken: data['isTaken'],
+          driverInfo: data['driverInfo'],
+          storeInfo: data['OwnerData'],
+          // orderTime: data['orderTime'],
+        );
+      }).toList());
+
+      return orders;
+    } catch (e) {
+      print('Error fetching stores: $e');
+      throw e;
+    }
+  }
+
   static Future<OwnerData?> checkOwnerCredentials(String type, String name, String password) async {
   try {
     QuerySnapshot<Map<String, dynamic>> querySnapshot =
