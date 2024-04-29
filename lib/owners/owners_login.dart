@@ -17,7 +17,7 @@ import 'package:pixandrix/owners/owners_home_page.dart';
 final _secureStorage = SecureStorage();
 
 class StoreLoginPage extends StatefulWidget {
-  const StoreLoginPage({super.key, this.ownerLoginInfo});
+  const StoreLoginPage({Key? key, this.ownerLoginInfo}) : super(key: key);
   final OwnerData? ownerLoginInfo;
 
   @override
@@ -27,27 +27,21 @@ class StoreLoginPage extends StatefulWidget {
 class _StoreLoginPageState extends State<StoreLoginPage> {
   late File? _selectedImage;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _restaurantNameController =
-      TextEditingController();
+  final TextEditingController _restaurantNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _numberController = TextEditingController();
   final TextEditingController _rateController = TextEditingController();
   final String _errorMessage = '';
   final String _passMessage = '';
   bool _restaurantNameAvailable = false;
-  LatLng? userLocation;
-  final Completer<GoogleMapController> _mapController = Completer();
+  LatLng? userLocation = const LatLng(33.8657637, 35.5203407);
   final GlobalLoader _globalLoader = GlobalLoader();
   bool? remember = true;
+  late GoogleMapController _mapController;
 
   @override
   void initState() {
     super.initState();
-    _restaurantNameController.addListener(_checkName);
-    userLocation = LatLng(
-      widget.ownerLoginInfo?.latitude ?? 33.8657637,
-      widget.ownerLoginInfo?.longitude ?? 35.5203407,
-    );
     _loadSavedCredentials();
   }
 
@@ -76,11 +70,9 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
 
   void _checkName() async {
     String enteredName = _restaurantNameController.text.trim();
-    bool available =
-        await FirebaseOperations.checkRestaurantNameExists(enteredName);
+    bool available = await FirebaseOperations.checkRestaurantNameExists(enteredName);
     setState(() {
       _restaurantNameAvailable = available;
-      // _passMessage = available ? '' : 'Enter a new password';
     });
   }
 
@@ -90,21 +82,16 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
       setState(() {
         userLocation = location;
       });
-      final controller = await _mapController.future;
-      controller.animateCamera(
+      _mapController.animateCamera(
         CameraUpdate.newCameraPosition(
           CameraPosition(
-            target: LatLng(
-              userLocation!.latitude,
-              userLocation!.longitude,
-            ),
+            target: LatLng(userLocation!.latitude, userLocation!.longitude),
             zoom: 15.0,
           ),
         ),
       );
     } catch (e) {
       print("Error updating user location: $e");
-      // Handle error or show a message to the user
     }
   }
 
@@ -114,16 +101,12 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
       String name = _restaurantNameController.text;
       String phoneNumber = _numberController.text;
       String password = _passwordController.text;
-      String rate =
-          _rateController.text; // You need to implement getting the location
+      String rate = _rateController.text;
       try {
-        // Upload image and get download URL
-        final imageUrl = await FirebaseOperations()
-            .uploadImage('Stores_images', name, _selectedImage!);
-
+        final imageUrl = await FirebaseOperations().uploadImage('Stores_images', name, _selectedImage!);
         await submitFormStore(
           name: name,
-          phoneNumber: phoneNumber, // Pass location as a string
+          phoneNumber: phoneNumber,
           imageUrl: imageUrl,
           selectedImage: _selectedImage!,
           context: context,
@@ -144,37 +127,34 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
   }
 
   Future<void> _ownerLogIn() async {
-  if (_formKey.currentState!.validate()) {
-    String name = _restaurantNameController.text;
-    String password = _passwordController.text;
-
-    try {
-      final ownerAuth = await FirebaseOperations.checkOwnerCredentials('owners', name, password);
-      if (ownerAuth != null) {
-        if (remember == true) {
-          // Save credentials only if the checkbox is selected
-          _secureStorage.saveOwner(name, password);
+    if (_formKey.currentState!.validate()) {
+      String name = _restaurantNameController.text;
+      String password = _passwordController.text;
+      try {
+        final ownerAuth = await FirebaseOperations.checkOwnerCredentials('owners', name, password);
+        if (ownerAuth != null) {
+          if (remember == true) {
+            _secureStorage.saveOwner(name, password);
+          }
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OwnersHomePage(ownerInfo: ownerAuth),
+            ),
+          );
+          print('Login successful for owner: $name');
+        } else {
+          showAlertDialog(
+            context,
+            'Error',
+            'Wrong password',
+          );
         }
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => OwnersHomePage(ownerInfo: ownerAuth),
-          ),
-        );
-        print('Login successful for owner: $name');
-      } else {
-        showAlertDialog(
-          context,
-          'Error',
-          'Wrong password',
-        );
+      } catch (error) {
+        print('Error submitting form: $error');
       }
-    } catch (error) {
-      print('Error submitting form: $error');
     }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -213,15 +193,15 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
                   controller: _restaurantNameController,
                   onChanged: (_) => _checkName(),
                   decoration: InputDecoration(
-                      labelText: 'Restaurant Name *',
-                      errorText:
-                          _errorMessage.isNotEmpty ? _errorMessage : null,
-                      suffixIcon: _restaurantNameAvailable
-                          ? const Icon(
-                              Icons.check,
-                              color: Colors.green,
-                            )
-                          : null),
+                    labelText: 'Restaurant Name *',
+                    errorText: _errorMessage.isNotEmpty ? _errorMessage : null,
+                    suffixIcon: _restaurantNameAvailable
+                        ? const Icon(
+                            Icons.check,
+                            color: Colors.green,
+                          )
+                        : null,
+                  ),
                 ),
                 const SizedBox(height: 16.0),
                 TextFormField(
@@ -232,7 +212,6 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
                     errorText: _passMessage.isNotEmpty ? _passMessage : null,
                   ),
                 ),
-                // const SizedBox(height: 16.0),
                 Visibility(
                   visible: !_restaurantNameAvailable,
                   child: TextFormField(
@@ -241,7 +220,6 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
                     decoration: const InputDecoration(labelText: 'Number*'),
                   ),
                 ),
-                // const SizedBox(height: 16.0),
                 Visibility(
                   visible: !_restaurantNameAvailable,
                   child: TextFormField(
@@ -257,27 +235,20 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
                     height: 200,
                     child: GoogleMap(
                       onMapCreated: (GoogleMapController controller) {
-                        _mapController.complete(controller);
+                        _mapController = controller;
                       },
                       initialCameraPosition: CameraPosition(
-                        target: LatLng(
-                          userLocation!.latitude,
-                          userLocation!.longitude,
-                        ),
+                        target: LatLng(userLocation!.latitude, userLocation!.longitude),
                         zoom: 15.0,
                       ),
                       markers: {
                         Marker(
                           markerId: const MarkerId("userLocation"),
-                          position: LatLng(
-                            userLocation!.latitude,
-                            userLocation!.longitude,
-                          ),
-                          infoWindow: const InfoWindow(title: "User Location"),
+                          position: LatLng(userLocation!.latitude, userLocation!.longitude),
+                          infoWindow: const InfoWindow(title: "Current Location"),
                         ),
                       },
-                      gestureRecognizers: <Factory<
-                          OneSequenceGestureRecognizer>>{
+                      gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
                         Factory<OneSequenceGestureRecognizer>(
                           () => EagerGestureRecognizer(),
                         ),
@@ -302,12 +273,11 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
                         setState(() {
                           remember = value;
                           if (value == true) {
-                            // Save name and password to secure storage
                             _secureStorage.saveOwner(
-                                _restaurantNameController.text,
-                                _passwordController.text);
+                              _restaurantNameController.text,
+                              _passwordController.text,
+                            );
                           } else {
-                            // Clear saved credentials if checkbox is unchecked
                             _secureStorage.clearEmailAndPassword();
                           }
                         });

@@ -19,7 +19,6 @@ class _AdminPassPageState extends State<AdminPassPage> {
   String _errorMessage = '';
   final GlobalLoader _globalLoader = GlobalLoader();
   bool? remember = true;
-  bool _passwordAvailable = false;
 
   @override
   void initState() {
@@ -51,7 +50,6 @@ class _AdminPassPageState extends State<AdminPassPage> {
     bool available =
         await FirebaseOperations.checkDriverNameExists(enteredName);
     setState(() {
-      _passwordAvailable = available;
     });
   }
 
@@ -61,7 +59,6 @@ class _AdminPassPageState extends State<AdminPassPage> {
       _passwordController.text = savedPass;
       setState(() {
         remember = true; // Set _saveCredentials to true if password is saved
-        _passwordAvailable = true;
       });
     }
   }
