@@ -7,7 +7,8 @@ import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'package:pixandrix/theme/custom_theme.dart';
 
 class OrderForm extends StatefulWidget {
-  const OrderForm({super.key,  this.ownerInfo});
+  const OrderForm({super.key, required this.ownerInfo});
+
   final OwnerData? ownerInfo;
 
   @override
@@ -129,7 +130,7 @@ class _OrderFormState extends State<OrderForm> {
                       status: OrderStatus.pending,
                       isTaken: false,
                       driverInfo: DriverData(name: '', phoneNumber: '', driverImage: '', driverID: ''),
-                      storeInfo: widget.ownerInfo,
+                      storeInfo: widget.ownerInfo!.name,
                       context: context);
                     
                     // Navigator.pop(context);

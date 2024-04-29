@@ -89,7 +89,7 @@ OwnerData submitFormStore({
     required OrderStatus status,
     required bool isTaken,
     required DriverData driverInfo,
-    required OwnerData? storeInfo,
+    required String storeInfo,
     required BuildContext context,
   }) async {
     try {
@@ -99,8 +99,8 @@ OwnerData submitFormStore({
         'orderLocation': orderLocation,
         'status': status.toString(),
         'isTaken': isTaken,
-        'driverInfo' : driverInfo.toString(),
-        'OwnerData' : storeInfo
+        'driverInfo' : driverInfo.name,
+        'OwnerData' : storeInfo,
       });
       showAlertDialog(
       context,
