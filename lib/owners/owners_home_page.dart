@@ -13,12 +13,12 @@ class OwnersHomePage extends StatefulWidget {
 }
 
 class _OwnersHomePageState extends State<OwnersHomePage> {
-  late OwnerData? ownerInfo; // Declare ownerInfo with late keyword
+  late OwnerData? ownerInfo; 
 
   @override
   void initState() {
     super.initState();
-    ownerInfo = widget.ownerInfo; // Initialize ownerInfo in initState
+    ownerInfo = widget.ownerInfo;
   }
 
   @override

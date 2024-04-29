@@ -89,7 +89,7 @@ OwnerData submitFormStore({
     required OrderStatus status,
     required bool isTaken,
     required DriverData driverInfo,
-    required OwnerData storeInfo,
+    required OwnerData? storeInfo,
     required BuildContext context,
   }) async {
     try {
@@ -97,9 +97,9 @@ OwnerData submitFormStore({
       await FirebaseFirestore.instance.collection('orders').add({
         'orderTime': orderTime,
         'orderLocation': orderLocation,
-        'status': status,
+        'status': status.toString(),
         'isTaken': isTaken,
-        'driverInfo' : driverInfo,
+        'driverInfo' : driverInfo.toString(),
         'OwnerData' : storeInfo
       });
       showAlertDialog(

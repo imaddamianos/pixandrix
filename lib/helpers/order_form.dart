@@ -7,18 +7,25 @@ import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'package:pixandrix/theme/custom_theme.dart';
 
 class OrderForm extends StatefulWidget {
-  const OrderForm({super.key}); // Explicitly define type as OwnerModel
-  // ..
+  const OrderForm({super.key,  this.ownerInfo});
+  final OwnerData? ownerInfo;
 
   @override
   _OrderFormState createState() => _OrderFormState();
 }
 
 class _OrderFormState extends State<OrderForm> {
+  late OwnerData? ownerInfo;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _locationController = TextEditingController();
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
+
+   @override
+  void initState() {
+    super.initState();
+    ownerInfo = widget.ownerInfo;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +123,14 @@ class _OrderFormState extends State<OrderForm> {
                       _selectedTime!.hour,
                       _selectedTime!.minute,
                     );
-                    // submitFormOrder(orderTime: orderTime, orderLocation: _locationController.text, status: OrderStatus.pending  , isTaken: false, driverInfo: DriverData(name: '', phoneNumber: '', driverImage: '', driverID: ''), storeInfo: widget.ownerLoginInfo, context: context);
+                    submitFormOrder(
+                      orderTime: orderTime,
+                      orderLocation: _locationController.text,
+                      status: OrderStatus.pending,
+                      isTaken: false,
+                      driverInfo: DriverData(name: '', phoneNumber: '', driverImage: '', driverID: ''),
+                      storeInfo: widget.ownerInfo,
+                      context: context);
                     
                     // Navigator.pop(context);
                   }
