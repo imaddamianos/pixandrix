@@ -105,35 +105,36 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
   }
 
  Future<void> _driverLogIn() async {
-    if (_formKey.currentState!.validate()) {
-      String name = _driverNameController.text;
-      String password = _passwordController.text;
+  if (_formKey.currentState!.validate()) {
+    String name = _driverNameController.text;
+    String password = _passwordController.text;
 
-      try {
-        final driverAuth = await FirebaseOperations.checkLoginCredentials('drivers', name, password);
-        if (driverAuth != null) {
-          if (remember == true) {
-            // Save credentials only if the checkbox is selected
-            _secureStorage.saveDriver(name, password);
-          }
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => DriversHomePage(driverInfo: driverAuth)),
-          );
-          print('Login successful for owner: $name');
-        } else {
-          showAlertDialog(
-            context,
-            'Error',
-            'Wrong password',
-          );
+    try {
+      final driverAuth = await FirebaseOperations.checkDriverCredentials('drivers', name, password);
+      if (driverAuth != null) {
+        if (remember == true) {
+          // Save credentials only if the checkbox is selected
+          _secureStorage.saveDriver(name, password);
         }
-      } catch (error) {
-        print('Error submitting form: $error');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DriversHomePage(driverInfo: driverAuth),
+          ),
+        );
+        print('Login successful for owner: $name');
+      } else {
+        showAlertDialog(
+          context,
+          'Error',
+          'Wrong password',
+        );
       }
+    } catch (error) {
+      print('Error submitting form: $error');
     }
   }
-
+ }
 
   @override
   Widget build(BuildContext context) {

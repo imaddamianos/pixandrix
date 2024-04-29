@@ -144,35 +144,37 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
   }
 
   Future<void> _ownerLogIn() async {
-    if (_formKey.currentState!.validate()) {
-      String name = _restaurantNameController.text;
-      String password = _passwordController.text;
+  if (_formKey.currentState!.validate()) {
+    String name = _restaurantNameController.text;
+    String password = _passwordController.text;
 
-      try {
-       final ownerAuth = await FirebaseOperations.checkLoginCredentials('owners', name, password);
-if (ownerAuth != null) {
-  if (remember == true) {
-    // Save credentials only if the checkbox is selected
-    _secureStorage.saveOwner(name, password);
-  }
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => OwnersHomePage(ownerInfo: ownerAuth)),
-  );
-  print('Login successful for owner: $name');
-} else {
-  showAlertDialog(
-    context,
-    'Error',
-    'Wrong password',
-  );
-}
-
-      } catch (error) {
-        print('Error submitting form: $error');
+    try {
+      final ownerAuth = await FirebaseOperations.checkOwnerCredentials('owners', name, password);
+      if (ownerAuth != null) {
+        if (remember == true) {
+          // Save credentials only if the checkbox is selected
+          _secureStorage.saveOwner(name, password);
+        }
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OwnersHomePage(ownerInfo: ownerAuth),
+          ),
+        );
+        print('Login successful for owner: $name');
+      } else {
+        showAlertDialog(
+          context,
+          'Error',
+          'Wrong password',
+        );
       }
+    } catch (error) {
+      print('Error submitting form: $error');
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

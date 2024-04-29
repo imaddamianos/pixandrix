@@ -1,34 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/order_form.dart';
+import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/theme/buttons/main_button.dart';
 
 class OwnersHomePage extends StatefulWidget {
+  final OwnerData? ownerInfo;
+  const OwnersHomePage({super.key, this.ownerInfo});
 
-  const OwnersHomePage({Key? key, this.ownerInfo}) : super(key: key);
- final Map<String, dynamic>? ownerInfo;
   @override
   _OwnersHomePageState createState() => _OwnersHomePageState();
 }
 
 class _OwnersHomePageState extends State<OwnersHomePage> {
-  
+  late OwnerData? ownerInfo; // Declare ownerInfo with late keyword
+
+  @override
+  void initState() {
+    super.initState();
+    ownerInfo = widget.ownerInfo; // Initialize ownerInfo in initState
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.ownerInfo?['name']),
-        leading: CircleAvatar( // Display owner's image in the leading of app bar
-        backgroundImage: NetworkImage(widget.ownerInfo?['ownerImage']), // Assuming image is a URL
-      ),
+        title: Text(ownerInfo?.name ?? 'Owner Name'), // Use owner's name or a default value
+        leading: CircleAvatar(
+          backgroundImage: NetworkImage(ownerInfo?.ownerImage ?? ''), // Use owner's image or a default image URL
+        ),
         actions: [
           Row(
             children: [
               IconButton(
                 icon: const Icon(Icons.notifications),
-                onPressed: () {
-
-                },
+                onPressed: () {},
               ),
               IconButton(
                 icon: const Icon(Icons.logout),
@@ -48,13 +54,13 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
         child: CustomButton(
           onPressed: () {
             Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const OrderForm()),
-                  );
+              context,
+              MaterialPageRoute(builder: (context) => const OrderForm()),
+            );
           },
           text: 'Request a Driver',
         ),
-        ),
+      ),
     );
   }
 }

@@ -162,23 +162,60 @@ class FirebaseOperations {
       throw e;
     }
   }
-  static Future<Map<String, dynamic>?> checkLoginCredentials(String type, String name, String password) async {
+  static Future<OwnerData?> checkOwnerCredentials(String type, String name, String password) async {
   try {
-    // Access Firestore collection and check if the provided name and password match
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection(type)
-        .where('name', isEqualTo: name)
-        .where('password', isEqualTo: password)
-        .get();
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await FirebaseFirestore.instance.collection(type)
+            .where('name', isEqualTo: name)
+            .where('password', isEqualTo: password)
+            .get();
 
     if (querySnapshot.docs.isNotEmpty) {
       // Extract owner information from the first document
-      Map<String, dynamic> Data = querySnapshot.docs.first.data() as Map<String, dynamic>;
-      return Data;
+      Map<String, dynamic> data = querySnapshot.docs.first.data();
+      
+      return OwnerData(
+        name: data['name'],
+        phoneNumber: data['phoneNumber'],
+        ownerImage: data['ownerImage'],
+        latitude: data['userLocation']['latitude'],
+        longitude: data['userLocation']['longitude'],
+        rate: data['rate'],
+        password: data['password']
+      );
     } else {
       // If no documents are found, return null
       return null;
     }
+  } catch (error) {
+    // If an error occurs, print the error and return null
+    print('Error checking login credentials: $error');
+    return null;
+  }
+}
+static Future<DriverData?> checkDriverCredentials(String type, String name, String password) async {
+  try {
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await FirebaseFirestore.instance.collection(type)
+            .where('name', isEqualTo: name)
+            .where('password', isEqualTo: password)
+            .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      // Extract owner information from the first document
+      Map<String, dynamic> data = querySnapshot.docs.first.data();
+
+        return DriverData(
+          driverID: data['driverID'],
+          name: data['name'],
+          phoneNumber: data['phoneNumber'],
+          driverImage: data['driverImage'],
+          );
+    } else {
+      // If no documents are found, return null
+      return null;
+    }
+    
   } catch (error) {
     // If an error occurs, print the error and return null
     print('Error checking login credentials: $error');
