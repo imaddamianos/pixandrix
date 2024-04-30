@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/order_model.dart';
-import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/widgets/order_card.dart';
 
 class OrdersPage extends StatefulWidget {
@@ -68,7 +67,7 @@ class _OrdersPagePageState extends State<OrdersPage> {
                         return Column(
                           children: [
                              OrderCard(
-                              // orderTime: orders![index].orderTime,
+                              orderTime: orders![index].orderTime,
                               orderLocation: orders![index].orderLocation,
                               // status: orders![index].status,
                               // isTaken: orders![index].isTaken,

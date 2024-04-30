@@ -200,7 +200,7 @@ class FirebaseOperations {
           // isTaken: data['isTaken'],
           driverInfo: data['driverInfo'],
           storeInfo: data['OwnerData'],
-          // orderTime: data['orderTime'],
+          orderTime: data['orderTime'],
         );
       }).toList());
 
