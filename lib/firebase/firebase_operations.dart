@@ -6,13 +6,14 @@ import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
 
 class FirebaseOperations {
-
   static Future<bool> checkRestaurantNameExists(String restaurantName) async {
     try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
+          .instance
           .collection('owners')
           .where('name', isEqualTo: restaurantName)
-          .limit(1) // Limit to 1 document since we only need to check if it exists
+          .limit(
+              1) // Limit to 1 document since we only need to check if it exists
           .get();
 
       // If there's at least one document with the given restaurant name, return true
@@ -23,12 +24,14 @@ class FirebaseOperations {
     }
   }
 
-   static Future<bool> checkDriverNameExists(String driverName) async {
+  static Future<bool> checkDriverNameExists(String driverName) async {
     try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
+          .instance
           .collection('drivers')
           .where('name', isEqualTo: driverName)
-          .limit(1) // Limit to 1 document since we only need to check if it exists
+          .limit(
+              1) // Limit to 1 document since we only need to check if it exists
           .get();
 
       // If there's at least one document with the given restaurant name, return true
@@ -39,12 +42,14 @@ class FirebaseOperations {
     }
   }
 
-   static Future<bool> checkRestaurantPassword() async {
+  static Future<bool> checkRestaurantPassword() async {
     try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
+          .instance
           .collection('owners')
           .where('password', isEqualTo: '')
-          .limit(1) // Limit to 1 document since we only need to check if it exists
+          .limit(
+              1) // Limit to 1 document since we only need to check if it exists
           .get();
 
       // If there's at least one document with the given restaurant name, return true
@@ -58,10 +63,11 @@ class FirebaseOperations {
   static Future<void> removeOwner(String name) async {
     try {
       // Query the Firestore collection to find the document with the specified name
-      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
-          .collection('owners')
-          .where('name', isEqualTo: name)
-          .get();
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance
+              .collection('owners')
+              .where('name', isEqualTo: name)
+              .get();
 
       // Check if any documents with the specified name were found
       if (querySnapshot.docs.isNotEmpty) {
@@ -79,10 +85,11 @@ class FirebaseOperations {
   static Future<void> removeOrder(String name) async {
     try {
       // Query the Firestore collection to find the document with the specified name
-      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
-          .collection('orders')
-          .where('OwnerData', isEqualTo: name)
-          .get();
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance
+              .collection('orders')
+              .where('OwnerData', isEqualTo: name)
+              .get();
 
       // Check if any documents with the specified name were found
       if (querySnapshot.docs.isNotEmpty) {
@@ -97,13 +104,14 @@ class FirebaseOperations {
     }
   }
 
- static Future<void> removeDriver(String name) async {
+  static Future<void> removeDriver(String name) async {
     try {
       // Query the Firestore collection to find the document with the specified name
-      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
-          .collection('drivers')
-          .where('name', isEqualTo: name)
-          .get();
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance
+              .collection('drivers')
+              .where('name', isEqualTo: name)
+              .get();
 
       // Check if any documents with the specified name were found
       if (querySnapshot.docs.isNotEmpty) {
@@ -118,7 +126,8 @@ class FirebaseOperations {
     }
   }
 
-  Future<String> uploadImage(String path,String user, File selectedImage) async {
+  Future<String> uploadImage(
+      String path, String user, File selectedImage) async {
     try {
       final Reference storageRef =
           FirebaseStorage.instance.ref().child(path).child('$user.jpg');
@@ -134,7 +143,7 @@ class FirebaseOperations {
     }
   }
 
-   static Future<List<OwnerData>> getOwners() async {
+  static Future<List<OwnerData>> getOwners() async {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot =
           await FirebaseFirestore.instance.collection('owners').get();
@@ -196,7 +205,7 @@ class FirebaseOperations {
 
         return OrderData(
           orderLocation: data['orderLocation'],
-          // status: data['status'],
+          status: data['status'],
           // isTaken: data['isTaken'],
           driverInfo: data['driverInfo'],
           storeInfo: data['OwnerData'],
@@ -211,67 +220,90 @@ class FirebaseOperations {
     }
   }
 
-  static Future<OwnerData?> checkOwnerCredentials(String type, String name, String password) async {
-  try {
-    QuerySnapshot<Map<String, dynamic>> querySnapshot =
-        await FirebaseFirestore.instance.collection(type)
-            .where('name', isEqualTo: name)
-            .where('password', isEqualTo: password)
-            .get();
+  static Future<OwnerData?> checkOwnerCredentials(
+      String type, String name, String password) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance
+              .collection(type)
+              .where('name', isEqualTo: name)
+              .where('password', isEqualTo: password)
+              .get();
 
-    if (querySnapshot.docs.isNotEmpty) {
-      // Extract owner information from the first document
-      Map<String, dynamic> data = querySnapshot.docs.first.data();
-      
-      return OwnerData(
-        name: data['name'],
-        phoneNumber: data['phoneNumber'],
-        ownerImage: data['ownerImage'],
-        latitude: data['userLocation']['latitude'],
-        longitude: data['userLocation']['longitude'],
-        rate: data['rate'],
-        password: data['password']
-      );
-    } else {
-      // If no documents are found, return null
+      if (querySnapshot.docs.isNotEmpty) {
+        // Extract owner information from the first document
+        Map<String, dynamic> data = querySnapshot.docs.first.data();
+
+        return OwnerData(
+            name: data['name'],
+            phoneNumber: data['phoneNumber'],
+            ownerImage: data['ownerImage'],
+            latitude: data['userLocation']['latitude'],
+            longitude: data['userLocation']['longitude'],
+            rate: data['rate'],
+            password: data['password']);
+      } else {
+        // If no documents are found, return null
+        return null;
+      }
+    } catch (error) {
+      // If an error occurs, print the error and return null
+      print('Error checking login credentials: $error');
       return null;
     }
-  } catch (error) {
-    // If an error occurs, print the error and return null
-    print('Error checking login credentials: $error');
-    return null;
   }
-}
-static Future<DriverData?> checkDriverCredentials(String type, String name, String password) async {
-  try {
-    QuerySnapshot<Map<String, dynamic>> querySnapshot =
-        await FirebaseFirestore.instance.collection(type)
-            .where('name', isEqualTo: name)
-            .where('password', isEqualTo: password)
-            .get();
 
-    if (querySnapshot.docs.isNotEmpty) {
-      // Extract owner information from the first document
-      Map<String, dynamic> data = querySnapshot.docs.first.data();
+  static Future<DriverData?> checkDriverCredentials(
+      String type, String name, String password) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance
+              .collection(type)
+              .where('name', isEqualTo: name)
+              .where('password', isEqualTo: password)
+              .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // Extract owner information from the first document
+        Map<String, dynamic> data = querySnapshot.docs.first.data();
 
         return DriverData(
           driverID: data['driverID'],
           name: data['name'],
           phoneNumber: data['phoneNumber'],
           driverImage: data['driverImage'],
-          );
-    } else {
-      // If no documents are found, return null
+        );
+      } else {
+        // If no documents are found, return null
+        return null;
+      }
+    } catch (error) {
+      // If an error occurs, print the error and return null
+      print('Error checking login credentials: $error');
       return null;
     }
-    
-  } catch (error) {
-    // If an error occurs, print the error and return null
-    print('Error checking login credentials: $error');
-    return null;
   }
-}
+static Future<void> changeOrderStatus(String newStatus, String ownerId) async {
+  
+    try {
+      // Reference to the orders collection
+      CollectionReference ordersRef =
+          FirebaseFirestore.instance.collection('orders');
 
+      // Check if the order belongs to the owner
+      QuerySnapshot orderSnapshot =
+          await ordersRef.where('OwnerData', isEqualTo: ownerId).limit(1).get();
 
-
+      // If order belongs to the owner, update the status
+      if (orderSnapshot.docs.isNotEmpty) {
+        String docId = orderSnapshot.docs.first.id;
+        await ordersRef.doc(docId).update({'status': newStatus});
+      } else {
+        throw Exception('Order not found or does not belong to owner');
+      }
+    } catch (e) {
+      print('Error changing order status: $e');
+      // Handle error
+    }
+  }
 }

@@ -69,7 +69,7 @@ class _OrdersPagePageState extends State<OrdersPage> {
                              OrderCard(
                               orderTime: orders![index].orderTime,
                               orderLocation: orders![index].orderLocation,
-                              // status: orders![index].status,
+                              status: orders![index].status,
                               // isTaken: orders![index].isTaken,
                               driverInfo: orders![index].driverInfo,
                               storeInfo: orders![index].storeInfo,
