@@ -37,6 +37,15 @@ class _OrdersPagePageState extends State<OrdersPage> {
     }
   }
 
+  Future<void> _changeOrderStatus(int index,) async {
+    // Remove the driver at the specified index from the list
+    if (index >= 0 && index < orders!.length) {
+      final orderToRemove = orders![index].orderID;
+      await FirebaseOperations.changeOrderStatus('OrderStatus.inProgress', orderToRemove);
+      _loadOrders(); // Refresh the drivers list after removing the driver
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,7 +94,7 @@ class _OrdersPagePageState extends State<OrdersPage> {
                                 // );
                               },
                               onDelete: () {
-                                _removeOrder(index);
+                                _changeOrderStatus(index);
                               }, 
                             ),
                             const SizedBox(height: 20), // Add space between each section

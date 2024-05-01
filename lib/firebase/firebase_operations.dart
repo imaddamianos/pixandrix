@@ -204,11 +204,12 @@ class FirebaseOperations {
         Map<String, dynamic> data = doc.data();
 
         return OrderData(
+          orderID : data['orderID'],
           orderLocation: data['orderLocation'],
           status: data['status'],
-          // isTaken: data['isTaken'],
+          isTaken: data['isTaken'],
           driverInfo: data['driverInfo'],
-          storeInfo: data['OwnerData'],
+          storeInfo: data['storeInfo'],
           orderTime: data['orderTime'],
         );
       }).toList());
@@ -292,7 +293,7 @@ static Future<void> changeOrderStatus(String newStatus, String ownerId) async {
 
       // Check if the order belongs to the owner
       QuerySnapshot orderSnapshot =
-          await ordersRef.where('OwnerData', isEqualTo: ownerId).limit(1).get();
+          await ordersRef.where('orderID', isEqualTo: ownerId).limit(1).get();
 
       // If order belongs to the owner, update the status
       if (orderSnapshot.docs.isNotEmpty) {

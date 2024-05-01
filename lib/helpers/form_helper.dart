@@ -84,34 +84,62 @@ OwnerData submitFormStore({
   }
 
   Future<void> submitFormOrder({
-    required DateTime orderTime,
-    required String orderLocation,
-    required OrderStatus status,
-    required bool isTaken,
-    required String driverInfo,
-    required String storeInfo,
-    required BuildContext context,
-  }) async {
-    try {
-      // Save data to Firestore
-      await FirebaseFirestore.instance.collection('orders').add({
-        'orderTime': orderTime,
-        'orderLocation': orderLocation,
-        'status': status.toString(),
-        'isTaken': isTaken,
-        'driverInfo' : driverInfo,
-        'OwnerData' : storeInfo,
-      });
-      showAlertDialog(
+  required DateTime orderTime,
+  required String orderLocation,
+  required OrderStatus status,
+  required bool isTaken,
+  required String driverInfo,
+  required String storeInfo,
+  required BuildContext context,
+}) async {
+  try {
+    // Get the next order number
+    int orderNumber = await getNextOrderNumber();
+
+    // Save order data to Firestore
+    await FirebaseFirestore.instance.collection('orders').add({
+      'orderID': 'ORD$orderNumber', // Use order number as the ID
+      'orderTime': orderTime,
+      'orderLocation': orderLocation,
+      'status': status.toString(),
+      'isTaken': isTaken,
+      'driverInfo': driverInfo,
+      'storeInfo': storeInfo,
+      // You can add more fields here if needed
+    });
+
+    showAlertDialog(
       context,
       'Success',
-      'Order created',
+      'Order created with ID: ORD$orderNumber',
     );
-    } catch (error) {
-      print('Error submitting form: $error');
-      // Handle error (show a message, log, etc.)
-      // You can throw the error to handle it in the caller function if needed
-      rethrow;
-    }
+  } catch (error) {
+    print('Error submitting form: $error');
+    // Handle error (show a message, log, etc.)
+    // You can throw the error to handle it in the caller function if needed
+    rethrow;
   }
+}
+
+Future<int> getNextOrderNumber() async {
+  try {
+    // Get the current order number
+    DocumentSnapshot orderNumberSnapshot = await FirebaseFirestore.instance.collection('ordersNumber').doc('orderNumber').get();
+    int currentOrderNumber = orderNumberSnapshot.exists ? orderNumberSnapshot['value'] : 0;
+
+    // Increment the order number by 1
+    int nextOrderNumber = currentOrderNumber + 1;
+
+    // Update the order number in Firestore
+    await FirebaseFirestore.instance.collection('ordersNumber').doc('orderNumber').set({'value': nextOrderNumber});
+
+    return nextOrderNumber;
+  } catch (error) {
+    print('Error getting next order number: $error');
+    // You can handle the error here as needed
+    throw error;
+  }
+}
+
+
   
