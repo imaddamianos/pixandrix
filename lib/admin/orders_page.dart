@@ -9,6 +9,7 @@ class OrdersPage extends StatefulWidget {
   @override
   _OrdersPagePageState createState() => _OrdersPagePageState();
 }
+
 class _OrdersPagePageState extends State<OrdersPage> {
   List<OrderData>? orders;
 
@@ -37,13 +38,23 @@ class _OrdersPagePageState extends State<OrdersPage> {
     }
   }
 
-  Future<void> _changeOrderStatus(int index,) async {
+  Future<void> _changeOrderStatus(
+    int index,
+  ) async {
     // Remove the driver at the specified index from the list
-    if (index >= 0 && index < orders!.length) {
-      final orderToRemove = orders![index].orderID;
-      await FirebaseOperations.changeOrderStatus('OrderStatus.inProgress', orderToRemove);
-      _loadOrders(); // Refresh the drivers list after removing the driver
+    final orderToChange = orders![index].orderID;
+    if (orders![index].status == 'OrderStatus.pending') {
+      if (index >= 0 && index < orders!.length) {
+        await FirebaseOperations.changeOrderStatus(
+            'OrderStatus.inProgress', orderToChange);
+      }
+    } else if (orders![index].status == 'OrderStatus.inProgress') {
+      if (index >= 0 && index < orders!.length) {
+        await FirebaseOperations.changeOrderStatus(
+            'OrderStatus.delivered', orderToChange);
+      }
     }
+    _loadOrders(); // Refresh the drivers list after removing the driver
   }
 
   @override
@@ -69,13 +80,15 @@ class _OrdersPagePageState extends State<OrdersPage> {
             const SizedBox(height: 20),
             Expanded(
               child: orders == null
-                  ? const Center(child: CircularProgressIndicator()) // Show loading indicator if drivers data is null
+                  ? const Center(
+                      child:
+                          CircularProgressIndicator()) // Show loading indicator if drivers data is null
                   : ListView.builder(
                       itemCount: orders!.length,
                       itemBuilder: (context, index) {
                         return Column(
                           children: [
-                             OrderCard(
+                            OrderCard(
                               orderTime: orders![index].orderTime,
                               orderLocation: orders![index].orderLocation,
                               status: orders![index].status,
@@ -95,11 +108,13 @@ class _OrdersPagePageState extends State<OrdersPage> {
                               },
                               onChangeStatus: () {
                                 _changeOrderStatus(index);
-                              }, onCancel: () { 
+                              },
+                              onCancel: () {
                                 _removeOrder(index);
-                              }, 
+                              },
                             ),
-                            const SizedBox(height: 20), // Add space between each section
+                            const SizedBox(
+                                height: 20), // Add space between each section
                           ],
                         );
                       },
