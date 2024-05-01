@@ -49,10 +49,12 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(ownerInfo?.name ??
-            'Owner Name'), // Use owner's name or a default value
+        title: Center(
+          child: Text(ownerInfo?.name ??
+              'Owner Name'),
+        ), // Use owner's name or a default value
         leading: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.only(left: 10.0),
           child: CircleAvatar(
             backgroundImage: NetworkImage(ownerInfo?.ownerImage ??
                 ''), // Use owner's image or a default image URL
@@ -83,19 +85,23 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CustomButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        OrderForm(ownerInfo: widget.ownerInfo),
-                  ),
-                );
-              },
-              text: 'Request a Driver',
-            ),
             const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+              child: CustomButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          OrderForm(ownerInfo: widget.ownerInfo),
+                    ),
+                  );
+                },
+                text: 'Request a Driver',
+              ),
+            ),
+            const SizedBox(height: 30),
             Expanded(
               child: orders == null
                   ? const Center(
