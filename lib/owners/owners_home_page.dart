@@ -50,8 +50,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Center(
-          child: Text(ownerInfo?.name ??
-              'Owner Name'),
+          child: Text(ownerInfo?.name ?? 'Owner Name'),
         ), // Use owner's name or a default value
         leading: Padding(
           padding: const EdgeInsets.only(left: 10.0),
@@ -82,65 +81,73 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-              child: CustomButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          OrderForm(ownerInfo: widget.ownerInfo),
-                    ),
-                  );
-                },
-                text: 'Request a Driver',
+        child: RefreshIndicator(
+          onRefresh: _loadOrders,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                child: CustomButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            OrderForm(ownerInfo: widget.ownerInfo),
+                      ),
+                    );
+                  },
+                  text: 'Request a Driver',
+                ),
               ),
-            ),
-            const SizedBox(height: 30),
-            Expanded(
-              child: orders == null
-                  ? const Center(
-                      child:
-                          CircularProgressIndicator()) // Show loading indicator if drivers data is null
-                  : ListView.builder(
-                      itemCount: orders!.length,
-                      itemBuilder: (context, index) {
-                        return Column(
-                          children: [
-                            OrderCardOwners(
-                              orderTime: orders![index].orderTime,
-                              orderLocation: orders![index].orderLocation,
-                              status: orders![index].status,
-                              // isTaken: orders![index].isTaken,
-                              driverInfo: orders![index].driverInfo,
-                              storeInfo: orders![index].storeInfo,
-                              press: () {
-                                // showDialog(
-                                //   context: context,
-                                //   builder: (context) => DriverCardWindow(
-                                //     driverName: drivers![index].name,
-                                //     driverImage: drivers![index].driverImage,
-                                //     driverMobile: drivers![index].phoneNumber,
-                                //     driverID: drivers![index].driverID,
-                                //   ),
-                                // );
-                              },
-                              onCancel: () {
-                                _removeOrder(index);
-                              },
-                            ),
-                            const SizedBox(height: 20),
-                          ],
-                        );
-                      },
-                    ),
-            ),
-          ],
+              const SizedBox(height: 30),
+              Expanded(
+                child: orders == null
+                    ? const Center(
+                        child:
+                            CircularProgressIndicator()) // Show loading indicator if drivers data is null
+                    : ListView.builder(
+                        itemCount: orders!.length,
+                        itemBuilder: (context, index) {
+                          if (orders![index].storeInfo == ownerInfo?.name) {
+                            return Column(
+                              children: [
+                                OrderCardOwners(
+                                  orderTime: orders![index].orderTime,
+                                  orderLocation: orders![index].orderLocation,
+                                  status: orders![index].status,
+                                  // isTaken: orders![index].isTaken,
+                                  driverInfo: orders![index].driverInfo,
+                                  storeInfo: orders![index].storeInfo,
+                                  press: () {
+                                    // showDialog(
+                                    //   context: context,
+                                    //   builder: (context) => DriverCardWindow(
+                                    //     driverName: drivers![index].name,
+                                    //     driverImage: drivers![index].driverImage,
+                                    //     driverMobile: drivers![index].phoneNumber,
+                                    //     driverID: drivers![index].driverID,
+                                    //   ),
+                                    // );
+                                  },
+                                  onCancel: () {
+                                    _removeOrder(index);
+                                  },
+                                ),
+                                const SizedBox(height: 20),
+                              ],
+                            );
+                          } else {
+                            return const SizedBox
+                                .shrink(); // Return an empty SizedBox if driverInfo is not empty
+                          }
+                        },
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );
