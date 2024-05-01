@@ -24,21 +24,63 @@ class FirebaseOperations {
     }
   }
 
-  static Future<bool> checkDriverNameExists(String driverName) async {
+   static Future<List<OwnerData>> getOwners() async {
     try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
-          .instance
-          .collection('drivers')
-          .where('name', isEqualTo: driverName)
-          .limit(
-              1) // Limit to 1 document since we only need to check if it exists
-          .get();
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance.collection('owners').get();
 
-      // If there's at least one document with the given restaurant name, return true
-      return querySnapshot.docs.isNotEmpty;
+      List<OwnerData> owners =
+          await Future.wait(querySnapshot.docs.map((doc) async {
+        Map<String, dynamic> data = doc.data();
+
+        return OwnerData(
+          latitude: data['userLocation']['latitude'],
+          longitude: data['userLocation']['longitude'],
+          name: data['name'],
+          phoneNumber: data['phoneNumber'],
+          ownerImage: data['ownerImage'],
+          rate: data['rate'],
+          password: data['password'],
+        );
+      }).toList());
+
+      return owners;
     } catch (e) {
-      print('Error checking driver name: $e');
-      return false;
+      print('Error fetching stores: $e');
+      throw e;
+    }
+  }
+
+  static Future<OwnerData?> checkOwnerCredentials(
+      String type, String name, String password) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance
+              .collection(type)
+              .where('name', isEqualTo: name)
+              .where('password', isEqualTo: password)
+              .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // Extract owner information from the first document
+        Map<String, dynamic> data = querySnapshot.docs.first.data();
+
+        return OwnerData(
+            name: data['name'],
+            phoneNumber: data['phoneNumber'],
+            ownerImage: data['ownerImage'],
+            latitude: data['userLocation']['latitude'],
+            longitude: data['userLocation']['longitude'],
+            rate: data['rate'],
+            password: data['password']);
+      } else {
+        // If no documents are found, return null
+        return null;
+      }
+    } catch (error) {
+      // If an error occurs, print the error and return null
+      print('Error checking login credentials: $error');
+      return null;
     }
   }
 
@@ -82,25 +124,21 @@ class FirebaseOperations {
     }
   }
 
-  static Future<void> removeOrder(String name) async {
+  static Future<bool> checkDriverNameExists(String driverName) async {
     try {
-      // Query the Firestore collection to find the document with the specified name
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance
-              .collection('orders')
-              .where('orderID', isEqualTo: name)
-              .get();
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
+          .instance
+          .collection('drivers')
+          .where('name', isEqualTo: driverName)
+          .limit(
+              1) // Limit to 1 document since we only need to check if it exists
+          .get();
 
-      // Check if any documents with the specified name were found
-      if (querySnapshot.docs.isNotEmpty) {
-        // Delete the first document found (assuming there's only one document with the same name)
-        await querySnapshot.docs.first.reference.delete();
-      } else {
-        print('No order found with the name: $name');
-      }
+      // If there's at least one document with the given restaurant name, return true
+      return querySnapshot.docs.isNotEmpty;
     } catch (e) {
-      print('Error removing order: $e');
-      throw e;
+      print('Error checking driver name: $e');
+      return false;
     }
   }
 
@@ -126,50 +164,6 @@ class FirebaseOperations {
     }
   }
 
-  Future<String> uploadImage(
-      String path, String user, File selectedImage) async {
-    try {
-      final Reference storageRef =
-          FirebaseStorage.instance.ref().child(path).child('$user.jpg');
-      await storageRef.putFile(selectedImage);
-
-      // Get the download URL of the uploaded image
-      var imageUrl = await storageRef.getDownloadURL();
-
-      return imageUrl;
-    } catch (error) {
-      print('Error uploading image: $error');
-      return 'no image'; // Return an empty string in case of an error
-    }
-  }
-
-  static Future<List<OwnerData>> getOwners() async {
-    try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance.collection('owners').get();
-
-      List<OwnerData> owners =
-          await Future.wait(querySnapshot.docs.map((doc) async {
-        Map<String, dynamic> data = doc.data();
-
-        return OwnerData(
-          latitude: data['userLocation']['latitude'],
-          longitude: data['userLocation']['longitude'],
-          name: data['name'],
-          phoneNumber: data['phoneNumber'],
-          ownerImage: data['ownerImage'],
-          rate: data['rate'],
-          password: data['password'],
-        );
-      }).toList());
-
-      return owners;
-    } catch (e) {
-      print('Error fetching stores: $e');
-      throw e;
-    }
-  }
-
   static Future<List<DriverData>> getDrivers() async {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot =
@@ -191,66 +185,6 @@ class FirebaseOperations {
     } catch (e) {
       print('Error fetching stores: $e');
       throw e;
-    }
-  }
-
-  static Future<List<OrderData>> getOrders() async {
-    try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance.collection('orders').get();
-
-      List<OrderData> orders =
-          await Future.wait(querySnapshot.docs.map((doc) async {
-        Map<String, dynamic> data = doc.data();
-
-        return OrderData(
-          orderID : data['orderID'],
-          orderLocation: data['orderLocation'],
-          status: data['status'],
-          isTaken: data['isTaken'],
-          driverInfo: data['driverInfo'],
-          storeInfo: data['storeInfo'],
-          orderTime: data['orderTime'],
-        );
-      }).toList());
-
-      return orders;
-    } catch (e) {
-      print('Error fetching stores: $e');
-      throw e;
-    }
-  }
-
-  static Future<OwnerData?> checkOwnerCredentials(
-      String type, String name, String password) async {
-    try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance
-              .collection(type)
-              .where('name', isEqualTo: name)
-              .where('password', isEqualTo: password)
-              .get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        // Extract owner information from the first document
-        Map<String, dynamic> data = querySnapshot.docs.first.data();
-
-        return OwnerData(
-            name: data['name'],
-            phoneNumber: data['phoneNumber'],
-            ownerImage: data['ownerImage'],
-            latitude: data['userLocation']['latitude'],
-            longitude: data['userLocation']['longitude'],
-            rate: data['rate'],
-            password: data['password']);
-      } else {
-        // If no documents are found, return null
-        return null;
-      }
-    } catch (error) {
-      // If an error occurs, print the error and return null
-      print('Error checking login credentials: $error');
-      return null;
     }
   }
 
@@ -284,6 +218,51 @@ class FirebaseOperations {
       return null;
     }
   }
+
+  Future<String> uploadImage(
+      String path, String user, File selectedImage) async {
+    try {
+      final Reference storageRef =
+          FirebaseStorage.instance.ref().child(path).child('$user.jpg');
+      await storageRef.putFile(selectedImage);
+
+      // Get the download URL of the uploaded image
+      var imageUrl = await storageRef.getDownloadURL();
+
+      return imageUrl;
+    } catch (error) {
+      print('Error uploading image: $error');
+      return 'no image'; // Return an empty string in case of an error
+    }
+  }
+
+  static Future<List<OrderData>> getOrders() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance.collection('orders').get();
+
+      List<OrderData> orders =
+          await Future.wait(querySnapshot.docs.map((doc) async {
+        Map<String, dynamic> data = doc.data();
+
+        return OrderData(
+          orderID : data['orderID'],
+          orderLocation: data['orderLocation'],
+          status: data['status'],
+          isTaken: data['isTaken'],
+          driverInfo: data['driverInfo'],
+          storeInfo: data['storeInfo'],
+          orderTime: data['orderTime'],
+        );
+      }).toList());
+
+      return orders;
+    } catch (e) {
+      print('Error fetching stores: $e');
+      throw e;
+    }
+  }
+  
 static Future<void> changeOrderStatus(String newStatus, String ownerId) async {
   
     try {
@@ -305,6 +284,28 @@ static Future<void> changeOrderStatus(String newStatus, String ownerId) async {
     } catch (e) {
       print('Error changing order status: $e');
       // Handle error
+    }
+  }
+
+  static Future<void> removeOrder(String name) async {
+    try {
+      // Query the Firestore collection to find the document with the specified name
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance
+              .collection('orders')
+              .where('orderID', isEqualTo: name)
+              .get();
+
+      // Check if any documents with the specified name were found
+      if (querySnapshot.docs.isNotEmpty) {
+        // Delete the first document found (assuming there's only one document with the same name)
+        await querySnapshot.docs.first.reference.delete();
+      } else {
+        print('No order found with the name: $name');
+      }
+    } catch (e) {
+      print('Error removing order: $e');
+      throw e;
     }
   }
 }
