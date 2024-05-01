@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pixandrix/helpers/order_status_utils.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import 'package:pixandrix/firebase/firebase_operations.dart';
 
 class OrderCard extends StatelessWidget {
   const OrderCard({
-    Key? key,
+    super.key,
     required this.orderTime,
     required this.orderLocation,
     required this.status,
@@ -14,15 +13,17 @@ class OrderCard extends StatelessWidget {
     required this.driverInfo,
     required this.storeInfo,
     required this.press,
-    required this.onDelete,
-  }) : super(key: key);
+    required this.onChangeStatus,
+    required this.onCancel,
+  });
 
   final String driverInfo, orderLocation, storeInfo;
   final String status;
   // final bool isTaken;
   final Timestamp orderTime; // Change the type to Timestamp
   final GestureTapCallback press;
-  final VoidCallback onDelete;
+  final VoidCallback onChangeStatus;
+  final VoidCallback onCancel;
 
   @override
   Widget build(BuildContext context) {
@@ -94,9 +95,16 @@ class OrderCard extends StatelessWidget {
                       statusInfo['iconData'],
                       color: statusInfo['iconColor'],
                     ),
-                    onPressed: onDelete,
+                    onPressed: onChangeStatus,
                   ),
                 ),
+                TextButton(
+              onPressed: onCancel,
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Color.fromARGB(255, 255, 0, 0)),
+              ),
+            ),
               ],
             ),
           ),

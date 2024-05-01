@@ -32,7 +32,7 @@ class _OrdersPagePageState extends State<OrdersPage> {
     // Remove the driver at the specified index from the list
     if (index >= 0 && index < orders!.length) {
       final orderToRemove = orders![index];
-      await FirebaseOperations.removeOrder(orderToRemove.storeInfo);
+      await FirebaseOperations.removeOrder(orderToRemove.orderID);
       _loadOrders(); // Refresh the drivers list after removing the driver
     }
   }
@@ -93,8 +93,10 @@ class _OrdersPagePageState extends State<OrdersPage> {
                                 //   ),
                                 // );
                               },
-                              onDelete: () {
+                              onChangeStatus: () {
                                 _changeOrderStatus(index);
+                              }, onCancel: () { 
+                                _removeOrder(index);
                               }, 
                             ),
                             const SizedBox(height: 20), // Add space between each section
