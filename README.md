@@ -1,10 +1,10 @@
 # pixandrix
 
-A new Flutter project.
+Delivery app managment
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+This project is a starting point for a delivery app.
 
 A few resources to get you started if this is your first Flutter project:
 
