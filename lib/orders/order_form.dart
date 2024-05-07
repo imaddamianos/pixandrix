@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/helpers/form_helper.dart';
-import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/theme/buttons/main_button.dart';
@@ -49,7 +48,7 @@ class _OrderFormState extends State<OrderForm> {
               TextFormField(
                 controller: _locationController,
                 decoration: const InputDecoration(
-                  labelText: 'Order Location',
+                  labelText: 'Enter Location',
                   labelStyle: TextStyle(
                     color: textColor,
                   ),
@@ -76,21 +75,23 @@ class _OrderFormState extends State<OrderForm> {
                       icon: const Icon(Icons.remove),
                       onPressed: () {
                         setState(() {
-                          _selectedTime = _subtractTime(_selectedTime, const Duration(minutes: 5));
+                          _selectedTime = _subtractTime(
+                              _selectedTime, const Duration(minutes: 5));
                         });
                       },
                     ),
                     Text(
-                  '${_selectedTime.hour}:${_selectedTime.minute}',
-                  style: const TextStyle(
-                    color: textColor,
-                  ),
-                ),
+                      '${_selectedTime.hour}:${_selectedTime.minute}',
+                      style: const TextStyle(
+                        color: textColor,
+                      ),
+                    ),
                     IconButton(
                       icon: const Icon(Icons.add),
                       onPressed: () {
                         setState(() {
-                          _selectedTime = _addTime(_selectedTime, const Duration(minutes: 5));
+                          _selectedTime = _addTime(
+                              _selectedTime, const Duration(minutes: 5));
                         });
                       },
                     ),
@@ -103,7 +104,9 @@ class _OrderFormState extends State<OrderForm> {
                   if (_formKey.currentState!.validate()) {
                     // Combine current date with selected time to create order time
                     DateTime orderTime = DateTime.now().add(
-                      Duration(hours: _selectedTime.hour, minutes: _selectedTime.minute),
+                      Duration(
+                          hours: _selectedTime.hour,
+                          minutes: _selectedTime.minute),
                     );
                     submitFormOrder(
                       orderTime: orderTime,
@@ -129,13 +132,14 @@ class _OrderFormState extends State<OrderForm> {
 
   TimeOfDay _subtractTime(TimeOfDay time, Duration duration) {
     int minutes = time.hour * 60 + time.minute;
-    int subtractedMinutes = (minutes - duration.inMinutes).clamp(0, 24 * 60);
-    return TimeOfDay(hour: subtractedMinutes ~/ 60, minute: subtractedMinutes % 60);
+    int subtractedMinutes = (minutes - duration.inMinutes).clamp(15, 60);
+    return TimeOfDay(
+        hour: subtractedMinutes ~/ 60, minute: subtractedMinutes % 60);
   }
 
   TimeOfDay _addTime(TimeOfDay time, Duration duration) {
     int minutes = time.hour * 60 + time.minute;
-    int addedMinutes = (minutes + duration.inMinutes).clamp(0, 24 * 60);
+    int addedMinutes = (minutes + duration.inMinutes).clamp(15, 60);
     return TimeOfDay(hour: addedMinutes ~/ 60, minute: addedMinutes % 60);
   }
 }

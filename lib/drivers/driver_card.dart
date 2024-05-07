@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_launcher_icons/xml_templates.dart';
-import 'package:pixandrix/theme/custom_theme.dart';
 
 class DriverCard extends StatelessWidget {
   const DriverCard({
