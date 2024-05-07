@@ -7,7 +7,7 @@ import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'package:pixandrix/theme/custom_theme.dart';
 
 class OrderForm extends StatefulWidget {
-  const OrderForm({super.key, required this.ownerInfo});
+  const OrderForm({Key? key, required this.ownerInfo}) : super(key: key);
 
   final OwnerData? ownerInfo;
 
@@ -19,10 +19,9 @@ class _OrderFormState extends State<OrderForm> {
   late OwnerData? ownerInfo;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _locationController = TextEditingController();
-  DateTime? _selectedDate;
-  TimeOfDay? _selectedTime;
+  TimeOfDay _selectedTime = TimeOfDay(hour: 0, minute: 15);
 
-   @override
+  @override
   void initState() {
     super.initState();
     ownerInfo = widget.ownerInfo;
@@ -64,65 +63,47 @@ class _OrderFormState extends State<OrderForm> {
               ),
               const SizedBox(height: 16.0),
               ListTile(
-                title: Text(
-                  _selectedDate == null
-                      ? 'Select Date'
-                      : 'Date: ${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
-                  style: const TextStyle(
-                    color: textColor, // Set the text color here
+                title: const Text(
+                  'Time',
+                  style: TextStyle(
+                    color: textColor,
                   ),
                 ),
-                trailing: const Icon(Icons.date_range),
-                onTap: () async {
-                  final DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(const Duration(days: 30)),
-                  );
-                  if (pickedDate != null && pickedDate != _selectedDate) {
-                    setState(() {
-                      _selectedDate = pickedDate;
-                    });
-                  }
-                },
-              ),
-              const SizedBox(height: 16.0),
-              ListTile(
-                title: Text(
-                  _selectedTime == null
-                      ? 'Select Time'
-                      : 'Time: ${_selectedTime!.hour}:${_selectedTime!.minute}',
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove),
+                      onPressed: () {
+                        setState(() {
+                          _selectedTime = _subtractTime(_selectedTime, const Duration(minutes: 5));
+                        });
+                      },
+                    ),
+                    Text(
+                  '${_selectedTime.hour}:${_selectedTime.minute}',
                   style: const TextStyle(
-                    color: textColor, // Set the text color here
+                    color: textColor,
                   ),
                 ),
-                trailing: const Icon(Icons.access_time),
-                onTap: () async {
-                  final TimeOfDay? pickedTime = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay.now(),
-                  );
-                  if (pickedTime != null && pickedTime != _selectedTime) {
-                    setState(() {
-                      _selectedTime = pickedTime;
-                    });
-                  }
-                },
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () {
+                        setState(() {
+                          _selectedTime = _addTime(_selectedTime, const Duration(minutes: 5));
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16.0),
               CustomButton(
                 onPressed: () async {
-                  if (_formKey.currentState!.validate() &&
-                      _selectedDate != null &&
-                      _selectedTime != null) {
-                    // Combine date and time to create order time
-                    DateTime orderTime = DateTime(
-                      _selectedDate!.year,
-                      _selectedDate!.month,
-                      _selectedDate!.day,
-                      _selectedTime!.hour,
-                      _selectedTime!.minute,
+                  if (_formKey.currentState!.validate()) {
+                    // Combine current date with selected time to create order time
+                    DateTime orderTime = DateTime.now().add(
+                      Duration(hours: _selectedTime.hour, minutes: _selectedTime.minute),
                     );
                     submitFormOrder(
                       orderTime: orderTime,
@@ -131,8 +112,9 @@ class _OrderFormState extends State<OrderForm> {
                       isTaken: false,
                       driverInfo: '',
                       storeInfo: widget.ownerInfo!.name,
-                      context: context);
-                    
+                      context: context,
+                    );
+
                     // Navigator.pop(context);
                   }
                 },
@@ -143,5 +125,17 @@ class _OrderFormState extends State<OrderForm> {
         ),
       ),
     );
+  }
+
+  TimeOfDay _subtractTime(TimeOfDay time, Duration duration) {
+    int minutes = time.hour * 60 + time.minute;
+    int subtractedMinutes = (minutes - duration.inMinutes).clamp(0, 24 * 60);
+    return TimeOfDay(hour: subtractedMinutes ~/ 60, minute: subtractedMinutes % 60);
+  }
+
+  TimeOfDay _addTime(TimeOfDay time, Duration duration) {
+    int minutes = time.hour * 60 + time.minute;
+    int addedMinutes = (minutes + duration.inMinutes).clamp(0, 24 * 60);
+    return TimeOfDay(hour: addedMinutes ~/ 60, minute: addedMinutes % 60);
   }
 }
