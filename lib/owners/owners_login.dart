@@ -124,6 +124,7 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
           'Error',
           'Enter all the information',
         );
+        _globalLoader.hideLoader();
       }
     }
   }

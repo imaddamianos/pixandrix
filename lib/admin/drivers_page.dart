@@ -62,7 +62,12 @@ class _DriversPageState extends State<DriversPage> {
                 _loadDrivers();
               },
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
+            Text(
+                  'Owners: ${drivers?.length ?? 0}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+            const SizedBox(height: 10),
             Expanded(
               child: drivers == null
                   ? const Center(child: CircularProgressIndicator())

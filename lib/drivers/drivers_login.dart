@@ -102,6 +102,7 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
           'Error',
           'Enter all the information',
         );
+        _globalLoader.hideLoader();
       }
     }
   }
