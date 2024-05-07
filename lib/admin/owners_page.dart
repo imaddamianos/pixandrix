@@ -61,7 +61,12 @@ class _OwnersPageState extends State<OwnersPage> {
                 _loadOwners();
               },
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
+            Text(
+                  'Owners: ${owners?.length ?? 0}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+            const SizedBox(height: 10),
             Expanded(
               child: owners == null
                   ? const Center(
@@ -70,27 +75,40 @@ class _OwnersPageState extends State<OwnersPage> {
                   : ListView.builder(
                       itemCount: owners!.length,
                       itemBuilder: (context, index) {
+                        final owner = owners![index];
                         return Column(
                           children: [
                             OwnerCard(
-                              name: owners![index].name,
-                              image: owners![index].ownerImage,
-                              mobile: owners![index].phoneNumber,
+                              name: owner.name,
+                              image: owner.ownerImage,
+                              mobile: owner.phoneNumber,
+                              isVerified: owner.verified,
                               press: () {
                                 showDialog(
                                   context: context,
                                   builder: (context) => OwnerCardWindow(
-                                    ownerName: owners![index].name,
-                                    ownerImage: owners![index].ownerImage,
-                                    ownerMobile: owners![index].phoneNumber,
-                                    latitude: owners![index].latitude,
-                                    longitude: owners![index].longitude,
-                                    rate: owners![index].rate,
+                                    ownerName: owner.name,
+                                    ownerImage: owner.ownerImage,
+                                    ownerMobile: owner.phoneNumber,
+                                    latitude: owner.latitude,
+                                    longitude: owner.longitude,
+                                    rate: owner.rate,
                                   ),
                                 );
                               },
                               onDelete: () {
                                 _removeOwner(index);
+                              },
+                              onToggleVerification: () async {
+                                // Toggle the verified status locally
+                                final newVerifiedStatus = !owner.verified;
+                                // Update the verification status in Firebase
+                                await FirebaseOperations
+                                    .changeOwnerVerification(
+                                        owner.name, newVerifiedStatus);
+
+                                // Reload the drivers list
+                                _loadOwners();
                               },
                             ),
                             const SizedBox(

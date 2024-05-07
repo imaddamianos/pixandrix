@@ -60,7 +60,7 @@ class _OrdersPageState extends State<OrdersPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               Expanded(
                 child: orders == null
                     ? const Center(
@@ -71,6 +71,12 @@ class _OrdersPageState extends State<OrdersPage> {
                         itemBuilder: (context, index) {
                           return Column(
                             children: [
+                              Text(
+                                'Orders: ${orders?.length ?? 0}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 10),
                               OrderCard(
                                 orderTime: orders![index].orderTime,
                                 orderLocation: orders![index].orderLocation,

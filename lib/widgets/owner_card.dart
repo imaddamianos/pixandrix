@@ -6,13 +6,17 @@ class OwnerCard extends StatelessWidget {
     required this.name,
     required this.image,
     required this.mobile,
+    required this.isVerified,
     required this.press,
     required this.onDelete,
+    required this.onToggleVerification,
   });
 
   final String name, image, mobile;
+  final bool isVerified;
   final GestureTapCallback press;
   final VoidCallback onDelete;
+  final VoidCallback onToggleVerification;
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +72,18 @@ class OwnerCard extends StatelessWidget {
                         Color.fromARGB(200, 184, 184, 183),
                       ],
                     ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Switch(
+                    value: isVerified,
+                    onChanged: (value) {
+                      onToggleVerification();
+                    },
+                    activeColor: Colors.green,
+                    inactiveThumbColor: Colors.red,
                   ),
                 ),
                 Positioned(

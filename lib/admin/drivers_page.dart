@@ -55,7 +55,8 @@ class _DriversPageState extends State<DriversPage> {
                 // Navigate to the AddDriverPage and await the result
                 await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const AddDriverPage()),
+                  MaterialPageRoute(
+                      builder: (context) => const AddDriverPage()),
                 );
                 // Refresh the drivers list after adding a new driver
                 _loadDrivers();
@@ -64,32 +65,46 @@ class _DriversPageState extends State<DriversPage> {
             const SizedBox(height: 20),
             Expanded(
               child: drivers == null
-                  ? const Center(child: CircularProgressIndicator()) // Show loading indicator if drivers data is null
+                  ? const Center(child: CircularProgressIndicator())
                   : ListView.builder(
                       itemCount: drivers!.length,
                       itemBuilder: (context, index) {
+                        final driver = drivers![index];
                         return Column(
                           children: [
-                             DriverCard(
-                              name: drivers![index].name,
-                              image: drivers![index].driverImage,
-                              mobile: drivers![index].phoneNumber,
+                            DriverCard(
+                              name: driver.name,
+                              image: driver.driverImage,
+                              mobile: driver.phoneNumber,
+                              isVerified: driver.verified,
                               press: () {
                                 showDialog(
                                   context: context,
                                   builder: (context) => DriverCardWindow(
-                                    driverName: drivers![index].name,
-                                    driverImage: drivers![index].driverImage,
-                                    driverMobile: drivers![index].phoneNumber,
-                                    driverID: drivers![index].driverID,
+                                    driverName: driver.name,
+                                    driverImage: driver.driverImage,
+                                    driverMobile: driver.phoneNumber,
+                                    driverID: driver.driverID,
                                   ),
                                 );
                               },
                               onDelete: () {
                                 _removeDriver(index);
                               },
+                              onToggleVerification: () async {
+                                // Toggle the verified status locally
+                                final newVerifiedStatus = !driver.verified;
+                                // Update the verification status in Firebase
+                                await FirebaseOperations
+                                    .changeDriverVerification(
+                                        driver.name, newVerifiedStatus);
+
+                                // Reload the drivers list
+                                _loadDrivers();
+                              },
                             ),
-                            const SizedBox(height: 20), // Add space between each section
+                            const SizedBox(
+                                height: 20), // Add space between each section
                           ],
                         );
                       },

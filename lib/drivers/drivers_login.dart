@@ -110,7 +110,6 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
   if (_formKey.currentState!.validate()) {
     String name = _driverNameController.text;
     String password = _passwordController.text;
-
     try {
       final driverAuth = await FirebaseOperations.checkDriverCredentials('drivers', name, password);
       final verification = await FirebaseOperations.checkDriverVerification(name);

@@ -147,6 +147,24 @@ class FirebaseOperations {
   }
 }
 
+static Future<bool> checkOwnerVerification(String ownerName) async {
+  try {
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
+        .instance
+        .collection('owners')
+        .where('name', isEqualTo: ownerName)
+        .where('verified', isEqualTo: true)
+        .limit(1)
+        .get();
+
+    // If there's at least one document with the given driver name and verified field is true, return true
+    return querySnapshot.docs.isNotEmpty;
+  } catch (e) {
+    print('Error checking owner verification: $e');
+    return false;
+  }
+}
+
   static Future<bool> checkDriverNameExists(String driverName) async {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
@@ -311,6 +329,42 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
       }
     } catch (e) {
       print('Error changing driver name: $e');
+      // Handle error
+    }
+  }
+
+  static Future<void> changeDriverVerification(String driverName, bool isVerified) async {
+    try {
+      CollectionReference ordersRef =
+          FirebaseFirestore.instance.collection('drivers');
+      QuerySnapshot orderSnapshot =
+          await ordersRef.where('name', isEqualTo: driverName).limit(1).get();
+      if (orderSnapshot.docs.isNotEmpty) {
+        String docId = orderSnapshot.docs.first.id;
+        await ordersRef.doc(docId).update({'verified': isVerified});
+      } else {
+        throw Exception('Driver not found or does not belong');
+      }
+    } catch (e) {
+      print('Error toggling driver verification status: $e');
+      // Handle error
+    }
+  }
+
+  static Future<void> changeOwnerVerification(String ownerName, bool isVerified) async {
+    try {
+      CollectionReference ordersRef =
+          FirebaseFirestore.instance.collection('owners');
+      QuerySnapshot orderSnapshot =
+          await ordersRef.where('name', isEqualTo: ownerName).limit(1).get();
+      if (orderSnapshot.docs.isNotEmpty) {
+        String docId = orderSnapshot.docs.first.id;
+        await ordersRef.doc(docId).update({'verified': isVerified});
+      } else {
+        throw Exception('Owner not found or does not belong');
+      }
+    } catch (e) {
+      print('Error toggling Owner verification status: $e');
       // Handle error
     }
   }

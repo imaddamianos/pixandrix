@@ -134,6 +134,9 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
       String password = _passwordController.text;
       try {
         final ownerAuth = await FirebaseOperations.checkOwnerCredentials('owners', name, password);
+        final verification = await FirebaseOperations.checkOwnerVerification(name);
+
+        if (verification){
         if (ownerAuth != null) {
           if (remember == true) {
             _secureStorage.saveOwner(name, password);
@@ -152,6 +155,13 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
             'Wrong password',
           );
         }
+        }else{
+        showAlertDialog(
+          context,
+          'Error',
+          'Check verification with admin',
+        );
+      }
       } catch (error) {
         print('Error submitting form: $error');
       }
