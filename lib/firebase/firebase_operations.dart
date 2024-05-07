@@ -41,6 +41,8 @@ class FirebaseOperations {
           ownerImage: data['ownerImage'],
           rate: data['rate'],
           password: data['password'],
+          verified: data['verified'],
+          isAvailable: data['isAvailable'],
         );
       }).toList());
 
@@ -72,7 +74,10 @@ class FirebaseOperations {
             latitude: data['userLocation']['latitude'],
             longitude: data['userLocation']['longitude'],
             rate: data['rate'],
-            password: data['password']);
+            password: data['password'],
+            verified: data['verified'],
+            isAvailable: data['isAvailable'],
+            );
       } else {
         // If no documents are found, return null
         return null;
@@ -178,6 +183,8 @@ class FirebaseOperations {
           phoneNumber: data['phoneNumber'],
           driverImage: data['driverImage'],
           driverID: data['driverID'],
+          verified: data['verified'],
+          isAvailable: data['isAvailable'],
         );
       }).toList());
 
@@ -207,6 +214,8 @@ class FirebaseOperations {
           name: data['name'],
           phoneNumber: data['phoneNumber'],
           driverImage: data['driverImage'],
+          verified: data['verified'],
+          isAvailable: data['isAvailable'],
         );
       } else {
         // If no documents are found, return null

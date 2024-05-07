@@ -16,6 +16,8 @@ OwnerData submitFormStore({
   required double olongitude,
   required BuildContext context,
   required File selectedImage,
+  required bool verified,
+  required bool isAvailable,
 }) {
   try {
     // Save data to Firestore
@@ -31,7 +33,15 @@ OwnerData submitFormStore({
       'rate': rate,
       'orderTime': '',
       'orderLocation': '',
+      'verified' : verified,
+      'isAvailable' : isAvailable
     });
+
+    showAlertDialog(
+      context,
+      'Success',
+      'Store created, check verification with admin',
+    );
 
     // Create and return the OwnerData instance
     return OwnerData(
@@ -42,6 +52,8 @@ OwnerData submitFormStore({
       ownerImage: imageUrl,
       password: password,
       rate: rate,
+      verified: verified,
+      isAvailable: isAvailable,
     );
   } catch (error) {
     print('Error submitting form: $error');
@@ -52,13 +64,15 @@ OwnerData submitFormStore({
 }
 
 
-  Future<void> submitFormDriver({
+  Future<DriverData> submitFormDriver({
     required String imageUrl,
     required String imageIDUrl,
     required String name,
     required String password,
     required String phoneNumber,
     required File selectedImage,
+    required bool verified,
+     required bool isAvailable,
     required BuildContext context,
   }) async {
     try {
@@ -69,11 +83,23 @@ OwnerData submitFormStore({
         'driverImage': imageUrl,
         'password': password,
         'driverID' : imageIDUrl,
+        'verified' : verified,
+        'isAvailable' : isAvailable
       });
+
       showAlertDialog(
       context,
       'Success',
-      'Account created, you can log in',
+      'Driver created, check verification with admin',
+    );
+
+      return DriverData(
+      name: name,
+      phoneNumber: phoneNumber,
+      verified: verified,
+      driverImage: imageUrl,
+      driverID: '',
+      isAvailable: isAvailable,
     );
     } catch (error) {
       print('Error submitting form: $error');

@@ -114,6 +114,8 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
           rate: rate,
           olatitude: userLocation!.latitude,
           olongitude: userLocation!.longitude,
+          verified: false,
+          isAvailable: false,
         );
         _globalLoader.hideLoader();
       } catch (error) {

@@ -92,6 +92,8 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
           context: context,
           password: password,
           imageIDUrl: imageIdUrl,
+          verified: false,
+          isAvailable: false,
         );
         _globalLoader.hideLoader();
       } catch (error) {

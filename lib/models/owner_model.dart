@@ -6,6 +6,8 @@ class OwnerData {
   double latitude;
   double longitude;
   String rate;
+  bool verified;
+  bool isAvailable;
 
   OwnerData({
     required this.name,
@@ -15,5 +17,7 @@ class OwnerData {
     required this.longitude,
     required this.rate,
     required this.password,
+    required this.verified,
+    required this.isAvailable,
   });
 }
