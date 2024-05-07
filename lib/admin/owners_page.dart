@@ -3,8 +3,8 @@ import 'package:pixandrix/admin/add%20owners/add_owner.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/theme/buttons/add_button.dart';
-import 'package:pixandrix/widgets/owner_card.dart';
-import 'package:pixandrix/widgets/owner_card_window.dart';
+import 'package:pixandrix/owners/owner_card.dart';
+import 'package:pixandrix/owners/owner_card_window.dart';
 
 class OwnersPage extends StatefulWidget {
   const OwnersPage({super.key});

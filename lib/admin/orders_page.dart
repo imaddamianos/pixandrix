@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/order_model.dart';
-import 'package:pixandrix/widgets/order_card.dart';
+import 'package:pixandrix/orders/order_card.dart';
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({Key? key});

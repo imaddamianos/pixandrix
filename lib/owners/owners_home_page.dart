@@ -5,7 +5,7 @@ import 'package:pixandrix/orders/order_form.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/theme/buttons/main_button.dart';
-import 'package:pixandrix/widgets/order_card_owners.dart';
+import 'package:pixandrix/orders/order_card_owners.dart';
 
 class OwnersHomePage extends StatefulWidget {
   final OwnerData? ownerInfo;

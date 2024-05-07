@@ -3,8 +3,8 @@ import 'package:pixandrix/admin/add%20drivers/add_driver.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/theme/buttons/add_button.dart';
-import 'package:pixandrix/widgets/driver_card.dart';
-import 'package:pixandrix/widgets/driver_card_window.dart';
+import 'package:pixandrix/drivers/driver_card.dart';
+import 'package:pixandrix/drivers/driver_card_window.dart';
 
 class DriversPage extends StatefulWidget {
   const DriversPage({super.key});
