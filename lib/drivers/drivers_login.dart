@@ -113,8 +113,11 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
 
     try {
       final driverAuth = await FirebaseOperations.checkDriverCredentials('drivers', name, password);
-      if (driverAuth != null) {
-        if (remember == true) {
+      final verification = await FirebaseOperations.checkDriverVerification(name);
+
+      if (verification){
+        if (driverAuth != null) {
+          if (remember == true) {
           // Save credentials only if the checkbox is selected
           _secureStorage.saveDriver(name, password);
         }
@@ -124,12 +127,19 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
             builder: (context) => DriversHomePage(driverInfo: driverAuth),
           ),
         );
-        print('Login successful for owner: $name');
-      } else {
-        showAlertDialog(
+        print('Login successful for driver: $name');
+        }else{
+          showAlertDialog(
           context,
           'Error',
           'Wrong password',
+        );
+        }
+      }else{
+        showAlertDialog(
+          context,
+          'Error',
+          'Check verification with admin',
         );
       }
     } catch (error) {
@@ -235,6 +245,7 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
                 const SizedBox(height: 16.0),
                 ElevatedButton(
                   onPressed: () {
+                    
                     if (_driverNameAvailable) {
                       _driverLogIn();
                     } else {

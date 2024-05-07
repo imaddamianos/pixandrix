@@ -129,6 +129,24 @@ class FirebaseOperations {
     }
   }
 
+  static Future<bool> checkDriverVerification(String driverName) async {
+  try {
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
+        .instance
+        .collection('drivers')
+        .where('name', isEqualTo: driverName)
+        .where('verified', isEqualTo: true)
+        .limit(1)
+        .get();
+
+    // If there's at least one document with the given driver name and verified field is true, return true
+    return querySnapshot.docs.isNotEmpty;
+  } catch (e) {
+    print('Error checking driver verification: $e');
+    return false;
+  }
+}
+
   static Future<bool> checkDriverNameExists(String driverName) async {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
@@ -144,6 +162,40 @@ class FirebaseOperations {
     } catch (e) {
       print('Error checking driver name: $e');
       return false;
+    }
+  }
+
+  static Future<DriverData?> checkDriverCredentials(
+      String type, String name, String password) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance
+              .collection(type)
+              .where('name', isEqualTo: name)
+              .where('password', isEqualTo: password)
+              .where('verified', isEqualTo: true)
+              .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // Extract owner information from the first document
+        Map<String, dynamic> data = querySnapshot.docs.first.data();
+
+        return DriverData(
+          driverID: data['driverID'],
+          name: data['name'],
+          phoneNumber: data['phoneNumber'],
+          driverImage: data['driverImage'],
+          verified: data['verified'],
+          isAvailable: data['isAvailable'],
+        );
+      } else {
+        // If no documents are found, return null
+        return null;
+      }
+    } catch (error) {
+      // If an error occurs, print the error and return null
+      print('Error checking login credentials: $error');
+      return null;
     }
   }
 
@@ -192,39 +244,6 @@ class FirebaseOperations {
     } catch (e) {
       print('Error fetching stores: $e');
       throw e;
-    }
-  }
-
-  static Future<DriverData?> checkDriverCredentials(
-      String type, String name, String password) async {
-    try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance
-              .collection(type)
-              .where('name', isEqualTo: name)
-              .where('password', isEqualTo: password)
-              .get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        // Extract owner information from the first document
-        Map<String, dynamic> data = querySnapshot.docs.first.data();
-
-        return DriverData(
-          driverID: data['driverID'],
-          name: data['name'],
-          phoneNumber: data['phoneNumber'],
-          driverImage: data['driverImage'],
-          verified: data['verified'],
-          isAvailable: data['isAvailable'],
-        );
-      } else {
-        // If no documents are found, return null
-        return null;
-      }
-    } catch (error) {
-      // If an error occurs, print the error and return null
-      print('Error checking login credentials: $error');
-      return null;
     }
   }
 
