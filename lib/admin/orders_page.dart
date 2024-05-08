@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/orders/order_card.dart';
+import 'package:pixandrix/orders/order_card_windows.dart';
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({Key? key});
@@ -82,7 +83,16 @@ class _OrdersPageState extends State<OrdersPage> {
                                 status: orders![index].status,
                                 driverInfo: orders![index].driverInfo,
                                 storeInfo: orders![index].storeInfo,
-                                press: () {},
+                                press: () {
+                                   String orderID = orders![index].orderID;
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => OrderCardWindow(
+                                        driverName: orders![index].driverInfo,
+                                        orderID: orderID
+                                      ),
+                                    );
+                                },
                                 onChangeStatus: () {
                                   _changeOrderStatus(index);
                                 },

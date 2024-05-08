@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pixandrix/drivers/driver_card_window.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/first_page.dart';
+import 'package:pixandrix/orders/order_card_windows.dart';
 import 'package:pixandrix/orders/order_form.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
@@ -122,15 +124,17 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
                                   driverInfo: orders![index].driverInfo,
                                   storeInfo: orders![index].storeInfo,
                                   press: () {
-                                    // showDialog(
-                                    //   context: context,
-                                    //   builder: (context) => DriverCardWindow(
-                                    //     driverName: drivers![index].name,
-                                    //     driverImage: drivers![index].driverImage,
-                                    //     driverMobile: drivers![index].phoneNumber,
-                                    //     driverID: drivers![index].driverID,
-                                    //   ),
-                                    // );
+                                    String orderID = orders![index].orderID;
+                                    if(orderID.isEmpty){
+                                      orderID = 'No driver';
+                                    }
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => OrderCardWindow(
+                                        driverName: orders![index].driverInfo,
+                                        orderID: orderID
+                                      ),
+                                    );
                                   },
                                   onCancel: () {
                                     _removeOrder(index);

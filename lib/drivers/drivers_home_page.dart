@@ -4,6 +4,7 @@ import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/orders/order_card_drivers.dart';
+import 'package:pixandrix/orders/order_card_windows.dart';
 
 class DriversHomePage extends StatefulWidget {
   final DriverData? driverInfo;
@@ -113,15 +114,17 @@ class _DriversHomePageState extends State<DriversHomePage> {
                                   driverInfo: orders![index].driverInfo,
                                   storeInfo: orders![index].storeInfo,
                                   press: () {
-                                   // showDialog(
-                                //   context: context,
-                                //   builder: (context) => DriverCardWindow(
-                                //     driverName: drivers![index].name,
-                                //     driverImage: drivers![index].driverImage,
-                                //     driverMobile: drivers![index].phoneNumber,
-                                //     driverID: drivers![index].driverID,
-                                //   ),
-                                // );
+                                   String orderID = orders![index].orderID;
+                                    if(orderID.isEmpty){
+                                      orderID = 'No driver';
+                                    }
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => OrderCardWindow(
+                                        driverName: orders![index].driverInfo,
+                                        orderID: orderID
+                                      ),
+                                    );
                                   },
                                   onChangeStatus: () {
                                     _changeOrderStatus(index);
