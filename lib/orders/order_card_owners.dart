@@ -88,12 +88,26 @@ class OrderCardOwners extends StatelessWidget {
                 Positioned(
                   top: 10,
                   right: 10,
-                  child: IconButton(
-                    icon: Icon(
-                      statusInfo['iconData'],
-                      color: statusInfo['iconColor'],
+                  child: TextButton(
+                    onPressed: null,
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
                     ),
-                    onPressed: (){},
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          statusInfo['iconData'],
+                          color: statusInfo['iconColor'],
+                        ),
+                        Text(
+                          statusInfo['statusText'],
+                          style: TextStyle(
+                            color: statusInfo['iconColor'],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 TextButton(

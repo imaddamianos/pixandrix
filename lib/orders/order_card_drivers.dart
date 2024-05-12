@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pixandrix/helpers/order_status_utils.dart';
-import 'package:timeago/timeago.dart' as timeago;
+import 'package:timer_builder/timer_builder.dart';
 
 class OrderCardDrivers extends StatelessWidget {
   const OrderCardDrivers({
@@ -9,7 +9,6 @@ class OrderCardDrivers extends StatelessWidget {
     required this.orderTime,
     required this.orderLocation,
     required this.status,
-    // required this.isTaken,
     required this.driverInfo,
     required this.storeInfo,
     required this.press,
@@ -18,16 +17,14 @@ class OrderCardDrivers extends StatelessWidget {
 
   final String driverInfo, orderLocation, storeInfo;
   final String status;
-  // final bool isTaken;
-  final Timestamp orderTime; // Change the type to Timestamp
+  final Timestamp orderTime;
   final GestureTapCallback press;
   final VoidCallback onChangeStatus;
 
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> statusInfo = getStatusInfo(status);
-    DateTime dateTime = orderTime.toDate(); // Convert Timestamp to DateTime
-    String timeAgo = timeago.format(dateTime, locale: 'en_short');
+    DateTime now = DateTime.now();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -60,15 +57,17 @@ class OrderCardDrivers extends StatelessWidget {
                         style: const TextStyle(color: Colors.green),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        '$timeAgo ago',
-                        style: const TextStyle(color: Colors.white),
+                      TimerBuilder.periodic(
+                        const Duration(seconds: 1),
+                        builder: (context) {
+                          Duration timeLeft =
+                              orderTime.toDate().difference(now);
+                          return Text(
+                            'Time: ${_formatDuration(timeLeft)}',
+                            style: const TextStyle(color: Colors.white),
+                          );
+                        },
                       ),
-                      const SizedBox(height: 4),
-                      // Text(
-                      //   'Is Taken: $isTaken',
-                      //   style: const TextStyle(color: Colors.white),
-                      // ),
                     ],
                   ),
                 ),
@@ -88,12 +87,26 @@ class OrderCardDrivers extends StatelessWidget {
                 Positioned(
                   top: 10,
                   right: 10,
-                  child: IconButton(
-                    icon: Icon(
-                      statusInfo['iconData'],
-                      color: statusInfo['iconColor'],
-                    ),
+                  child: TextButton(
                     onPressed: onChangeStatus,
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          statusInfo['iconData'],
+                          color: statusInfo['iconColor'],
+                        ),
+                        Text(
+                          statusInfo['statusText'],
+                          style: TextStyle(
+                            color: statusInfo['iconColor'],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -102,5 +115,18 @@ class OrderCardDrivers extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatDuration(Duration duration) {
+    if (duration.isNegative) {
+      return 'Expired';
+    } else if (duration.inMinutes <= 7) {
+      return '${duration.inMinutes} min check order';
+    } else {
+      String twoDigits(int n) => n.toString().padLeft(2, '0');
+      String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+      String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+      return '$twoDigitMinutes:$twoDigitSeconds';
+    }
   }
 }

@@ -5,7 +5,7 @@ import 'package:timer_builder/timer_builder.dart';
 
 class OrderCard extends StatelessWidget {
   const OrderCard({
-    Key? key,
+    super.key,
     required this.orderTime,
     required this.orderLocation,
     required this.status,
@@ -14,7 +14,7 @@ class OrderCard extends StatelessWidget {
     required this.press,
     required this.onChangeStatus,
     required this.onCancel,
-  }) : super(key: key);
+  });
 
   final String driverInfo, orderLocation, storeInfo;
   final String status;
@@ -33,7 +33,7 @@ class OrderCard extends StatelessWidget {
       child: GestureDetector(
         onTap: press,
         child: SizedBox(
-          width: MediaQuery.of(context).size.width - 20,
+          width: MediaQuery.of(context).size.width - 10,
           height: 100,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
@@ -42,37 +42,6 @@ class OrderCard extends StatelessWidget {
                 Container(
                   alignment: Alignment.center,
                   padding: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        storeInfo,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        orderLocation,
-                        style: const TextStyle(color: Colors.green),
-                      ),
-                      const SizedBox(height: 4),
-                      TimerBuilder.periodic(
-                        const Duration(seconds: 1),
-                        builder: (context) {
-                          Duration timeLeft = orderTime.toDate().difference(now);
-                          return Text(
-                            'Time: ${_formatDuration(timeLeft)}',
-                            style: const TextStyle(color: Colors.white),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
@@ -85,24 +54,77 @@ class OrderCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: IconButton(
-                    icon: Icon(
-                      statusInfo['iconData'],
-                      color: statusInfo['iconColor'],
+
+                Row(
+                  children: [
+                    TextButton(
+                      onPressed: onCancel,
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(color: Color.fromARGB(255, 255, 0, 0)),
+                      ),
                     ),
-                    onPressed: onChangeStatus,
-                  ),
+                    Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            storeInfo,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            orderLocation,
+                            style: const TextStyle(color: Colors.green),
+                          ),
+                          const SizedBox(height: 4),
+                          TimerBuilder.periodic(
+                            const Duration(seconds: 1),
+                            builder: (context) {
+                              Duration timeLeft =
+                                  orderTime.toDate().difference(now);
+                              return Text(
+                                'Time: ${_formatDuration(timeLeft)}',
+                                style: const TextStyle(color: Colors.white),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
                 ),
-                TextButton(
-                  onPressed: onCancel,
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(color: Color.fromARGB(255, 255, 0, 0)),
-                  ),
-                ),
+                Positioned(
+                      top: 10,
+                      right: 10,
+                      child: TextButton(
+                        onPressed: onChangeStatus,
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              statusInfo['iconData'],
+                              color: statusInfo['iconColor'],
+                            ),
+                            Text(
+                              statusInfo['statusText'],
+                              style: TextStyle(
+                                color: statusInfo['iconColor'],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
               ],
             ),
           ),
@@ -112,16 +134,15 @@ class OrderCard extends StatelessWidget {
   }
 
   String _formatDuration(Duration duration) {
-  if (duration.isNegative) {
-    return 'Expired';
-  } else if (duration.inMinutes <= 7) {
-    return '${duration.inMinutes} min check order';
-  } else {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return '$twoDigitMinutes:$twoDigitSeconds';
+    if (duration.isNegative) {
+      return 'Expired';
+    } else if (duration.inMinutes <= 7) {
+      return '${duration.inMinutes} min check order';
+    } else {
+      String twoDigits(int n) => n.toString().padLeft(2, '0');
+      String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+      String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+      return '$twoDigitMinutes:$twoDigitSeconds';
+    }
   }
-}
-
 }

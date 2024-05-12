@@ -47,6 +47,27 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
     }
   }
 
+  Future<void> _changeOrderStatus(
+    int index,
+  ) async {
+    // Remove the driver at the specified index from the list
+    final orderToChange = orders![index].orderID;
+    final driver = ownerInfo?.name;
+    if (orders![index].status == 'OrderStatus.pending') {
+      if (index >= 0 && index < orders!.length) {
+        await FirebaseOperations.changeOrderStatus(
+            'OrderStatus.inProgress', orderToChange);
+        await FirebaseOperations.changeDriverName(driver!, orderToChange);
+      }
+    } else if (orders![index].status == 'OrderStatus.inProgress') {
+      if (index >= 0 && index < orders!.length) {
+        await FirebaseOperations.changeOrderStatus(
+            'OrderStatus.delivered', orderToChange);
+      }
+    }
+    _loadOrders(); // Refresh the drivers list after removing the driver
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
