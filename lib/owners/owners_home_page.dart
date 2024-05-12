@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pixandrix/drivers/driver_card_window.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/first_page.dart';
+import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/orders/order_card_windows.dart';
 import 'package:pixandrix/orders/order_form.dart';
 import 'package:pixandrix/models/order_model.dart';
@@ -11,7 +11,7 @@ import 'package:pixandrix/orders/order_card_owners.dart';
 
 class OwnersHomePage extends StatefulWidget {
   final OwnerData? ownerInfo;
-  const OwnersHomePage({super.key, this.ownerInfo});
+  const OwnersHomePage({Key? key, this.ownerInfo}) : super(key: key);
 
   @override
   _OwnersHomePageState createState() => _OwnersHomePageState();
@@ -20,6 +20,7 @@ class OwnersHomePage extends StatefulWidget {
 class _OwnersHomePageState extends State<OwnersHomePage> {
   late OwnerData? ownerInfo;
   List<OrderData>? orders;
+  bool isButtonDisabled = false;
 
   @override
   void initState() {
@@ -29,44 +30,36 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
   }
 
   Future<void> _removeOrder(int index) async {
-    // Remove the driver at the specified index from the list
     if (index >= 0 && index < orders!.length) {
       final orderToRemove = orders![index];
       await FirebaseOperations.removeOrder(orderToRemove.orderID);
-      _loadOrders(); // Refresh the drivers list after removing the driver
+      _loadOrders();
     }
   }
 
-  Future<void> _loadOrders() async {
-    // Fetch drivers data and cast it to a List<DriverData>
-    final fetchedOrders = await FirebaseOperations.getOrders();
-    orders = fetchedOrders.cast<OrderData>();
+ Future<void> _loadOrders() async {
+  final fetchedOrders = await FirebaseOperations.getOrders();
+  
+  // Filter orders by storeInfo name
+  orders = fetchedOrders.where((order) => order.storeInfo == ownerInfo?.name).toList();
 
-    if (mounted) {
-      setState(() {}); // Trigger a rebuild to reflect the updated drivers data
-    }
-  }
+  // Sort orders by orderTime in ascending order
+  orders!.sort((a, b) => a.orderTime.compareTo(b.orderTime));
 
-  Future<void> _changeOrderStatus(
-    int index,
-  ) async {
-    // Remove the driver at the specified index from the list
-    final orderToChange = orders![index].orderID;
-    final driver = ownerInfo?.name;
-    if (orders![index].status == 'OrderStatus.pending') {
-      if (index >= 0 && index < orders!.length) {
-        await FirebaseOperations.changeOrderStatus(
-            'OrderStatus.inProgress', orderToChange);
-        await FirebaseOperations.changeDriverName(driver!, orderToChange);
-      }
-    } else if (orders![index].status == 'OrderStatus.inProgress') {
-      if (index >= 0 && index < orders!.length) {
-        await FirebaseOperations.changeOrderStatus(
-            'OrderStatus.delivered', orderToChange);
-      }
-    }
-    _loadOrders(); // Refresh the drivers list after removing the driver
+  if (mounted) {
+    setState(() {
+      isButtonDisabled = _shouldDisableButton();
+    });
   }
+}
+
+
+bool _shouldDisableButton() {
+  if (orders == null || orders!.isEmpty) return false;
+  final latestOrderTime = orders!.last.orderTime.toDate();
+  final timeDifference = DateTime.now().difference(latestOrderTime);
+  return timeDifference.inMinutes < 10;
+}
 
   @override
   Widget build(BuildContext context) {
@@ -74,12 +67,11 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
       appBar: AppBar(
         title: Center(
           child: Text(ownerInfo?.name ?? 'Owner Name'),
-        ), // Use owner's name or a default value
+        ),
         leading: Padding(
           padding: const EdgeInsets.only(left: 10.0),
           child: CircleAvatar(
-            backgroundImage: NetworkImage(ownerInfo?.ownerImage ??
-                ''), // Use owner's image or a default image URL
+            backgroundImage: NetworkImage(ownerInfo?.ownerImage ?? ''),
           ),
         ),
         actions: [
@@ -113,15 +105,17 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 child: CustomButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            OrderForm(ownerInfo: widget.ownerInfo),
-                      ),
-                    );
-                  },
+                 onPressed: isButtonDisabled
+                      ? null
+                      : () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  OrderForm(ownerInfo: widget.ownerInfo),
+                            ),
+                          );
+                        },
                   text: 'Request a Driver',
                 ),
               ),
@@ -129,8 +123,8 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
               Expanded(
                 child: orders == null
                     ? const Center(
-                        child:
-                            CircularProgressIndicator()) // Show loading indicator if drivers data is null
+                        child: CircularProgressIndicator(),
+                      )
                     : ListView.builder(
                         itemCount: orders!.length,
                         itemBuilder: (context, index) {
@@ -141,19 +135,18 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
                                   orderTime: orders![index].orderTime,
                                   orderLocation: orders![index].orderLocation,
                                   status: orders![index].status,
-                                  // isTaken: orders![index].isTaken,
                                   driverInfo: orders![index].driverInfo,
                                   storeInfo: orders![index].storeInfo,
                                   press: () {
                                     String orderID = orders![index].orderID;
-                                    if(orderID.isEmpty){
+                                    if (orderID.isEmpty) {
                                       orderID = 'No driver';
                                     }
                                     showDialog(
                                       context: context,
                                       builder: (context) => OrderCardWindow(
                                         driverName: orders![index].driverInfo,
-                                        orderID: orderID
+                                        orderID: orderID,
                                       ),
                                     );
                                   },
@@ -165,8 +158,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
                               ],
                             );
                           } else {
-                            return const SizedBox
-                                .shrink(); // Return an empty SizedBox if driverInfo is not empty
+                            return const SizedBox.shrink();
                           }
                         },
                       ),
