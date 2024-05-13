@@ -1,6 +1,10 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
-class OrderCardWindow extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:pixandrix/firebase/firebase_operations.dart';
+import 'package:pixandrix/models/driver_model.dart';
+
+class OrderCardWindow extends StatefulWidget {
   final String driverName;
   final String orderID;
 
@@ -9,6 +13,26 @@ class OrderCardWindow extends StatelessWidget {
     required this.driverName,
     required this.orderID,
   });
+
+  @override
+  _OrderCardWindowState createState() => _OrderCardWindowState();
+}
+
+class _OrderCardWindowState extends State<OrderCardWindow> {
+  DriverData? driverData;
+
+  @override
+  void initState() {
+    super.initState();
+    // Call the getDriverByName function and retrieve driver data
+    FirebaseOperations.getDriverByName(widget.driverName).then((data) {
+      setState(() {
+        driverData = data; // Update the driverData variable with retrieved data
+      });
+    }).catchError((error) {
+      print('Error retrieving driver data: $error');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +49,7 @@ class OrderCardWindow extends StatelessWidget {
                 height: 10,
               ),
               Text(
-                orderID,
+                widget.orderID,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -36,12 +60,40 @@ class OrderCardWindow extends StatelessWidget {
                 height: 5,
               ),
               Text(
-                driverName,
+                widget.driverName,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Color.fromARGB(255, 152, 152, 152),
                 ),
+              ),
+              Center(
+                child: driverData != null // Check if driver data is available
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            'Phone Number: ${driverData!.phoneNumber}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 152, 152, 152),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          CircleAvatar(
+                            radius: 50,
+                            backgroundImage:
+                                NetworkImage(driverData!.driverImage),
+                          ),
+                        ],
+                      )
+                    : const CircularProgressIndicator(), // Display a loading indicator if data is being fetched
               ),
             ],
           ),

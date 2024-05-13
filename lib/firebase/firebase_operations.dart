@@ -265,6 +265,31 @@ static Future<bool> checkOwnerVerification(String ownerName) async {
     }
   }
 
+  static Future<DriverData?> getDriverByName(String driverName) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance.collection('drivers').get();
+
+      var driverDoc = querySnapshot.docs.firstWhere(
+        (doc) => doc.data()['name'] == driverName,
+      );
+
+      Map<String, dynamic> data = driverDoc.data();
+
+      return DriverData(
+        name: data['name'],
+        phoneNumber: data['phoneNumber'],
+        driverImage: data['driverImage'],
+        driverID: data['driverID'],
+        verified: data['verified'],
+        isAvailable: data['isAvailable'],
+      );
+        } catch (e) {
+      print('Error fetching driver: $e');
+      throw e;
+    }
+  }
+
   Future<String> uploadImage(
       String path, String user, File selectedImage) async {
     try {

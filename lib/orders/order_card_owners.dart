@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pixandrix/helpers/order_status_utils.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:timer_builder/timer_builder.dart';
 
 class OrderCardOwners extends StatelessWidget {
   const OrderCardOwners({
@@ -26,8 +27,7 @@ class OrderCardOwners extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> statusInfo = getStatusInfo(status);
-    DateTime dateTime = orderTime.toDate(); // Convert Timestamp to DateTime
-    String timeAgo = timeago.format(dateTime, locale: 'en_short');
+    DateTime now = DateTime.now();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -60,15 +60,18 @@ class OrderCardOwners extends StatelessWidget {
                         style: const TextStyle(color: Colors.green),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        '$timeAgo ago',
-                        style: const TextStyle(color: Colors.white),
-                      ),
+                       TimerBuilder.periodic(
+                            const Duration(seconds: 1),
+                            builder: (context) {
+                              Duration timeLeft =
+                                  orderTime.toDate().difference(now);
+                              return Text(
+                                'Time: ${_formatDuration(timeLeft)}',
+                                style: const TextStyle(color: Colors.white),
+                              );
+                            },
+                          ),
                       const SizedBox(height: 4),
-                      // Text(
-                      //   'Is Taken: $isTaken',
-                      //   style: const TextStyle(color: Colors.white),
-                      // ),
                     ],
                   ),
                 ),
@@ -123,5 +126,17 @@ class OrderCardOwners extends StatelessWidget {
         ),
       ),
     );
+  }
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+      String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+      String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    if (duration.isNegative) {
+      return 'Expired';
+    } else if (duration.inMinutes <= 7) {
+      return '$twoDigitMinutes min :$twoDigitSeconds sec';
+    } else {
+      return '$twoDigitMinutes min :$twoDigitSeconds sec';
+    }
   }
 }

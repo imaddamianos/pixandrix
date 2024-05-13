@@ -133,16 +133,16 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  String _formatDuration(Duration duration) {
-    if (duration.isNegative) {
-      return 'Expired';
-    } else if (duration.inMinutes <= 7) {
-      return '${duration.inMinutes} min check order';
-    } else {
-      String twoDigits(int n) => n.toString().padLeft(2, '0');
+   String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
       String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
       String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-      return '$twoDigitMinutes:$twoDigitSeconds';
+    if (duration.isNegative) {
+       return 'Expired';
+    } else if (duration.inMinutes <= 7) {
+      return '$twoDigitMinutes min :$twoDigitSeconds sec';
+    } else {
+      return '$twoDigitMinutes min :$twoDigitSeconds sec';
     }
   }
 }

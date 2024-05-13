@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/first_page.dart';
-import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/orders/order_card_windows.dart';
 import 'package:pixandrix/orders/order_form.dart';
 import 'package:pixandrix/models/order_model.dart';
@@ -20,7 +19,7 @@ class OwnersHomePage extends StatefulWidget {
 class _OwnersHomePageState extends State<OwnersHomePage> {
   late OwnerData? ownerInfo;
   List<OrderData>? orders;
-  bool isButtonDisabled = false;
+  late bool isButtonDisabled;
 
   @override
   void initState() {
@@ -39,27 +38,27 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
 
  Future<void> _loadOrders() async {
   final fetchedOrders = await FirebaseOperations.getOrders();
-  
-  // Filter orders by storeInfo name
   orders = fetchedOrders.where((order) => order.storeInfo == ownerInfo?.name).toList();
-
-  // Sort orders by orderTime in ascending order
   orders!.sort((a, b) => a.orderTime.compareTo(b.orderTime));
 
-  if (mounted) {
+  // if (mounted) {
     setState(() {
       isButtonDisabled = _shouldDisableButton();
     });
-  }
+  // }
 }
-
 
 bool _shouldDisableButton() {
-  if (orders == null || orders!.isEmpty) return false;
   final latestOrderTime = orders!.last.orderTime.toDate();
   final timeDifference = DateTime.now().difference(latestOrderTime);
-  return timeDifference.inMinutes < 10;
+  if (timeDifference.inMinutes < -10){
+    return true;
+  } else{
+    return false;
+  }
+  
 }
+
 
   @override
   Widget build(BuildContext context) {
