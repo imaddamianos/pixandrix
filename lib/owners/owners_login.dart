@@ -13,6 +13,7 @@ import 'package:pixandrix/helpers/secure_storage.dart';
 import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/owners/owners_home_page.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 final _secureStorage = SecureStorage();
 
@@ -38,6 +39,7 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
   final GlobalLoader _globalLoader = GlobalLoader();
   bool? remember = true;
   late GoogleMapController _mapController;
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   @override
   void initState() {

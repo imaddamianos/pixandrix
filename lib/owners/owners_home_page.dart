@@ -19,7 +19,7 @@ class OwnersHomePage extends StatefulWidget {
 class _OwnersHomePageState extends State<OwnersHomePage> {
   late OwnerData? ownerInfo;
   List<OrderData>? orders;
-  late bool isButtonDisabled;
+  late bool isButtonDisabled = false;
 
   @override
   void initState() {
@@ -51,7 +51,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
 bool _shouldDisableButton() {
   final latestOrderTime = orders!.last.orderTime.toDate();
   final timeDifference = DateTime.now().difference(latestOrderTime);
-  if (timeDifference.inMinutes < -10){
+  if (timeDifference.inMinutes < -5){
     return true;
   } else{
     return false;
