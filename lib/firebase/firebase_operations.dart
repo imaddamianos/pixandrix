@@ -290,6 +290,34 @@ static Future<bool> checkOwnerVerification(String ownerName) async {
     }
   }
 
+  static Future<OwnerData> getOwnerByName(String ownerrName) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance.collection('owners').get();
+
+      var downerDoc = querySnapshot.docs.firstWhere(
+        (doc) => doc.data()['name'] == ownerrName,
+      );
+
+      Map<String, dynamic> data = downerDoc.data();
+
+      return OwnerData(
+          latitude: data['userLocation']['latitude'],
+          longitude: data['userLocation']['longitude'],
+          name: data['name'],
+          phoneNumber: data['phoneNumber'],
+          ownerImage: data['ownerImage'],
+          rate: data['rate'],
+          password: data['password'],
+          verified: data['verified'],
+          isAvailable: data['isAvailable'],
+        );
+        } catch (e) {
+      print('Error fetching owner: $e');
+      throw e;
+    }
+  }
+
   Future<String> uploadImage(
       String path, String user, File selectedImage) async {
     try {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/orders/order_card.dart';
+import 'package:pixandrix/orders/order_card_owners_windows.dart';
 import 'package:pixandrix/orders/order_card_windows.dart';
 
 class OrdersPage extends StatefulWidget {
@@ -89,7 +90,9 @@ class _OrdersPageState extends State<OrdersPage> {
                                       context: context,
                                       builder: (context) => OrderCardWindow(
                                         driverName: orders![index].driverInfo,
-                                        orderID: orderID
+                                        orderID: orderID,
+                                        ownerName: orders![index].storeInfo,
+                                        orderLocation: orders![index].orderLocation,
                                       ),
                                     );
                                 },

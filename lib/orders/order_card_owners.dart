@@ -10,7 +10,7 @@ class OrderCardOwners extends StatelessWidget {
     required this.orderTime,
     required this.orderLocation,
     required this.status,
-    // required this.isTaken,
+    required this.orderID,
     required this.driverInfo,
     required this.storeInfo,
     required this.press,
@@ -19,7 +19,7 @@ class OrderCardOwners extends StatelessWidget {
 
   final String driverInfo, orderLocation, storeInfo;
   final String status;
-  // final bool isTaken;
+  final String orderID;
   final Timestamp orderTime; // Change the type to Timestamp
   final GestureTapCallback press;
   final VoidCallback onCancel;
@@ -47,7 +47,7 @@ class OrderCardOwners extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        storeInfo,
+                        orderID,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,

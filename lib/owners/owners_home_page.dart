@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/first_page.dart';
-import 'package:pixandrix/orders/order_card_windows.dart';
+import 'package:pixandrix/orders/order_card_owners_windows.dart';
 import 'package:pixandrix/orders/order_form.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
@@ -136,16 +136,19 @@ bool _shouldDisableButton() {
                                   status: orders![index].status,
                                   driverInfo: orders![index].driverInfo,
                                   storeInfo: orders![index].storeInfo,
+                                  orderID: orders![index].orderID,
                                   press: () {
                                     String orderID = orders![index].orderID;
+                                    String orderLocation = orders![index].orderLocation;
                                     if (orderID.isEmpty) {
                                       orderID = 'No driver';
                                     }
                                     showDialog(
                                       context: context,
-                                      builder: (context) => OrderCardWindow(
+                                      builder: (context) => OrderCardOwnersWindow(
                                         driverName: orders![index].driverInfo,
                                         orderID: orderID,
+                                        orderLocation: orderLocation,
                                       ),
                                     );
                                   },

@@ -1,44 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
-import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'package:pixandrix/widgets/google_maps_view.dart';
 
-class OrderCardWindow extends StatefulWidget {
+class OrderCardDriversWindow extends StatefulWidget {
   final String ownerName;
-  final String driverName;
   final String orderID;
-  final String orderLocation;
-  
+  final String orderAddress;
 
-  const OrderCardWindow({
+  const OrderCardDriversWindow({
     super.key,
-    required this.driverName,
     required this.ownerName,
     required this.orderID,
-    required this.orderLocation,
+    required this.orderAddress,
   });
 
   @override
-  _OrderCardWindowState createState() => _OrderCardWindowState();
+  _OrderCardDriversWindowState createState() => _OrderCardDriversWindowState();
 }
 
-class _OrderCardWindowState extends State<OrderCardWindow> {
-  DriverData? driverData;
+class _OrderCardDriversWindowState extends State<OrderCardDriversWindow> {
   OwnerData? ownerData;
 
   @override
   void initState() {
     super.initState();
     // Call the getDriverByName function and retrieve driver data
-    FirebaseOperations.getDriverByName(widget.driverName).then((data) {
-      setState(() {
-        driverData = data; // Update the driverData variable with retrieved data
-      });
-    }).catchError((error) {
-      print('Error retrieving driver data: $error');
-    });
     FirebaseOperations.getOwnerByName(widget.ownerName).then((data) {
       setState(() {
         ownerData = data; // Update the driverData variable with retrieved data
@@ -53,7 +41,7 @@ class _OrderCardWindowState extends State<OrderCardWindow> {
     return Dialog(
       child: SizedBox(
         width: MediaQuery.of(context).size.width - 20,
-        height: 700,
+        height: 600,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -79,7 +67,7 @@ class _OrderCardWindowState extends State<OrderCardWindow> {
                 ),
               ),
               Text(
-                'Delivery to: ${widget.orderLocation}',
+                'Delivery to: ${widget.orderAddress}',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -87,10 +75,13 @@ class _OrderCardWindowState extends State<OrderCardWindow> {
                 ),
               ),
               const SizedBox(
+                height: 5,
+              ),
+              const SizedBox(
                 height: 30,
               ),
               const Text(
-                'Driver Info',
+                'Store Info',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -98,7 +89,7 @@ class _OrderCardWindowState extends State<OrderCardWindow> {
                 ),
               ),
               Text(
-                'Name: ${widget.driverName}',
+                 'Name: ${widget.ownerName}',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -108,42 +99,10 @@ class _OrderCardWindowState extends State<OrderCardWindow> {
               Center(
                 child: ownerData != null // Check if driver data is available
                     ? Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            'Number: ${driverData!.phoneNumber}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 152, 152, 152),
-                            ),
-                          ),
                           const SizedBox(
-                            height: 20,
-                          ),
-                          CircleAvatar(
-                            radius: 50,
-                            backgroundImage:
-                                NetworkImage(driverData!.driverImage),
-                          ),
-                          const SizedBox(
-                            height: 30,
-                          ),
-                          const Text(
-                            'Store Info',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: Color.fromARGB(255, 0, 0, 0),
-                            ),
-                          ),
-                          Text(
-                            'Name: ${ownerData!.name}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 152, 152, 152),
-                            ),
+                            height: 5,
                           ),
                           Text(
                             'Number: ${ownerData!.phoneNumber}',
@@ -152,6 +111,9 @@ class _OrderCardWindowState extends State<OrderCardWindow> {
                               fontWeight: FontWeight.bold,
                               color: Color.fromARGB(255, 152, 152, 152),
                             ),
+                          ),
+                          const SizedBox(
+                            height: 5,
                           ),
                           Text(
                             'Rate: ${ownerData!.rate}',
@@ -186,9 +148,6 @@ class _OrderCardWindowState extends State<OrderCardWindow> {
                                 ),
                               );
                             },
-                          ),
-                          const SizedBox(
-                            height: 5,
                           ),
                         ],
                       )
