@@ -7,7 +7,6 @@ exports.sendNotification = functions.firestore
   .onCreate((snapshot, context) => {
     const newData = snapshot.data();
 
-    // Constructing the notification payload
     const payload = {
       notification: {
         title: 'New Document Added',
@@ -15,7 +14,5 @@ exports.sendNotification = functions.firestore
       },
     };
 
-    // Sending the notification to a specific topic or device token
-    // For example, sending to a specific topic:
     return admin.messaging().sendToTopic('new_document_notifications', payload);
   });
