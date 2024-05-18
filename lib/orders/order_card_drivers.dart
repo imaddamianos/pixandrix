@@ -13,6 +13,8 @@ class OrderCardDrivers extends StatelessWidget {
     required this.storeInfo,
     required this.press,
     required this.onChangeStatus,
+    required this.onCancel,
+    
   });
 
   final String driverInfo, orderLocation, storeInfo;
@@ -20,6 +22,7 @@ class OrderCardDrivers extends StatelessWidget {
   final Timestamp orderTime;
   final GestureTapCallback press;
   final VoidCallback onChangeStatus;
+  final VoidCallback onCancel;
 
   @override
   Widget build(BuildContext context) {
@@ -109,6 +112,13 @@ class OrderCardDrivers extends StatelessWidget {
                     ),
                   ),
                 ),
+                TextButton(
+              onPressed: onCancel,
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Color.fromARGB(255, 255, 0, 0)),
+              ),
+            ),
               ],
             ),
           ),

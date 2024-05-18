@@ -39,7 +39,7 @@ class _DriversHomePageState extends State<DriversHomePage> {
   Future<void> _changeOrderStatus(
     int index,
   ) async {
-    // Remove the driver at the specified index from the list
+    // change the status from driver
     final orderToChange = orders![index].orderID;
     final driver = driverInfo?.name;
     if (orders![index].status == 'OrderStatus.pending') {
@@ -54,6 +54,20 @@ class _DriversHomePageState extends State<DriversHomePage> {
             'OrderStatus.delivered', orderToChange);
       }
     }
+    _loadOrders(); // Refresh the drivers list after removing the driver
+  }
+
+  Future<void> _cancelOrderStatus(
+    int index,
+  ) async {
+    // cancel order from driver
+    final orderToChange = orders![index].orderID;
+    if (index >= 0 && index < orders!.length) {
+      await FirebaseOperations.changeOrderStatus(
+          'OrderStatus.pending', orderToChange);
+      await FirebaseOperations.changeDriverName('', orderToChange);
+    }
+    // }
     _loadOrders(); // Refresh the drivers list after removing the driver
   }
 
@@ -115,22 +129,39 @@ class _DriversHomePageState extends State<DriversHomePage> {
                                   driverInfo: orders![index].driverInfo,
                                   storeInfo: orders![index].storeInfo,
                                   press: () {
-                                   String orderID = orders![index].orderID;
-                                   String orderAddress = orders![index].orderLocation;
-                                    if(orderID.isEmpty){
+                                    String orderID = orders![index].orderID;
+                                    String orderAddress =
+                                        orders![index].orderLocation;
+                                    if (orderID.isEmpty) {
                                       orderID = 'No driver';
                                     }
                                     showDialog(
                                       context: context,
-                                      builder: (context) => OrderCardDriversWindow(
-                                        ownerName: orders![index].storeInfo,
-                                        orderID: orderID,
-                                        orderAddress: orderAddress
-                                      ),
+                                      builder: (context) =>
+                                          OrderCardDriversWindow(
+                                              ownerName:
+                                                  orders![index].storeInfo,
+                                              orderID: orderID,
+                                              orderAddress: orderAddress),
                                     );
                                   },
-                                  onChangeStatus: () {
-                                    _changeOrderStatus(index);
+                                  onChangeStatus: () async {
+                                    await _loadOrders();
+                                    final status = orders![index].status;
+                                    final driverOrder =
+                                        orders![index].driverInfo;
+                                    
+                                     if (status == 'OrderStatus.pending' && driverOrder == '' ||
+      status == 'OrderStatus.inProgress' && driverOrder == driverInfo?.name) {
+                                      await _changeOrderStatus(
+                                          index); // Change status for pending orders without driver
+                                    }
+                                  },
+                                  onCancel: () {
+                                    final status = orders![index].status;
+                                    if (status != 'OrderStatus.delivered') {
+                                    _cancelOrderStatus(index);
+                                    }
                                   },
                                 ),
                                 const SizedBox(height: 20),
