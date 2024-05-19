@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/first_page.dart';
+import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/orders/order_card_drivers.dart';
@@ -150,17 +151,37 @@ class _DriversHomePageState extends State<DriversHomePage> {
                                     final status = orders![index].status;
                                     final driverOrder =
                                         orders![index].driverInfo;
-                                    
-                                     if (status == 'OrderStatus.pending' && driverOrder == '' ||
-      status == 'OrderStatus.inProgress' && driverOrder == driverInfo?.name) {
-                                      await _changeOrderStatus(
-                                          index); // Change status for pending orders without driver
+                                    final currentDriver = driverInfo?.name;
+
+                                    int driverOrderCount = 0;
+                                    for (final order in orders!) {
+                                      if (order.driverInfo == currentDriver) {
+                                        driverOrderCount++;
+                                      }
+                                      if (order.status == 'OrderStatus.delivered') {
+                                        driverOrderCount--;
+                                      }
+
                                     }
+                                    if (driverOrderCount < 2 && status == 'OrderStatus.pending' &&
+                                              driverOrder == '' ||
+                                          status == 'OrderStatus.inProgress' &&
+                                              driverOrder == currentDriver) {
+                                      
+                                          await _changeOrderStatus(
+                                              index); // Change status for pending orders without driver or in-progress with current driver
+                                        
+                                      // }
+                                    }else {
+                                      showAlertDialog(context, 'Alert!',
+                                          'Hi $currentDriver,  \nIt looks like you already have 2 orders assigned. Please wait for 20 minutes before accepting new orders.');
+                                    }
+                                   
                                   },
                                   onCancel: () {
                                     final status = orders![index].status;
                                     if (status != 'OrderStatus.delivered') {
-                                    _cancelOrderStatus(index);
+                                      _cancelOrderStatus(index);
                                     }
                                   },
                                 ),

@@ -41,11 +41,11 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
   orders = fetchedOrders.where((order) => order.storeInfo == ownerInfo?.name).toList();
   orders!.sort((a, b) => a.orderTime.compareTo(b.orderTime));
 
-  // if (mounted) {
+  if (orders!.isNotEmpty) {
     setState(() {
       isButtonDisabled = _shouldDisableButton();
     });
-  // }
+  }
 }
 
 bool _shouldDisableButton() {
