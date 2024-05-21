@@ -36,29 +36,29 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
     }
   }
 
- Future<void> _loadOrders() async {
-  final fetchedOrders = await FirebaseOperations.getOrders();
-  orders = fetchedOrders.where((order) => order.storeInfo == ownerInfo?.name).toList();
-  orders!.sort((a, b) => a.orderTime.compareTo(b.orderTime));
+  Future<void> _loadOrders() async {
+    final fetchedOrders = await FirebaseOperations.getOrders();
+    orders = fetchedOrders
+        .where((order) => order.storeInfo == ownerInfo?.name)
+        .toList();
+    orders!.sort((a, b) => a.orderTime.compareTo(b.orderTime));
 
-  if (orders!.isNotEmpty) {
-    setState(() {
-      isButtonDisabled = _shouldDisableButton();
-    });
+    if (orders!.isNotEmpty) {
+      setState(() {
+        isButtonDisabled = _shouldDisableButton();
+      });
+    }
   }
-}
 
-bool _shouldDisableButton() {
-  final latestOrderTime = orders!.last.orderTime.toDate();
-  final timeDifference = DateTime.now().difference(latestOrderTime);
-  if (timeDifference.inMinutes < -5){
-    return true;
-  } else{
-    return false;
+  bool _shouldDisableButton() {
+    final latestOrderTime = orders!.last.orderTime.toDate();
+    final timeDifference = DateTime.now().difference(latestOrderTime);
+    if (timeDifference.inMinutes < -5) {
+      return true;
+    } else {
+      return false;
+    }
   }
-  
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +104,7 @@ bool _shouldDisableButton() {
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 child: CustomButton(
-                 onPressed: isButtonDisabled
+                  onPressed: isButtonDisabled
                       ? null
                       : () {
                           Navigator.push(
@@ -118,7 +118,12 @@ bool _shouldDisableButton() {
                   text: 'Request a Driver',
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 10),
+              Text(
+                'Orders: ${orders?.length ?? 0}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
               Expanded(
                 child: orders == null
                     ? const Center(
@@ -139,13 +144,15 @@ bool _shouldDisableButton() {
                                   orderID: orders![index].orderID,
                                   press: () {
                                     String orderID = orders![index].orderID;
-                                    String orderLocation = orders![index].orderLocation;
+                                    String orderLocation =
+                                        orders![index].orderLocation;
                                     if (orderID.isEmpty) {
                                       orderID = 'No driver';
                                     }
                                     showDialog(
                                       context: context,
-                                      builder: (context) => OrderCardOwnersWindow(
+                                      builder: (context) =>
+                                          OrderCardOwnersWindow(
                                         driverName: orders![index].driverInfo,
                                         orderID: orderID,
                                         orderLocation: orderLocation,

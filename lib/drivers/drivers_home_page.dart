@@ -112,7 +112,12 @@ class _DriversHomePageState extends State<DriversHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
+              Text(
+                'Orders: ${orders?.length ?? 0}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
               Expanded(
                 child: orders == null
                     ? const Center(child: CircularProgressIndicator())
@@ -158,25 +163,24 @@ class _DriversHomePageState extends State<DriversHomePage> {
                                       if (order.driverInfo == currentDriver) {
                                         driverOrderCount++;
                                       }
-                                      if (order.status == 'OrderStatus.delivered') {
+                                      if (order.status ==
+                                          'OrderStatus.delivered') {
                                         driverOrderCount--;
                                       }
-
                                     }
-                                    if (driverOrderCount < 2 && status == 'OrderStatus.pending' &&
-                                              driverOrder == '' ||
-                                          status == 'OrderStatus.inProgress' &&
-                                              driverOrder == currentDriver) {
-                                      
-                                          await _changeOrderStatus(
-                                              index); // Change status for pending orders without driver or in-progress with current driver
-                                        
+                                    if (driverOrderCount < 2 &&
+                                            status == 'OrderStatus.pending' &&
+                                            driverOrder == '' ||
+                                        status == 'OrderStatus.inProgress' &&
+                                            driverOrder == currentDriver) {
+                                      await _changeOrderStatus(
+                                          index); // Change status for pending orders without driver or in-progress with current driver
+
                                       // }
-                                    }else {
+                                    } else {
                                       showAlertDialog(context, 'Alert!',
                                           'Hi $currentDriver,  \nIt looks like you already have 2 orders assigned. Please wait for 20 minutes before accepting new orders.');
                                     }
-                                   
                                   },
                                   onCancel: () {
                                     final status = orders![index].status;

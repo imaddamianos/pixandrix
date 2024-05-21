@@ -97,7 +97,7 @@ class _OrdersPageState extends State<OrdersPage> {
                                     );
                                 },
                                 onChangeStatus: () {
-                                  _changeOrderStatus(index);
+                                 
                                 },
                                 onCancel: () {
                                   _removeOrder(index);
