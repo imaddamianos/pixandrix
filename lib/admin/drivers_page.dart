@@ -64,7 +64,7 @@ class _DriversPageState extends State<DriversPage> {
             ),
             const SizedBox(height: 10),
             Text(
-                  'Owners: ${drivers?.length ?? 0}',
+                  'Drivers: ${drivers?.length ?? 0}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
             const SizedBox(height: 10),
