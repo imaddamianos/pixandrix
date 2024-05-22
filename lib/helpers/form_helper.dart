@@ -134,7 +134,7 @@ OwnerData submitFormStore({
       // You can add more fields here if needed
     });
 
-    showAlertDialog(
+    showAlertOrder(
       context,
       'Success',
       'Order created with ID: ORD$orderNumber',
