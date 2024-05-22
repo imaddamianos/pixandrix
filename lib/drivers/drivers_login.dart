@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pixandrix/drivers/drivers_home_page.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
+import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/form_helper.dart';
 import 'package:pixandrix/helpers/image_id.dart';
 import 'package:pixandrix/helpers/loader.dart';
@@ -150,9 +151,25 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      // This widget will intercept the back button press
+      onWillPop: () async {
+        // Return false to prevent the back button action
+        return false;
+      },
+      child: Scaffold(
       appBar: AppBar(
         title: const Text('Driver Login'),
+        centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const FirstPage()),
+              );
+            },
+          ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -259,6 +276,7 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
           ),
         ),
       ),
+    ),
     );
   }
 }

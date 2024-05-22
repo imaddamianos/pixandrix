@@ -10,7 +10,7 @@ import 'package:pixandrix/orders/order_card_owners.dart';
 
 class OwnersHomePage extends StatefulWidget {
   final OwnerData? ownerInfo;
-  const OwnersHomePage({Key? key, this.ownerInfo}) : super(key: key);
+  const OwnersHomePage({super.key, this.ownerInfo});
 
   @override
   _OwnersHomePageState createState() => _OwnersHomePageState();
@@ -62,7 +62,13 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      // This widget will intercept the back button press
+      onWillPop: () async {
+        // Return false to prevent the back button action
+        return false;
+      },
+      child: Scaffold(
       appBar: AppBar(
         title: Center(
           child: Text(ownerInfo?.name ?? 'Owner Name'),
@@ -175,6 +181,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

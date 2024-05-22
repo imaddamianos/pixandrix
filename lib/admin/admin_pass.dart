@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
+import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/loader.dart';
 import 'package:pixandrix/helpers/secure_storage.dart';
 import 'package:pixandrix/theme/buttons/main_button.dart';
@@ -65,9 +66,25 @@ class _AdminPassPageState extends State<AdminPassPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      // This widget will intercept the back button press
+      onWillPop: () async {
+        // Return false to prevent the back button action
+        return false;
+      },
+      child: Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Password'),
+        title: const Text('Admin Panel'),
+        centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const FirstPage()),
+              );
+            },
+          ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -101,6 +118,7 @@ class _AdminPassPageState extends State<AdminPassPage> {
           ],
         ),
       ),
+    ),
     );
   }
 }

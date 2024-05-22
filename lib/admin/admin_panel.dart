@@ -28,7 +28,13 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      // This widget will intercept the back button press
+      onWillPop: () async {
+        // Return false to prevent the back button action
+        return false;
+      },
+      child:  Scaffold(
       appBar: AppBar(
         title: const Text('Pix and Rix'),
         actions: [
@@ -77,6 +83,7 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
+      ),
       ),
     );
   }

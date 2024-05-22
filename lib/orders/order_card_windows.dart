@@ -111,7 +111,7 @@ class _OrderCardWindowState extends State<OrderCardWindow> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Text(
-                            'Number: ${driverData!.phoneNumber}',
+                            'Number: ${driverData?.phoneNumber ?? ''}',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -124,7 +124,7 @@ class _OrderCardWindowState extends State<OrderCardWindow> {
                           CircleAvatar(
                             radius: 50,
                             backgroundImage:
-                                NetworkImage(driverData!.driverImage),
+                                NetworkImage(driverData?.driverImage ?? ''),
                           ),
                           const SizedBox(
                             height: 30,

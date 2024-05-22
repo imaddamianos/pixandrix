@@ -6,7 +6,6 @@ import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/orders/order_card_drivers.dart';
 import 'package:pixandrix/orders/order_card_drivers_windows.dart';
-import 'package:pixandrix/orders/order_card_owners_windows.dart';
 
 class DriversHomePage extends StatefulWidget {
   final DriverData? driverInfo;
@@ -74,7 +73,13 @@ class _DriversHomePageState extends State<DriversHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      // This widget will intercept the back button press
+      onWillPop: () async {
+        // Return false to prevent the back button action
+        return false;
+      },
+      child: Scaffold(
       appBar: AppBar(
         title: Center(
           child: Text(driverInfo?.name ?? 'Driver Name'),
@@ -202,6 +207,7 @@ class _DriversHomePageState extends State<DriversHomePage> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
