@@ -44,12 +44,25 @@ class _DriversHomePageState extends State<DriversHomePage> {
     final driver = driverInfo?.name;
     if (orders![index].status == 'OrderStatus.pending') {
       if (index >= 0 && index < orders!.length) {
-showAlertChangeProgress(context, 'Take Order', "Are you sure you want to take the order?", 'OrderStatus.pending', orderToChange, driver!, _loadOrders);
-
+        showAlertChangeProgress(
+            context,
+            'Take Order',
+            "Are you sure you want to take the order?",
+            'OrderStatus.pending',
+            orderToChange,
+            driver!,
+            _loadOrders);
       }
     } else {
       if (index >= 0 && index < orders!.length) {
-          showAlertChangeProgress(context, 'Finish Order', "Are you sure you want to finish the order?", 'OrderStatus.inProgress', orderToChange, driver!, _loadOrders);
+        showAlertChangeProgress(
+            context,
+            'Finish Order',
+            "Are you sure you want to finish the order?",
+            'OrderStatus.inProgress',
+            orderToChange,
+            driver!,
+            _loadOrders);
       }
     }
     _loadOrders(); // Refresh the drivers list after removing the driver
@@ -59,14 +72,18 @@ showAlertChangeProgress(context, 'Take Order', "Are you sure you want to take th
     int index,
   ) async {
     // cancel order from driver
-    final orderToChange = orders![index].orderID;
-    if (index >= 0 && index < orders!.length) {
-      await FirebaseOperations.changeOrderStatus(
-          'OrderStatus.pending', orderToChange);
-      await FirebaseOperations.changeDriverName('', orderToChange);
+    final orderNumber = orders![index].orderID;
+    final status = orders![index].status;
+    if (status == 'OrderStatus.inProgress') {
+      if (index >= 0 && index < orders!.length) {
+        showAlertDriverCancelOrder(
+            context,
+            'Cancel order',
+            'Are you sure you want to cancel the order',
+            orderNumber,
+            _loadOrders);
+      }
     }
-    // }
-    _loadOrders(); // Refresh the drivers list after removing the driver
   }
 
   @override
@@ -178,7 +195,7 @@ showAlertChangeProgress(context, 'Take Order', "Are you sure you want to take th
                                               driverOrder == currentDriver) {
                                         await _changeOrderStatus(
                                             index); // Change status for pending orders without driver or in-progress with current driver
-                                       await _loadOrders();
+                                        await _loadOrders();
                                         // }
                                       } else {
                                         showAlertDialog(context, 'Alert!',
@@ -186,11 +203,11 @@ showAlertChangeProgress(context, 'Take Order', "Are you sure you want to take th
                                       }
                                     },
                                     onCancel: () {
-                                      final status = orders![index].status;
-                                      if (status != 'OrderStatus.delivered') {
-                                        _cancelOrderStatus(index);
-                                      }
-                                      _loadOrders();
+                                      // if (status != 'OrderStatus.delivered') {
+                                      //   showAlertChangeProgress(context, 'Cancel order', 'Are you sure you want to cancel the order', status, orderNumber, driverOrder, () { })
+                                      _cancelOrderStatus(index);
+                                      // }
+                                      // _loadOrders();
                                     },
                                   ),
                                   const SizedBox(height: 20),
