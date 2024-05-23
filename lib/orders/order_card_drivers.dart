@@ -26,7 +26,7 @@ class OrderCardDrivers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> statusInfo = getStatusInfo(status);
+    final Map<String, dynamic> statusInfo = getStatusInfo(status, 'driver');
     DateTime now = DateTime.now();
 
     return Padding(

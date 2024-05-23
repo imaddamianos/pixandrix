@@ -26,7 +26,7 @@ class OrderCardOwners extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> statusInfo = getStatusInfo(status);
+    final Map<String, dynamic> statusInfo = getStatusInfo(status, 'owner');
     DateTime now = DateTime.now();
 
     return Padding(

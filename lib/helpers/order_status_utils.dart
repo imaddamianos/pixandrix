@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Map<String, dynamic> getStatusInfo(String status) {
+Map<String, dynamic> getStatusInfo(String status, String type) {
   IconData iconData = Icons.circle;
   String statusText = '';
   Color iconColor = Colors.yellow; // Default icon color
@@ -8,7 +8,12 @@ Map<String, dynamic> getStatusInfo(String status) {
   switch (status) {
     case 'OrderStatus.pending':
       iconData = Icons.circle;
-      statusText = 'Pending';
+      if (type == 'driver'){
+statusText = 'Accept';
+      }else{
+statusText = 'Pending';
+      }
+      
       iconColor = Colors.yellow; // Set icon color for pending status
       break;
     case 'OrderStatus.inProgress':

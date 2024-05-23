@@ -80,134 +80,135 @@ class _DriversHomePageState extends State<DriversHomePage> {
         return false;
       },
       child: Scaffold(
-      appBar: AppBar(
-        title: Center(
-          child: Text(driverInfo?.name ?? 'Driver Name'),
-        ),
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 10.0),
-          child: CircleAvatar(
-            backgroundImage: NetworkImage(driverInfo?.driverImage ?? ''),
+        appBar: AppBar(
+          title: Center(
+            child: Text(driverInfo?.name ?? 'Driver Name'),
           ),
-        ),
-        actions: [
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.notifications),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.logout),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const FirstPage()),
-                  );
-                },
-              ),
-            ],
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 10.0),
+            child: CircleAvatar(
+              backgroundImage: NetworkImage(driverInfo?.driverImage ?? ''),
+            ),
           ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: RefreshIndicator(
-          onRefresh: _loadOrders,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 10),
-              Text(
-                'Orders: ${orders?.length ?? 0}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              Expanded(
-                child: orders == null
-                    ? const Center(child: CircularProgressIndicator())
-                    : ListView.builder(
-                        itemCount: orders!.length,
-                        itemBuilder: (context, index) {
-                          if (orders![index].driverInfo == '' ||
-                              orders![index].driverInfo == driverInfo?.name) {
-                            return Column(
-                              children: [
-                                OrderCardDrivers(
-                                  orderTime: orders![index].orderTime,
-                                  orderLocation: orders![index].orderLocation,
-                                  status: orders![index].status,
-                                  driverInfo: orders![index].driverInfo,
-                                  storeInfo: orders![index].storeInfo,
-                                  press: () {
-                                    String orderID = orders![index].orderID;
-                                    String orderAddress =
-                                        orders![index].orderLocation;
-                                    if (orderID.isEmpty) {
-                                      orderID = 'No driver';
-                                    }
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) =>
-                                          OrderCardDriversWindow(
-                                              ownerName:
-                                                  orders![index].storeInfo,
-                                              orderID: orderID,
-                                              orderAddress: orderAddress),
-                                    );
-                                  },
-                                  onChangeStatus: () async {
-                                    await _loadOrders();
-                                    final status = orders![index].status;
-                                    final driverOrder =
-                                        orders![index].driverInfo;
-                                    final currentDriver = driverInfo?.name;
-
-                                    int driverOrderCount = 0;
-                                    for (final order in orders!) {
-                                      if (order.driverInfo == currentDriver) {
-                                        driverOrderCount++;
+          actions: [
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.notifications),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: const Icon(Icons.logout),
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const FirstPage()),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: RefreshIndicator(
+            onRefresh: _loadOrders,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 10),
+                Text(
+                  'Orders: ${orders?.length ?? 0}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: orders == null
+                      ? const Center(child: CircularProgressIndicator())
+                      : ListView.builder(
+                          itemCount: orders!.length,
+                          itemBuilder: (context, index) {
+                            if (orders![index].driverInfo == '' ||
+                                orders![index].driverInfo == driverInfo?.name) {
+                              return Column(
+                                children: [
+                                  OrderCardDrivers(
+                                    orderTime: orders![index].orderTime,
+                                    orderLocation: orders![index].orderLocation,
+                                    status: orders![index].status,
+                                    driverInfo: orders![index].driverInfo,
+                                    storeInfo: orders![index].storeInfo,
+                                    press: () {
+                                      String orderID = orders![index].orderID;
+                                      String orderAddress =
+                                          orders![index].orderLocation;
+                                      if (orderID.isEmpty) {
+                                        orderID = 'No driver';
                                       }
-                                      if (order.status ==
-                                          'OrderStatus.delivered') {
-                                        driverOrderCount--;
-                                      }
-                                    }
-                                    if (driverOrderCount < 2 &&
-                                            status == 'OrderStatus.pending' &&
-                                            driverOrder == '' ||
-                                        status == 'OrderStatus.inProgress' &&
-                                            driverOrder == currentDriver) {
-                                      await _changeOrderStatus(
-                                          index); // Change status for pending orders without driver or in-progress with current driver
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) =>
+                                            OrderCardDriversWindow(
+                                                ownerName:
+                                                    orders![index].storeInfo,
+                                                orderID: orderID,
+                                                orderAddress: orderAddress),
+                                      );
+                                    },
+                                    onChangeStatus: () async {
+                                      final status = orders![index].status;
+                                      final driverOrder =
+                                          orders![index].driverInfo;
+                                      final currentDriver = driverInfo?.name;
 
-                                      // }
-                                    } else {
-                                      showAlertDialog(context, 'Alert!',
-                                          'Hi $currentDriver,  \nIt looks like you already have 2 orders assigned. Please wait for 20 minutes before accepting new orders.');
-                                    }
-                                  },
-                                  onCancel: () {
-                                    final status = orders![index].status;
-                                    if (status != 'OrderStatus.delivered') {
-                                      _cancelOrderStatus(index);
-                                    }
-                                  },
-                                ),
-                                const SizedBox(height: 20),
-                              ],
-                            );
-                          } else {
-                            return const SizedBox
-                                .shrink(); // Return an empty SizedBox if driverInfo is not empty
-                          }
-                        },
-                      ),
-              ),
-            ],
+                                      int driverOrderCount = 0;
+                                      for (final order in orders!) {
+                                        if (order.driverInfo == currentDriver) {
+                                          driverOrderCount++;
+                                        }
+                                        if (order.status ==
+                                            'OrderStatus.delivered') {
+                                          driverOrderCount--;
+                                        }
+                                      }
+                                      if (driverOrderCount < 2 &&
+                                              status == 'OrderStatus.pending' &&
+                                              driverOrder == '' ||
+                                          status == 'OrderStatus.inProgress' &&
+                                              driverOrder == currentDriver) {
+                                        await _changeOrderStatus(
+                                            index); // Change status for pending orders without driver or in-progress with current driver
+                                       await _loadOrders();
+                                        // }
+                                      } else {
+                                        showAlertDialog(context, 'Alert!',
+                                            'Hi $currentDriver,  \nIt looks like you already have 2 orders assigned. Please wait for 20 minutes before accepting new orders.');
+                                      }
+                                    },
+                                    onCancel: () {
+                                      final status = orders![index].status;
+                                      if (status != 'OrderStatus.delivered') {
+                                        _cancelOrderStatus(index);
+                                      }
+                                      _loadOrders();
+                                    },
+                                  ),
+                                  const SizedBox(height: 20),
+                                ],
+                              );
+                            } else {
+                              return const SizedBox
+                                  .shrink(); // Return an empty SizedBox if driverInfo is not empty
+                            }
+                          },
+                        ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }
