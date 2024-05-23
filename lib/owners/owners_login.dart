@@ -166,7 +166,7 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => OwnersHomePage(ownerInfo: ownerAuth),
+                builder: (context) => const OwnersHomePage(),
               ),
             );
             print('Login successful for owner: $name');
