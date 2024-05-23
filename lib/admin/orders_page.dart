@@ -1,10 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
+import 'package:pixandrix/helpers/form_helper.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/orders/order_card.dart';
 import 'package:pixandrix/orders/order_card_owners_windows.dart';
 import 'package:pixandrix/orders/order_card_windows.dart';
+import 'package:pixandrix/theme/buttons/main_button.dart';
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({Key? key});
@@ -43,21 +46,18 @@ class _OrdersPageState extends State<OrdersPage> {
     }
   }
 
-  Future<void> _changeOrderStatus(int index) async {
-    final orderToChange = orders![index].orderID;
-    if (orders![index].status == 'OrderStatus.pending') {
-      if (index >= 0 && index < orders!.length) {
-        await FirebaseOperations.changeOrderStatus(
-            'OrderStatus.inProgress', orderToChange);
-      }
-    } else if (orders![index].status == 'OrderStatus.inProgress') {
-      if (index >= 0 && index < orders!.length) {
-        await FirebaseOperations.changeOrderStatus(
-            'OrderStatus.delivered', orderToChange);
-      }
-    }
-    _loadOrders();
+  Future<void> _resetOrderNumber() async {
+  try {
+    int currentOrderNumber = 0;
+    // Update the order number in Firestore
+    await FirebaseFirestore.instance.collection('ordersNumber').doc('orderNumber').set({'value': currentOrderNumber});
+
+  } catch (error) {
+    print('Error getting next order number: $error');
+    // You can handle the error here as needed
+    throw error;
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +69,12 @@ class _OrdersPageState extends State<OrdersPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              CustomButton(
+              text: 'Reset orders',
+              onPressed: (){
+                showAlertWithFunction(context, 'Reset Orders Number', 'Are you sure you want to reset the order number', _resetOrderNumber());
+              },
+            ),
               const SizedBox(height: 10),
               Text(
                 'Orders: ${orders?.length ?? 0}',

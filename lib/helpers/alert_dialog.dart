@@ -59,6 +59,31 @@ void showAlertWithDestination(BuildContext context, String title,
   );
 }
 
+void showAlertWithFunction(BuildContext context, String title,
+    String message, void function) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(
+          message,
+          style: const TextStyle(color: Colors.black),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+             function;
+             Navigator.pop(context);
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 void showAlertNewOrder(BuildContext context, String title,
     String message,  VoidCallback onClose, StatefulWidget destination) {
   showDialog(
