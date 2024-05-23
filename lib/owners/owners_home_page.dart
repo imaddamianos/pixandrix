@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/first_page.dart';
+import 'package:pixandrix/helpers/alert_dialog.dart';
+import 'package:pixandrix/helpers/secure_storage.dart';
 import 'package:pixandrix/orders/order_card_owners_windows.dart';
 import 'package:pixandrix/orders/order_form.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'package:pixandrix/orders/order_card_owners.dart';
+
+final _secureStorage = SecureStorage();
 
 class OwnersHomePage extends StatefulWidget {
   final OwnerData? ownerInfo;
@@ -37,6 +41,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
   }
 
   Future<void> _loadOrders() async {
+    final savedOwner = await _secureStorage.getOnwer();
     final fetchedOrders = await FirebaseOperations.getOrders();
     orders = fetchedOrders
         .where((order) => order.storeInfo == ownerInfo?.name)

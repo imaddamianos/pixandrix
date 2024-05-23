@@ -1,7 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+// import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/helpers/form_helper.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
@@ -22,7 +23,6 @@ class _OrderFormState extends State<OrderForm> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _locationController = TextEditingController();
   TimeOfDay _selectedTime = const TimeOfDay(hour: 0, minute: 15);
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   @override
   void initState() {
@@ -122,8 +122,6 @@ class _OrderFormState extends State<OrderForm> {
                       storeInfo: widget.ownerInfo!.name,
                       context: context,
                     );
-
-                    // Navigator.pop(context);
                   }
                 },
                 text: 'Submit Order',

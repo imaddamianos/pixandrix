@@ -59,6 +59,30 @@ void showAlertWithDestination(BuildContext context, String title,
   );
 }
 
+void showAlertNewOrder(BuildContext context, String title,
+    String message,  VoidCallback onClose) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(
+          message,
+          style: const TextStyle(color: Colors.black),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              onClose();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 void showAlertChangeProgress(
     BuildContext context,
     String title,

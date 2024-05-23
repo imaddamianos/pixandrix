@@ -52,7 +52,7 @@ class FirebaseOperations {
       throw e;
     }
   }
-
+  
   static Future<OwnerData?> checkOwnerCredentials(
       String type, String name, String password) async {
     try {
