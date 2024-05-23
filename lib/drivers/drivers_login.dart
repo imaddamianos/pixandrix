@@ -34,12 +34,14 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
   bool _driverNameAvailable = false;
   final GlobalLoader _globalLoader = GlobalLoader();
   bool? remember = true;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _driverNameController.addListener(_checkName);
     _loadSavedCredentials();
+    _isLoading = false;
   }
 
   @override
@@ -73,6 +75,9 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
   }
 
   Future<void> _submitForm() async {
+    setState(() {
+      _isLoading = true;
+    });
     _globalLoader.showLoader(context);
     if (_formKey.currentState!.validate()) {
       String name = _driverNameController.text;
@@ -97,6 +102,9 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
           isAvailable: false,
         );
         _globalLoader.hideLoader();
+        setState(() {
+      _isLoading = false;
+    });
       } catch (error) {
         showAlertDialog(
           context,
@@ -109,6 +117,9 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
   }
 
  Future<void> _driverLogIn() async {
+  setState(() {
+      _isLoading = true;
+    });
   if (_formKey.currentState!.validate()) {
     String name = _driverNameController.text;
     String password = _passwordController.text;
@@ -147,6 +158,9 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
       print('Error submitting form: $error');
     }
   }
+  setState(() {
+      _isLoading = false;
+    });
  }
 
   @override
@@ -171,7 +185,9 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
             },
           ),
       ),
-      body: Padding(
+      body: Stack(
+          children: [
+      Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -269,12 +285,22 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
                       _submitForm();
                     }
                   },
-                  child: const Text('Login'),
+                   child: _isLoading
+                            ? const CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              )
+                            : const Text('Login'),
                 ),
               ],
             ),
           ),
         ),
+      ),
+      if (_isLoading)
+              Container(
+                color: Colors.black.withOpacity(0.5),
+              ),
+          ],
       ),
     ),
     );

@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
+import 'package:pixandrix/owners/owners_home_page.dart';
 
 OwnerData submitFormStore({
   required String imageUrl,
@@ -37,10 +39,11 @@ OwnerData submitFormStore({
       'isAvailable' : isAvailable
     });
 
-    showAlertDialog(
+    showAlertWithDestination(
       context,
       'Success',
       'Store created, check verification with admin',
+      const FirstPage(),
     );
 
     // Create and return the OwnerData instance
@@ -87,10 +90,11 @@ OwnerData submitFormStore({
         'isAvailable' : isAvailable
       });
 
-      showAlertDialog(
+      showAlertWithDestination(
       context,
       'Success',
       'Driver created, check verification with admin',
+      const FirstPage(),
     );
 
       return DriverData(
@@ -134,11 +138,7 @@ OwnerData submitFormStore({
       // You can add more fields here if needed
     });
 
-    showAlertOrder(
-      context,
-      'Success',
-      'Order created with ID: ORD$orderNumber',
-    );
+    showAlertWithDestination(context, 'Success', 'Order created with ID: ORD$orderNumber', const OwnersHomePage());
   } catch (error) {
     print('Error submitting form: $error');
     // Handle error (show a message, log, etc.)

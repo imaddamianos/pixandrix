@@ -42,11 +42,13 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
   bool? remember = true;
   late GoogleMapController _mapController;
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _loadSavedCredentials();
+    _isLoading = false;
   }
 
   Future<void> _loadSavedCredentials() async {
@@ -101,7 +103,11 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
   }
 
   Future<void> _submitForm() async {
+    setState(() {
+      _isLoading = true;
+    });
     _globalLoader.showLoader(context);
+
     if (_formKey.currentState!.validate()) {
       String name = _restaurantNameController.text;
       String phoneNumber = _numberController.text;
@@ -123,19 +129,26 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
           verified: false,
           isAvailable: false,
         );
-        _globalLoader.hideLoader();
       } catch (error) {
         showAlertDialog(
           context,
           'Error',
           'Enter all the information',
         );
-        _globalLoader.hideLoader();
       }
     }
+
+    _globalLoader.hideLoader();
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> _ownerLogIn() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     if (_formKey.currentState!.validate()) {
       String name = _restaurantNameController.text;
       String password = _passwordController.text;
@@ -175,6 +188,10 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
         print('Error submitting form: $error');
       }
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -199,150 +216,165 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
             },
           ),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Enter your information',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  Visibility(
-                    visible: !_restaurantNameAvailable,
-                    child: ProfilePic(
-                      onPickImage: (File pickedImage) {
-                        _selectedImage = pickedImage;
-                      },
-                      imageUrl: '',
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  TextFormField(
-                    controller: _restaurantNameController,
-                    onChanged: (_) => _checkName(),
-                    decoration: InputDecoration(
-                      labelText: 'Restaurant Name *',
-                      errorText:
-                          _errorMessage.isNotEmpty ? _errorMessage : null,
-                      suffixIcon: _restaurantNameAvailable
-                          ? const Icon(
-                              Icons.check,
-                              color: Colors.green,
-                            )
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Password *',
-                      errorText: _passMessage.isNotEmpty ? _passMessage : null,
-                    ),
-                  ),
-                  Visibility(
-                    visible: !_restaurantNameAvailable,
-                    child: TextFormField(
-                      keyboardType: TextInputType.phone,
-                      controller: _numberController,
-                      decoration: const InputDecoration(labelText: 'Number*'),
-                    ),
-                  ),
-                  Visibility(
-                    visible: !_restaurantNameAvailable,
-                    child: TextFormField(
-                      keyboardType: TextInputType.phone,
-                      controller: _rateController,
-                      decoration: const InputDecoration(labelText: 'Rate*'),
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  Visibility(
-                    visible: !_restaurantNameAvailable,
-                    child: SizedBox(
-                      height: 200,
-                      child: GoogleMap(
-                        onMapCreated: (GoogleMapController controller) {
-                          _mapController = controller;
-                        },
-                        initialCameraPosition: CameraPosition(
-                          target: LatLng(
-                              userLocation!.latitude, userLocation!.longitude),
-                          zoom: 15.0,
-                        ),
-                        markers: {
-                          Marker(
-                            markerId: const MarkerId("userLocation"),
-                            position: LatLng(userLocation!.latitude,
-                                userLocation!.longitude),
-                            infoWindow:
-                                const InfoWindow(title: "Current Location"),
-                          ),
-                        },
-                        gestureRecognizers: <Factory<
-                            OneSequenceGestureRecognizer>>{
-                          Factory<OneSequenceGestureRecognizer>(
-                            () => EagerGestureRecognizer(),
-                          ),
-                        },
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: !_restaurantNameAvailable,
-                    child: ElevatedButton(
-                      onPressed: _updateUserLocation,
-                      child: const Text("Get My Location"),
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  Row(
+        body: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Checkbox(
-                        value: remember,
-                        activeColor: const Color.fromARGB(255, 255, 0, 0),
-                        onChanged: (value) {
-                          setState(() {
-                            remember = value;
-                            if (value == true) {
-                              _secureStorage.saveOwner(
-                                _restaurantNameController.text,
-                                _passwordController.text,
-                              );
-                            } else {
-                              _secureStorage.clearEmailAndPassword();
-                            }
-                          });
-                        },
+                      const Text(
+                        'Enter your information',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
                       ),
-                      const Text('Save Credentials'),
+                      const SizedBox(height: 30),
+                      Visibility(
+                        visible: !_restaurantNameAvailable,
+                        child: ProfilePic(
+                          onPickImage: (File pickedImage) {
+                            _selectedImage = pickedImage;
+                          },
+                          imageUrl: '',
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      TextFormField(
+                        controller: _restaurantNameController,
+                        onChanged: (_) => _checkName(),
+                        decoration: InputDecoration(
+                          labelText: 'Restaurant Name *',
+                          errorText:
+                              _errorMessage.isNotEmpty ? _errorMessage : null,
+                          suffixIcon: _restaurantNameAvailable
+                              ? const Icon(
+                                  Icons.check,
+                                  color: Colors.green,
+                                )
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'Password *',
+                          errorText: _passMessage.isNotEmpty ? _passMessage : null,
+                        ),
+                      ),
+                      Visibility(
+                        visible: !_restaurantNameAvailable,
+                        child: TextFormField(
+                          keyboardType: TextInputType.phone,
+                          controller: _numberController,
+                          decoration: const InputDecoration(labelText: 'Number*'),
+                        ),
+                      ),
+                      Visibility(
+                        visible: !_restaurantNameAvailable,
+                        child: TextFormField(
+                          keyboardType: TextInputType.phone,
+                          controller: _rateController,
+                          decoration: const InputDecoration(labelText: 'Rate*'),
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      Visibility(
+                        visible: !_restaurantNameAvailable,
+                        child: SizedBox(
+                          height: 200,
+                          child: GoogleMap(
+                            onMapCreated: (GoogleMapController controller) {
+                              _mapController = controller;
+                            },
+                            initialCameraPosition: CameraPosition(
+                              target: LatLng(
+                                  userLocation!.latitude, userLocation!.longitude),
+                              zoom: 15.0,
+                            ),
+                            markers: {
+                              Marker(
+                                markerId: const MarkerId("userLocation"),
+                                position: LatLng(userLocation!.latitude,
+                                    userLocation!.longitude),
+                                infoWindow:
+                                    const InfoWindow(title: "Current Location"),
+                              ),
+                            },
+                            gestureRecognizers: <Factory<
+                                OneSequenceGestureRecognizer>>{
+                              Factory<OneSequenceGestureRecognizer>(
+                                () => EagerGestureRecognizer(),
+                              ),
+                            },
+                          ),
+                        ),
+                      ),
+                      Visibility(
+                        visible: !_restaurantNameAvailable,
+                        child: ElevatedButton(
+                          onPressed: _updateUserLocation,
+                          child: const Text("Get My Location"),
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: remember,
+                            activeColor: const Color.fromARGB(255, 255, 0, 0),
+                            onChanged: (value) {
+                              setState(() {
+                                remember = value;
+                                if (value == true) {
+                                  _secureStorage.saveOwner(
+                                    _restaurantNameController.text,
+                                    _passwordController.text,
+                                  );
+                                } else {
+                                  _secureStorage.clearEmailAndPassword();
+                                }
+                              });
+                            },
+                          ),
+                          const Text('Save Credentials'),
+                        ],
+                      ),
+                      const SizedBox(height: 16.0),
+                      ElevatedButton(
+                        onPressed: _isLoading
+                            ? null
+                            : () {
+                                if (_restaurantNameAvailable) {
+                                  _ownerLogIn();
+                                } else {
+                                  _submitForm();
+                                }
+                              },
+                        child:
+                        _isLoading
+                            ? const CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              )
+                            : const Text('Login'),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 16.0),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_restaurantNameAvailable) {
-                        _ownerLogIn();
-                      } else {
-                        _submitForm();
-                      }
-                    },
-                    child: const Text('Login'),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
+            if (_isLoading)
+              Container(
+                color: Colors.black.withOpacity(0.5),
+              ),
+          ],
         ),
       ),
     );
