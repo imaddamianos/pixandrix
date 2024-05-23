@@ -60,7 +60,7 @@ void showAlertWithDestination(BuildContext context, String title,
 }
 
 void showAlertNewOrder(BuildContext context, String title,
-    String message,  VoidCallback onClose) {
+    String message,  VoidCallback onClose, StatefulWidget destination) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -73,6 +73,10 @@ void showAlertNewOrder(BuildContext context, String title,
         actions: <Widget>[
           TextButton(
             onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => destination),
+              );
               onClose();
             },
             child: const Text('OK'),
@@ -113,7 +117,57 @@ void showAlertChangeProgress(
                 await FirebaseOperations.changeOrderStatus(
                     'OrderStatus.delivered', orderNumber);
                 Navigator.pop(context);
+              }else if(status == 'OrderStatus.remove'){
+                await FirebaseOperations.removeOrder(orderNumber);
+                Navigator.pop(context);
               }
+
+              onClose();
+            },
+            child: const Text('OK'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void showAlertDelete(
+    BuildContext context,
+    String title,
+    String message,
+    String driverName,
+    String ownerName,
+    VoidCallback onClose) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(
+          message,
+          style: const TextStyle(color: Colors.black),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () async {
+              if(ownerName == ''){
+                 await FirebaseOperations.removeDriver(driverName);
+                Navigator.pop(context);
+              }else if(driverName == ''){
+               await FirebaseOperations.removeOwner(ownerName);
+                Navigator.pop(context);
+              }
+                
 
               onClose();
             },

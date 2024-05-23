@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/admin/add%20owners/add_owner.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
+import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/theme/buttons/add_button.dart';
 import 'package:pixandrix/owners/owner_card.dart';
@@ -35,9 +36,8 @@ class _OwnersPageState extends State<OwnersPage> {
   Future<void> _removeOwner(int index) async {
     // Remove the driver at the specified index from the list
     if (index >= 0 && index < owners!.length) {
-      final ownerToRemove = owners![index];
-      await FirebaseOperations.removeOwner(ownerToRemove.name);
-      _loadOwners(); // Refresh the drivers list after removing the driver
+      final ownerToRemove = owners![index].name;
+      showAlertDelete(context, 'Delete Owner', 'Are you sure you want to delete $ownerToRemove', '', ownerToRemove , _loadOwners);
     }
   }
 

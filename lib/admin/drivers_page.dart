@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/admin/add%20drivers/add_driver.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
+import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/theme/buttons/add_button.dart';
 import 'package:pixandrix/drivers/driver_card.dart';
@@ -35,9 +36,8 @@ class _DriversPageState extends State<DriversPage> {
   Future<void> _removeDriver(int index) async {
     // Remove the driver at the specified index from the list
     if (index >= 0 && index < drivers!.length) {
-      final driverToRemove = drivers![index];
-      await FirebaseOperations.removeDriver(driverToRemove.name);
-      _loadDrivers(); // Refresh the drivers list after removing the driver
+      final driverToRemove = drivers![index].name;
+      showAlertDelete(context, 'Delete Driver', 'Are you sure you want to delete $driverToRemove', driverToRemove, '' , _loadDrivers);
     }
   }
 

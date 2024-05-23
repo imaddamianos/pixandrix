@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/first_page.dart';
+import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/helpers/secure_storage.dart';
 import 'package:pixandrix/orders/order_card_owners_windows.dart';
 import 'package:pixandrix/orders/order_form.dart';
@@ -63,8 +64,14 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
   Future<void> _removeOrder(int index) async {
     if (index >= 0 && index < orders!.length) {
       final orderToRemove = orders![index];
-      await FirebaseOperations.removeOrder(orderToRemove.orderID);
-      await _loadOrders();
+       showAlertChangeProgress(
+            context,
+            'Remove Order',
+            "Are you sure you want to remove and cancel the order?",
+            'OrderStatus.remove',
+            orderToRemove.orderID,
+            '',
+            _loadOrders);
     }
   }
 

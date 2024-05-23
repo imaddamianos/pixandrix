@@ -446,13 +446,13 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
     }
   }
 
-  static Future<void> removeOrder(String name) async {
+  static Future<void> removeOrder(String orderNumber) async {
     try {
       // Query the Firestore collection to find the document with the specified name
       QuerySnapshot<Map<String, dynamic>> querySnapshot =
           await FirebaseFirestore.instance
               .collection('orders')
-              .where('orderID', isEqualTo: name)
+              .where('orderID', isEqualTo: orderNumber)
               .get();
 
       // Check if any documents with the specified name were found
@@ -460,7 +460,7 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
         // Delete the first document found (assuming there's only one document with the same name)
         await querySnapshot.docs.first.reference.delete();
       } else {
-        print('No order found with the name: $name');
+        print('No order found with the name: $orderNumber');
       }
     } catch (e) {
       print('Error removing order: $e');
