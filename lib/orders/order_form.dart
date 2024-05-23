@@ -1,11 +1,9 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-// import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/helpers/form_helper.dart';
+import 'package:pixandrix/helpers/loader.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
+import 'package:pixandrix/owners/owners_home_page.dart';
 import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'package:pixandrix/theme/custom_theme.dart';
 
@@ -19,17 +17,18 @@ class OrderForm extends StatefulWidget {
 }
 
 class _OrderFormState extends State<OrderForm> {
-    late OwnerData? ownerInfo;
+  late OwnerData? ownerInfo;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _locationController = TextEditingController();
   TimeOfDay _selectedTime = const TimeOfDay(hour: 0, minute: 15);
+  bool _isSubmitting = false;
+  final GlobalLoader _globalLoader = GlobalLoader();
 
   @override
   void initState() {
     super.initState();
     ownerInfo = widget.ownerInfo;
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -105,27 +104,88 @@ class _OrderFormState extends State<OrderForm> {
               ),
               const SizedBox(height: 16.0),
               CustomButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    // Combine current date with selected time to create order time
-                    DateTime orderTime = DateTime.now().add(
-                      Duration(
-                          hours: _selectedTime.hour,
-                          minutes: _selectedTime.minute),
-                    );
-                    submitFormOrder(
-                      orderTime: orderTime,
-                      orderLocation: _locationController.text,
-                      status: OrderStatus.pending,
-                      isTaken: false,
-                      driverInfo: '',
-                      storeInfo: widget.ownerInfo!.name,
-                      context: context,
-                    );
-                  }
-                },
+                onPressed: _isSubmitting
+                    ? null
+                    : () async {
+                        if (_formKey.currentState!.validate()) {
+                          setState(() {
+                            _isSubmitting = true;
+                          });
+
+                          // Combine current date with selected time to create order time
+                          DateTime orderTime = DateTime.now().add(
+                            Duration(
+                                hours: _selectedTime.hour,
+                                minutes: _selectedTime.minute),
+                          );
+
+                          try {
+                            int orderNumber = await getNextOrderNumber();
+                            await submitFormOrder(
+                              orderTime: orderTime,
+                              orderLocation: _locationController.text,
+                              status: OrderStatus.pending,
+                              isTaken: false,
+                              driverInfo: '',
+                              storeInfo: widget.ownerInfo!.name,
+                              context: context,
+                              orderNumber: orderNumber,
+                            );
+
+                            // Show success dialog
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) => AlertDialog(
+
+                                title: const Text('Success'),
+                                content:
+                                    const Text('Order created Successfully', style: TextStyle(color: Colors.black),),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const OwnersHomePage()),
+                                      );
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          } catch (e) {
+                            // Show error dialog
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Error'),
+                                  content: const Text(
+                                      'Failed to submit order. Please try again.'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          } finally {
+                            setState(() {
+                              _isSubmitting = false;
+                            });
+                          }
+                        }
+                      },
                 text: 'Submit Order',
               ),
+              if (_isSubmitting)
+                const Center(child: CircularProgressIndicator()),
             ],
           ),
         ),

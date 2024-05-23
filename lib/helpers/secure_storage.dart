@@ -6,20 +6,22 @@ import 'package:pixandrix/models/owner_model.dart';
 class SecureStorage {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-   Future<void> saveOwnerInfo(OwnerData? owner) async {
-    if (owner != null) {
-      String ownerJson = jsonEncode(owner.toJson());
-      await _storage.write(key: 'ownerInfo', value: ownerJson);
+ 
+  Future<void> saveOwnerInfo(OwnerData? ownerInfo) async {
+    if (ownerInfo != null) {
+      await _storage.write(key: 'ownerInfo', value: jsonEncode(ownerInfo.toJson()));
     }
   }
-
-  Future<OwnerData?> getOwnerInfo() async {
-    String? ownerJson = await _storage.read(key: 'ownerInfo');
-    if (ownerJson != null) {
-      Map<String, dynamic> ownerMap = jsonDecode(ownerJson);
-      return OwnerData.fromJson(ownerMap);
+ Future<OwnerData?> getOwnerInfo() async {
+    String? ownerData = await _storage.read(key: 'ownerInfo');
+    if (ownerData != null) {
+      return OwnerData.fromJson(jsonDecode(ownerData));
     }
     return null;
+  }
+
+  Future<void> deleteOwnerInfo() async {
+    await _storage.delete(key: 'ownerInfo');
   }
 
   Future<void> saveOwner(String? name, String? password)async {

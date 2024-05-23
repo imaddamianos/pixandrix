@@ -121,10 +121,9 @@ OwnerData submitFormStore({
   required String driverInfo,
   required String storeInfo,
   required BuildContext context,
+  required int orderNumber,
 }) async {
   try {
-    // Get the next order number
-    int orderNumber = await getNextOrderNumber();
 
     // Save order data to Firestore
     await FirebaseFirestore.instance.collection('orders').add({
@@ -138,7 +137,6 @@ OwnerData submitFormStore({
       // You can add more fields here if needed
     });
 
-    showAlertWithDestination(context, 'Success', 'Order created with ID: ORD$orderNumber', const OwnersHomePage());
   } catch (error) {
     print('Error submitting form: $error');
     // Handle error (show a message, log, etc.)
