@@ -44,14 +44,12 @@ class _DriversHomePageState extends State<DriversHomePage> {
     final driver = driverInfo?.name;
     if (orders![index].status == 'OrderStatus.pending') {
       if (index >= 0 && index < orders!.length) {
-        await FirebaseOperations.changeOrderStatus(
-            'OrderStatus.inProgress', orderToChange);
-        await FirebaseOperations.changeDriverName(driver!, orderToChange);
+showAlertChangeProgress(context, 'Take Order', "Are you sure you want to take the order?", 'OrderStatus.pending', orderToChange, driver!, _loadOrders);
+
       }
-    } else if (orders![index].status == 'OrderStatus.inProgress') {
+    } else {
       if (index >= 0 && index < orders!.length) {
-        await FirebaseOperations.changeOrderStatus(
-            'OrderStatus.delivered', orderToChange);
+          showAlertChangeProgress(context, 'Finish Order', "Are you sure you want to finish the order?", 'OrderStatus.inProgress', orderToChange, driver!, _loadOrders);
       }
     }
     _loadOrders(); // Refresh the drivers list after removing the driver

@@ -49,18 +49,18 @@ class _OwnersPageState extends State<OwnersPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AddButton(
-              text: 'Add Owner',
-              onPressed: () async {
-                // Navigate to the AddOwnerPage and await the result
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const AddOwnerPage()),
-                );
-                // Refresh the owners list after adding a new owner
-                _loadOwners();
-              },
-            ),
+            // AddButton(
+            //   text: 'Add Owner',
+            //   onPressed: () async {
+            //     // Navigate to the AddOwnerPage and await the result
+            //     await Navigator.push(
+            //       context,
+            //       MaterialPageRoute(builder: (context) => const AddOwnerPage()),
+            //     );
+            //     // Refresh the owners list after adding a new owner
+            //     _loadOwners();
+            //   },
+            // ),
             const SizedBox(height: 10),
             Text(
                   'Owners: ${owners?.length ?? 0}',

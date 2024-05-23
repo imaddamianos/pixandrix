@@ -49,19 +49,19 @@ class _DriversPageState extends State<DriversPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AddButton(
-              text: 'Add Drivers',
-              onPressed: () async {
-                // Navigate to the AddDriverPage and await the result
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const AddDriverPage()),
-                );
-                // Refresh the drivers list after adding a new driver
-                _loadDrivers();
-              },
-            ),
+            // AddButton(
+            //   text: 'Add Drivers',
+            //   onPressed: () async {
+            //     // Navigate to the AddDriverPage and await the result
+            //     await Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           builder: (context) => const AddDriverPage()),
+            //     );
+            //     // Refresh the drivers list after adding a new driver
+            //     _loadDrivers();
+            //   },
+            // ),
             const SizedBox(height: 10),
             Text(
                   'Drivers: ${drivers?.length ?? 0}',
