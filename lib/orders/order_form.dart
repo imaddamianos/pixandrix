@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:pixandrix/helpers/form_helper.dart';
 import 'package:pixandrix/helpers/loader.dart';
 import 'package:pixandrix/models/order_model.dart';
@@ -147,7 +148,7 @@ class _OrderFormState extends State<OrderForm> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const OwnersHomePage()),
+                                                OwnersHomePage(ownerInfo: ownerInfo,)),
                                       );
                                     },
                                     child: const Text('OK'),

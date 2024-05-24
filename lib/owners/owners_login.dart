@@ -145,54 +145,54 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
   }
 
   Future<void> _ownerLogIn() async {
-    setState(() {
-      _isLoading = true;
-    });
+  setState(() {
+    _isLoading = true;
+  });
 
-    if (_formKey.currentState!.validate()) {
-      String name = _restaurantNameController.text;
-      String password = _passwordController.text;
-      try {
-        final ownerAuth = await FirebaseOperations.checkOwnerCredentials(
-            'owners', name, password);
-        final verification =
-            await FirebaseOperations.checkOwnerVerification(name);
+  if (_formKey.currentState!.validate()) {
+    String name = _restaurantNameController.text;
+    String password = _passwordController.text;
+    try {
+      OwnerData? ownerAuth = await FirebaseOperations.checkOwnerCredentials('owners', name, password);
+      final verification = await FirebaseOperations.checkOwnerVerification(name);
 
-        if (verification) {
-          if (ownerAuth != null) {
-            if (remember == true) {
-              _secureStorage.saveOwner(name, password);
-            }
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const OwnersHomePage(),
-              ),
-            );
-            print('Login successful for owner: $name');
-          } else {
-            showAlertDialog(
-              context,
-              'Error',
-              'Wrong password',
-            );
+      if (verification) {
+        if (ownerAuth != null) {
+          if (remember == true) {
+            _secureStorage.saveOwner(name, password);
+            _secureStorage.saveOwnerInfo(ownerAuth); // Save OwnerData
           }
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OwnersHomePage(ownerInfo: ownerAuth),
+            ),
+          );
+          print('Login successful for owner: $name');
         } else {
           showAlertDialog(
             context,
             'Error',
-            'Check verification with admin',
+            'Wrong password',
           );
         }
-      } catch (error) {
-        print('Error submitting form: $error');
+      } else {
+        showAlertDialog(
+          context,
+          'Error',
+          'Check verification with admin',
+        );
       }
+    } catch (error) {
+      print('Error submitting form: $error');
     }
-
-    setState(() {
-      _isLoading = false;
-    });
   }
+
+  setState(() {
+    _isLoading = false;
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {

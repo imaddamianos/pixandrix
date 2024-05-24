@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/first_page.dart';
-import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/helpers/secure_storage.dart';
-import 'package:pixandrix/orders/order_card_owners_windows.dart';
-import 'package:pixandrix/orders/order_form.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
-import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'package:pixandrix/orders/order_card_owners.dart';
+import 'package:pixandrix/orders/order_card_owners_windows.dart';
+import 'package:pixandrix/orders/order_form.dart';
+import 'package:pixandrix/theme/buttons/main_button.dart';
+import 'package:pixandrix/helpers/alert_dialog.dart';
+import 'package:pixandrix/firebase/firebase_operations.dart';
 
 final _secureStorage = SecureStorage();
 
 class OwnersHomePage extends StatefulWidget {
-  const OwnersHomePage({super.key});
+  final OwnerData? ownerInfo;
+  const OwnersHomePage({super.key, this.ownerInfo});
 
   @override
   _OwnersHomePageState createState() => _OwnersHomePageState();
@@ -27,17 +28,17 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
   @override
   void initState() {
     super.initState();
-    _initializePage();
-  }
-
-  Future<void> _initializePage() async {
-    await _loadOwnerInfo();
-    await _loadOrders();
+    _loadOwnerInfo();
+    _loadOrders();
   }
 
   Future<void> _loadOwnerInfo() async {
-    ownerInfo = await _secureStorage.getOwnerInfo();
-    setState(() {}); // Trigger a rebuild to reflect the updated owner info
+    if (widget.ownerInfo != null) {
+      ownerInfo = widget.ownerInfo;
+    } else {
+      ownerInfo = await _secureStorage.getOwnerInfo();
+    }
+    setState(() {});
   }
 
   Future<void> _loadOrders() async {
@@ -64,14 +65,15 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
   Future<void> _removeOrder(int index) async {
     if (index >= 0 && index < orders!.length) {
       final orderToRemove = orders![index];
-       showAlertChangeProgress(
-            context,
-            'Remove Order',
-            "Are you sure you want to remove and cancel the order?",
-            'OrderStatus.remove',
-            orderToRemove.orderID,
-            '',
-            _loadOrders);
+      showAlertChangeProgress(
+        context,
+        'Remove Order',
+        "Are you sure you want to remove and cancel the order?",
+        'OrderStatus.remove',
+        orderToRemove.orderID,
+        '',
+        _loadOrders,
+      );
     }
   }
 
@@ -133,7 +135,8 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => OrderForm(ownerInfo: ownerInfo),
+                                builder: (context) =>
+                                    OrderForm(ownerInfo: ownerInfo),
                               ),
                             );
                           },
@@ -165,14 +168,17 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
                                   orderID: orders![index].orderID,
                                   press: () {
                                     String orderID = orders![index].orderID;
-                                    String orderLocation = orders![index].orderLocation;
+                                    String orderLocation =
+                                        orders![index].orderLocation;
                                     if (orderID.isEmpty) {
                                       orderID = 'No driver';
                                     }
                                     showDialog(
                                       context: context,
-                                      builder: (context) => OrderCardOwnersWindow(
-                                        driverName: orders![index].driverInfo,
+                                      builder: (context) =>
+                                          OrderCardOwnersWindow(
+                                        driverName:
+                                            orders![index].driverInfo,
                                         orderID: orderID,
                                         orderLocation: orderLocation,
                                       ),
