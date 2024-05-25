@@ -423,6 +423,24 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
     }
   }
 
+   static Future<void> changeDriverAvailable(String driverName, bool isAvailable) async {
+    try {
+      CollectionReference ordersRef =
+          FirebaseFirestore.instance.collection('drivers');
+      QuerySnapshot orderSnapshot =
+          await ordersRef.where('name', isEqualTo: driverName).limit(1).get();
+      if (orderSnapshot.docs.isNotEmpty) {
+        String docId = orderSnapshot.docs.first.id;
+        await ordersRef.doc(docId).update({'isAvailable': isAvailable});
+      } else {
+        throw Exception('Driver not found or does not belong');
+      }
+    } catch (e) {
+      print('Error toggling Driver Available status: $e');
+      // Handle error
+    }
+  }
+
   static Future<void> changeOrderStatus(String newStatus, String ownerId) async {
   
     try {

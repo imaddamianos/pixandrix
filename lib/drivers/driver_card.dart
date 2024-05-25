@@ -7,6 +7,7 @@ class DriverCard extends StatelessWidget {
     required this.image,
     required this.mobile,
     required this.isVerified,
+    required this.isAvailable,
     required this.press,
     required this.onDelete,
     required this.onToggleVerification,
@@ -16,6 +17,7 @@ class DriverCard extends StatelessWidget {
   final String image;
   final String mobile;
   final bool isVerified;
+  final bool isAvailable;
   final GestureTapCallback press;
   final VoidCallback onDelete;
   final VoidCallback onToggleVerification;
@@ -33,6 +35,24 @@ class DriverCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             child: Stack(
               children: [
+                Positioned(
+                  top: 5,
+                  right: 50,
+                  child: TextButton(
+                    onPressed: () {},
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Icon(
+                          Icons.circle,
+                          color: isAvailable
+                              ? Colors.green
+                              : Color.fromARGB(255, 175, 76, 76),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 Container(
                   alignment: Alignment.center,
                   padding: const EdgeInsets.all(10),

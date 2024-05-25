@@ -82,6 +82,7 @@ class _DriversPageState extends State<DriversPage> {
                               image: driver.driverImage,
                               mobile: driver.phoneNumber,
                               isVerified: driver.verified,
+                               isAvailable: driver.isAvailable,
                               press: () {
                                 showDialog(
                                   context: context,

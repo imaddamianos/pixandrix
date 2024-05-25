@@ -139,6 +139,22 @@ class _DriversHomePageState extends State<DriversHomePage> {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Switch(
+                    value: driverInfo!.isAvailable,
+                    onChanged: (value) {
+                      setState(() {
+                        driverInfo!.isAvailable = value;
+                      });
+                      FirebaseOperations.changeDriverAvailable(
+                          driverInfo!.name, value);
+                    },
+                    activeColor: Colors.green,
+                    inactiveThumbColor: Colors.red,
+                  ),
+                ),
                 Expanded(
                   child: orders == null
                       ? const Center(child: CircularProgressIndicator())
