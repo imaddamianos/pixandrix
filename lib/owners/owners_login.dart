@@ -9,6 +9,7 @@ import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/form_helper.dart';
 import 'package:pixandrix/helpers/loader.dart';
 import 'package:pixandrix/helpers/location_helper.dart';
+import 'package:pixandrix/helpers/notification_calls.dart';
 import 'package:pixandrix/helpers/profile_pic.dart';
 import 'package:pixandrix/helpers/secure_storage.dart';
 import 'package:pixandrix/models/owner_model.dart';
@@ -163,6 +164,7 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
             _secureStorage.saveOwner(name, password);
             _secureStorage.saveOwnerInfo(ownerAuth); // Save OwnerData
           }
+          subscribeToOwners();
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
