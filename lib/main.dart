@@ -3,18 +3,18 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:pixandrix/api/firebase_api.dart';
 import 'package:pixandrix/firebase/firebase_options.dart';
 import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/theme/custom_theme.dart';
 import 'package:pixandrix/helpers/permission_handler.dart';
 
 void main() async {
+  
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   ); // Initialize Firebase
-  await FireBaseApi().initNotification();
+  FirebaseMessaging.instance.requestPermission();
   runApp(const MyApp());
    _initializeNotifications();
   getLocationPermission;
@@ -51,6 +51,23 @@ void _showNotification(Map<String, dynamic>? data) async {
   }
 }
 
+void _showNotificationReject(Map<String, dynamic>? data) async {
+  if (data != null) {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails('order_notifications', 'Order Notifications',
+            importance: Importance.max, priority: Priority.high);
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0, // Replace with a unique ID for the notification
+      "Order Returned",
+      "An order has been returned.",
+      platformChannelSpecifics,
+      payload: "item x", // Optional payload data as a String or Map
+    );
+  }
+}
+
 void _configureFirebaseMessaging() {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     // Handle incoming FCM messages here
@@ -70,6 +87,8 @@ void _subscribeToOrders() {
         // Document added, process it as needed
         // For example, you can show a notification here
         _showNotification(change.doc.data());
+      }else if(change.type == DocumentChangeType.modified){
+         _showNotificationReject(change.doc.data());
       }
     }
   });

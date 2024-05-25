@@ -154,6 +154,7 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
     String password = _passwordController.text;
     try {
       OwnerData? ownerAuth = await FirebaseOperations.checkOwnerCredentials('owners', name, password);
+      FirebaseOperations.addTokentoUsers(name, '');
       final verification = await FirebaseOperations.checkOwnerVerification(name);
 
       if (verification) {

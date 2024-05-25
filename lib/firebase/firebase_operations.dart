@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/models/order_model.dart';
@@ -445,6 +446,43 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
       // Handle error
     }
   }
+
+  static Future<void> addTokentoUsers(String ownerName, String driverName) async {
+  try {
+    // Reference to the orders collection
+    if(ownerName != ''){
+      CollectionReference ordersRef = FirebaseFirestore.instance.collection('owners');
+    QuerySnapshot orderSnapshot = await ordersRef.where('name', isEqualTo: ownerName).limit(1).get();
+final fCMToken = await FirebaseMessaging.instance.getToken();
+    if (orderSnapshot.docs.isNotEmpty) {
+      String docId = orderSnapshot.docs.first.id;
+      await ordersRef.doc(docId).update({
+        'token': fCMToken
+      });
+    } else {
+      throw Exception('Order not found or does not belong to owner');
+    }
+    }else if(driverName != ''){
+      CollectionReference ordersRef = FirebaseFirestore.instance.collection('drivers');
+    QuerySnapshot orderSnapshot = await ordersRef.where('name', isEqualTo: driverName).limit(1).get();
+final fCMToken = await FirebaseMessaging.instance.getToken();
+    if (orderSnapshot.docs.isNotEmpty) {
+      String docId = orderSnapshot.docs.first.id;
+      await ordersRef.doc(docId).update({
+        'token': fCMToken
+      });
+    } else {
+      throw Exception('Order not found or does not belong to owner');
+    }
+    }
+    
+
+   
+  } catch (e) {
+    print('Error changing order status: $e');
+    // Handle error
+  }
+}
 
   static Future<void> removeOrder(String orderNumber) async {
     try {

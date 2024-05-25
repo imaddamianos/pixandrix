@@ -132,6 +132,7 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
           if (remember == true) {
           // Save credentials only if the checkbox is selected
           _secureStorage.saveDriver(name, password);
+          FirebaseOperations.addTokentoUsers('', name);
         }
         Navigator.pushReplacement(
           context,
