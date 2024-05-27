@@ -36,7 +36,7 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
       },
       child:  Scaffold(
       appBar: AppBar(
-        title: const Text('Pix and Rix'),
+        title: const Text('Pimado'),
         actions: [
           Row(
             children: [
