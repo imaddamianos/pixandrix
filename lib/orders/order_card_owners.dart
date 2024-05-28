@@ -128,25 +128,21 @@ class OrderCardOwners extends StatelessWidget {
     );
   }
  String _formatDuration(Duration duration, Timestamp orderTimestamp) {
-  DateTime now = DateTime.now();
-  DateTime orderTime = orderTimestamp.toDate();
-  Duration timeLeft = orderTime.difference(now);
-
-  if (timeLeft.isNegative) {
-    return 'Expired';
-  }
+  DateTime now = DateTime.now().toLocal(); // Convert to local time
+  DateTime orderTime = orderTimestamp.toDate().toLocal(); // Convert to local time
+  Duration timeDifference = orderTime.difference(now);
 
   String twoDigits(int n) => n.toString().padLeft(2, '0');
-  String twoDigitHours = twoDigits(timeLeft.inHours.remainder(24));
-  String twoDigitMinutes = twoDigits(timeLeft.inMinutes.remainder(60));
-  String twoDigitSeconds = twoDigits(timeLeft.inSeconds.remainder(60));
+  String twoDigitHours = twoDigits(timeDifference.inHours.remainder(24));
+  String twoDigitMinutes = twoDigits(timeDifference.inMinutes.remainder(60));
+  String twoDigitSeconds = twoDigits(timeDifference.inSeconds.remainder(60));
 
-  if (timeLeft.inMinutes <= 10) {
+  if (timeDifference.isNegative) {
+    return 'Expired';
+  } else if (timeDifference.inMinutes <= 10) {
     return 'Check order $twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
   } else {
     return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
   }
 }
-
-
 }

@@ -54,7 +54,6 @@ class OrderCard extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 Row(
                   children: [
                     TextButton(
@@ -87,11 +86,16 @@ class OrderCard extends StatelessWidget {
                           TimerBuilder.periodic(
                             const Duration(seconds: 1),
                             builder: (context) {
-                              Duration timeLeft =
-                                  orderTime.toDate().difference(now);
+                              Duration timeLeft = orderTime.toDate().difference(now);
                               return Text(
-                                'Time: ${_formatDuration(timeLeft, orderTime)}',
-                                style: const TextStyle(color: Colors.white),
+                               'Time: ${_formatDuration(timeLeft, orderTime)}',
+                                // style: TextStyle(
+                                //   color: _isOrderElapsed(orderTime)
+                                //       ? Colors.red
+                                //       : const Color.fromARGB(255, 255, 255, 255),
+                                //   fontSize: 15,
+                                //   fontWeight: FontWeight.bold,
+                                // ),
                               );
                             },
                           ),
@@ -101,30 +105,30 @@ class OrderCard extends StatelessWidget {
                   ],
                 ),
                 Positioned(
-                      top: 10,
-                      right: 10,
-                      child: TextButton(
-                        onPressed: onChangeStatus,
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              statusInfo['iconData'],
-                              color: statusInfo['iconColor'],
-                            ),
-                            Text(
-                              statusInfo['statusText'],
-                              style: TextStyle(
-                                color: statusInfo['iconColor'],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                  top: 10,
+                  right: 10,
+                  child: TextButton(
+                    onPressed: onChangeStatus,
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
                     ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          statusInfo['iconData'],
+                          color: statusInfo['iconColor'],
+                        ),
+                        Text(
+                          statusInfo['statusText'],
+                          style: TextStyle(
+                            color: statusInfo['iconColor'],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -133,10 +137,11 @@ class OrderCard extends StatelessWidget {
     );
   }
 
- String _formatDuration(Duration duration, Timestamp orderTimestamp) {
+   String _formatDuration(Duration duration, Timestamp orderTimestamp) {
   DateTime now = DateTime.now();
   DateTime orderTime = orderTimestamp.toDate();
   Duration timeLeft = orderTime.difference(now);
+    Duration timeElapsed = now.difference(orderTime);
 
   if (timeLeft.isNegative) {
     return 'Expired';
@@ -147,12 +152,10 @@ class OrderCard extends StatelessWidget {
   String twoDigitMinutes = twoDigits(timeLeft.inMinutes.remainder(60));
   String twoDigitSeconds = twoDigits(timeLeft.inSeconds.remainder(60));
 
-  if (timeLeft.inMinutes <= 10) {
+  if (timeElapsed.inMinutes <= 1) {
     return 'Check order $twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
   } else {
     return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
   }
 }
-
-
 }
