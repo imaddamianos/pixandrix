@@ -99,16 +99,16 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
           verified: false,
           isAvailable: false,
         );
-        _globalLoader.hideLoader();
-        setState(() {
-          _isLoading = false;
-        });
       } catch (error) {
         showAlertDialog(context, 'Error', 'Enter all the information');
-        _globalLoader.hideLoader();
       }
     }
+    _globalLoader.hideLoader();
+    setState(() {
+      _isLoading = false;
+    });
   }
+  
 
   Future<void> _driverLogIn() async {
     setState(() {

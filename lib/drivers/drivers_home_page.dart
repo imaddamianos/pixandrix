@@ -22,23 +22,28 @@ class _DriversHomePageState extends State<DriversHomePage> {
   @override
   void initState() {
     super.initState();
-    _loadOrders();
+    print('DriversHomePage initState');
     driverInfo = widget.driverInfo; // Initialize driverInfo in initState
+    _loadOrders();
   }
 
   Future<void> _loadOrders() async {
-    // Fetch orders data and cast it to a List<OrderData>
-    final fetchedOrders = await FirebaseOperations.getOrders();
-    orders = fetchedOrders.cast<OrderData>();
+    print('Loading orders...');
+    try {
+      // Fetch orders data and cast it to a List<OrderData>
+      final fetchedOrders = await FirebaseOperations.getOrders();
+      orders = fetchedOrders.cast<OrderData>();
 
-    if (mounted) {
-      setState(() {}); // Trigger a rebuild to reflect the updated orders data
+      if (mounted) {
+        setState(() {}); // Trigger a rebuild to reflect the updated orders data
+        print('Orders loaded successfully');
+      }
+    } catch (e) {
+      print('Failed to load orders: $e');
     }
   }
 
-  Future<void> _changeOrderStatus(
-    int index,
-  ) async {
+  Future<void> _changeOrderStatus(int index) async {
     // change the status from driver
     final orderToChange = orders![index].orderID;
     final driver = driverInfo?.name;
@@ -68,9 +73,7 @@ class _DriversHomePageState extends State<DriversHomePage> {
     _loadOrders(); // Refresh the drivers list after removing the driver
   }
 
-  Future<void> _cancelOrderStatus(
-    int index,
-  ) async {
+  Future<void> _cancelOrderStatus(int index) async {
     // cancel order from driver
     final orderNumber = orders![index].orderID;
     final status = orders![index].status;
@@ -88,6 +91,7 @@ class _DriversHomePageState extends State<DriversHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    print('DriversHomePage build');
     return WillPopScope(
       // This widget will intercept the back button press
       onWillPop: () async {
@@ -139,26 +143,23 @@ class _DriversHomePageState extends State<DriversHomePage> {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Row(
-                    children: [
-                      Switch(
-                        value: driverInfo!.isAvailable,
-                        onChanged: (value) {
-                          setState(() {
-                            driverInfo!.isAvailable = value;
-                          });
-                          FirebaseOperations.changeDriverAvailable(
-                              driverInfo!.name, value);
-                        },
-                        activeColor: Colors.green,
-                        inactiveThumbColor: Colors.red,
-                      ),
-                      const Text('Status'),
-                    ],
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Switch(
+                      value: driverInfo!.isAvailable,
+                      onChanged: (value) {
+                        setState(() {
+                          driverInfo!.isAvailable = value;
+                        });
+                        FirebaseOperations.changeDriverAvailable(
+                            driverInfo!.name, value);
+                      },
+                      activeColor: Colors.green,
+                      inactiveThumbColor: Colors.red,
+                    ),
+                    const Text('Status'),
+                  ],
                 ),
                 Expanded(
                   child: orders == null
@@ -198,7 +199,7 @@ class _DriversHomePageState extends State<DriversHomePage> {
                                       final driverOrder =
                                           orders![index].driverInfo;
                                       final currentDriver = driverInfo?.name;
-
+        
                                       int driverOrderCount = 0;
                                       for (final order in orders!) {
                                         if (order.driverInfo == currentDriver) {
@@ -224,19 +225,14 @@ class _DriversHomePageState extends State<DriversHomePage> {
                                       }
                                     },
                                     onCancel: () {
-                                      // if (status != 'OrderStatus.delivered') {
-                                      //   showAlertChangeProgress(context, 'Cancel order', 'Are you sure you want to cancel the order', status, orderNumber, driverOrder, () { })
                                       _cancelOrderStatus(index);
-                                      // }
-                                      // _loadOrders();
                                     },
                                   ),
                                   const SizedBox(height: 20),
                                 ],
                               );
                             } else {
-                              return const SizedBox
-                                  .shrink(); // Return an empty SizedBox if driverInfo is not empty
+                              return const SizedBox.shrink(); // Return an empty SizedBox if driverInfo is not empty
                             }
                           },
                         ),
