@@ -66,7 +66,7 @@ class OrderCardDrivers extends StatelessWidget {
                           Duration timeLeft =
                               orderTime.toDate().difference(now);
                           return Text(
-                            'Time: ${_formatDuration(timeLeft)}',
+                            'Time: ${_formatDuration(timeLeft, orderTime)}',
                             style: const TextStyle(color: Colors.white),
                           );
                         },
@@ -127,16 +127,22 @@ class OrderCardDrivers extends StatelessWidget {
     );
   }
 
-  String _formatDuration(Duration duration) {
-    if (duration.isNegative) {
-      return 'Expired';
-    } else if (duration.inMinutes <= 7) {
-      return '${duration.inMinutes} min check order';
-    } else {
-      String twoDigits(int n) => n.toString().padLeft(2, '0');
-      String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-      String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-      return '$twoDigitMinutes:$twoDigitSeconds';
-    }
+ String _formatDuration(Duration duration, Timestamp orderTimestamp) {
+  DateTime now = DateTime.now();
+  DateTime orderTime = orderTimestamp.toDate();
+
+  Duration timeLeft = orderTime.difference(now);
+
+  if (timeLeft.isNegative) {
+    return 'Expired';
+  } else {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String twoDigitHours = twoDigits(timeLeft.inHours.remainder(24));
+    String twoDigitMinutes = twoDigits(timeLeft.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(timeLeft.inSeconds.remainder(60));
+
+    return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
   }
+}
+
 }

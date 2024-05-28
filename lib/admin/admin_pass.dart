@@ -31,7 +31,7 @@ class _AdminPassPageState extends State<AdminPassPage> {
   void _checkPassword() {
     _globalLoader.showLoader(context);
     String enteredPassword = _passwordController.text.trim();
-    if (enteredPassword == '123456') {
+    if (enteredPassword == '123450') {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const AdminPanelPage()),

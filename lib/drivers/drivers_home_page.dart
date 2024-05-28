@@ -142,17 +142,22 @@ class _DriversHomePageState extends State<DriversHomePage> {
                 Positioned(
                   bottom: 0,
                   right: 0,
-                  child: Switch(
-                    value: driverInfo!.isAvailable,
-                    onChanged: (value) {
-                      setState(() {
-                        driverInfo!.isAvailable = value;
-                      });
-                      FirebaseOperations.changeDriverAvailable(
-                          driverInfo!.name, value);
-                    },
-                    activeColor: Colors.green,
-                    inactiveThumbColor: Colors.red,
+                  child: Row(
+                    children: [
+                      Switch(
+                        value: driverInfo!.isAvailable,
+                        onChanged: (value) {
+                          setState(() {
+                            driverInfo!.isAvailable = value;
+                          });
+                          FirebaseOperations.changeDriverAvailable(
+                              driverInfo!.name, value);
+                        },
+                        activeColor: Colors.green,
+                        inactiveThumbColor: Colors.red,
+                      ),
+                      const Text('Status'),
+                    ],
                   ),
                 ),
                 Expanded(
