@@ -1,3 +1,4 @@
+import 'package:cloud_firestore_platform_interface/src/timestamp.dart';
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/driver_model.dart';
@@ -10,7 +11,7 @@ class OrderCardWindow extends StatefulWidget {
   final String driverName;
   final String orderID;
   final String orderLocation;
-  
+  final Timestamp lastOrderTimeUpdate;
 
   const OrderCardWindow({
     super.key,
@@ -18,6 +19,7 @@ class OrderCardWindow extends StatefulWidget {
     required this.ownerName,
     required this.orderID,
     required this.orderLocation,
+    required this.lastOrderTimeUpdate,
   });
 
   @override

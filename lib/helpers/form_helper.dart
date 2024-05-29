@@ -122,6 +122,8 @@ OwnerData submitFormStore({
   required String storeInfo,
   required BuildContext context,
   required int orderNumber,
+  required DateTime lastOrderTimeUpdate,
+
 }) async {
   try {
 
@@ -134,6 +136,7 @@ OwnerData submitFormStore({
       'isTaken': isTaken,
       'driverInfo': driverInfo,
       'storeInfo': storeInfo,
+      'lastOrderTimeUpdate': lastOrderTimeUpdate,
       // You can add more fields here if needed
     });
 

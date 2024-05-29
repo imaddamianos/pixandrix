@@ -97,6 +97,7 @@ class _OrdersPageState extends State<OrdersPage> {
                                 status: orders![index].status,
                                 driverInfo: orders![index].driverInfo,
                                 storeInfo: orders![index].storeInfo,
+                                lastOrderTimeUpdate: orders![index].lastOrderTimeUpdate,
                                 press: () {
                                    String orderID = orders![index].orderID;
                                     showDialog(
@@ -106,6 +107,7 @@ class _OrdersPageState extends State<OrdersPage> {
                                         orderID: orderID,
                                         ownerName: orders![index].storeInfo,
                                         orderLocation: orders![index].orderLocation,
+                                        lastOrderTimeUpdate :orders![index].lastOrderTimeUpdate,
                                       ),
                                     );
                                 },

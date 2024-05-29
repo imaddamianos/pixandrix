@@ -132,15 +132,16 @@ void showAlertChangeProgress(
         actions: <Widget>[
           TextButton(
             onPressed: () async {
+              DateTime now = DateTime.now().toLocal();
               if (status == 'OrderStatus.pending') {
                 await FirebaseOperations.changeOrderStatus(
-                    'OrderStatus.inProgress', orderNumber);
+                    'OrderStatus.inProgress', orderNumber, now);
                 await FirebaseOperations.changeDriverName(
                     driverOrder, orderNumber);
                 Navigator.pop(context);
               } else if (status == 'OrderStatus.inProgress') {
                 await FirebaseOperations.changeOrderStatus(
-                    'OrderStatus.delivered', orderNumber);
+                    'OrderStatus.delivered', orderNumber, now);
                 Navigator.pop(context);
               }else if(status == 'OrderStatus.remove'){
                 await FirebaseOperations.removeOrder(orderNumber);
@@ -228,7 +229,7 @@ void showAlertDriverCancelOrder(BuildContext context, String title,
           TextButton(
             onPressed: () async {
                 await FirebaseOperations.changeOrderStatus(
-                    'OrderStatus.pending', orderNumber);
+                    'OrderStatus.pending', orderNumber, DateTime(0000, 0, 0));
                 Navigator.pop(context);
                 await FirebaseOperations.changeDriverName('', orderNumber);
 

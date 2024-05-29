@@ -119,6 +119,7 @@ class _OrderFormState extends State<OrderForm> {
                                 hours: _selectedTime.hour,
                                 minutes: _selectedTime.minute),
                           );
+                           DateTime now = DateTime.now().toLocal();
 
                           try {
                             int orderNumber = await getNextOrderNumber();
@@ -131,6 +132,7 @@ class _OrderFormState extends State<OrderForm> {
                               storeInfo: widget.ownerInfo!.name,
                               context: context,
                               orderNumber: orderNumber,
+                              lastOrderTimeUpdate: now,
                             );
 
                             // Show success dialog

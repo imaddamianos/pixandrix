@@ -9,6 +9,7 @@ class OrderCard extends StatelessWidget {
     required this.orderTime,
     required this.orderLocation,
     required this.status,
+    required this.lastOrderTimeUpdate,
     required this.driverInfo,
     required this.storeInfo,
     required this.press,
@@ -18,7 +19,7 @@ class OrderCard extends StatelessWidget {
 
   final String driverInfo, orderLocation, storeInfo;
   final String status;
-  final Timestamp orderTime;
+  final Timestamp orderTime, lastOrderTimeUpdate;
   final GestureTapCallback press;
   final VoidCallback onChangeStatus;
   final VoidCallback onCancel;
@@ -88,7 +89,7 @@ class OrderCard extends StatelessWidget {
                             builder: (context) {
                               Duration timeLeft = orderTime.toDate().difference(now);
                               return Text(
-                               'Time: ${_formatDuration(timeLeft, orderTime)}',
+                               'Time: ${_formatDuration(timeLeft, orderTime, lastOrderTimeUpdate)}',
                                 // style: TextStyle(
                                 //   color: _isOrderElapsed(orderTime)
                                 //       ? Colors.red
@@ -137,11 +138,13 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-   String _formatDuration(Duration duration, Timestamp orderTimestamp) {
+  String _formatDuration(Duration duration, Timestamp orderTimestamp, Timestamp lastOrderTimeUpdate) {
   DateTime now = DateTime.now();
   DateTime orderTime = orderTimestamp.toDate();
+  DateTime lastOrderTime = lastOrderTimeUpdate.toDate();
+
   Duration timeLeft = orderTime.difference(now);
-    Duration timeElapsed = now.difference(orderTime);
+  Duration timeSinceLastUpdate = now.difference(lastOrderTime);
 
   if (timeLeft.isNegative) {
     return 'Expired';
@@ -152,10 +155,11 @@ class OrderCard extends StatelessWidget {
   String twoDigitMinutes = twoDigits(timeLeft.inMinutes.remainder(60));
   String twoDigitSeconds = twoDigits(timeLeft.inSeconds.remainder(60));
 
-  if (timeElapsed.inMinutes <= 1) {
+  if (timeSinceLastUpdate.inMinutes >= 10) {
     return 'Check order $twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
   } else {
     return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
   }
 }
+
 }

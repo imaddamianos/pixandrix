@@ -11,6 +11,7 @@ class OrderData {
     final bool isTaken;
   final String driverInfo;
   final String storeInfo;
+  final Timestamp lastOrderTimeUpdate;
 
   OrderData({
     required this.orderID,
@@ -20,5 +21,6 @@ class OrderData {
     required this.isTaken,
     required this.driverInfo,
     required this.storeInfo,
+    required this.lastOrderTimeUpdate,
   });
 }

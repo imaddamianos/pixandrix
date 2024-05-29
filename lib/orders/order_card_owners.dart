@@ -13,6 +13,7 @@ class OrderCardOwners extends StatelessWidget {
     required this.orderID,
     required this.driverInfo,
     required this.storeInfo,
+    required this.lastOrderTimeUpdate,
     required this.press,
     required this.onCancel,
   });
@@ -20,7 +21,7 @@ class OrderCardOwners extends StatelessWidget {
   final String driverInfo, orderLocation, storeInfo;
   final String status;
   final String orderID;
-  final Timestamp orderTime; // Change the type to Timestamp
+  final Timestamp orderTime, lastOrderTimeUpdate;
   final GestureTapCallback press;
   final VoidCallback onCancel;
 
@@ -66,7 +67,7 @@ class OrderCardOwners extends StatelessWidget {
                               Duration timeLeft =
                                   orderTime.toDate().difference(now);
                               return Text(
-                                'Time: ${_formatDuration(timeLeft, orderTime)}',
+                                'Time: ${_formatDuration(timeLeft, orderTime, lastOrderTimeUpdate)}',
                                 style: const TextStyle(color: Colors.white),
                               );
                             },
@@ -127,19 +128,24 @@ class OrderCardOwners extends StatelessWidget {
       ),
     );
   }
- String _formatDuration(Duration duration, Timestamp orderTimestamp) {
-  DateTime now = DateTime.now().toLocal(); // Convert to local time
-  DateTime orderTime = orderTimestamp.toDate().toLocal(); // Convert to local time
-  Duration timeDifference = orderTime.difference(now);
+ String _formatDuration(Duration duration, Timestamp orderTimestamp, Timestamp lastOrderTimeUpdate) {
+  DateTime now = DateTime.now();
+  DateTime orderTime = orderTimestamp.toDate();
+  DateTime lastOrderTime = lastOrderTimeUpdate.toDate();
+
+  Duration timeLeft = orderTime.difference(now);
+  Duration timeSinceLastUpdate = now.difference(lastOrderTime);
+
+  if (timeLeft.isNegative) {
+    return 'Expired';
+  }
 
   String twoDigits(int n) => n.toString().padLeft(2, '0');
-  String twoDigitHours = twoDigits(timeDifference.inHours.remainder(24));
-  String twoDigitMinutes = twoDigits(timeDifference.inMinutes.remainder(60));
-  String twoDigitSeconds = twoDigits(timeDifference.inSeconds.remainder(60));
+  String twoDigitHours = twoDigits(timeLeft.inHours.remainder(24));
+  String twoDigitMinutes = twoDigits(timeLeft.inMinutes.remainder(60));
+  String twoDigitSeconds = twoDigits(timeLeft.inSeconds.remainder(60));
 
-  if (timeDifference.isNegative) {
-    return 'Expired';
-  } else if (timeDifference.inMinutes <= 10) {
+  if (timeSinceLastUpdate.inMinutes >= 10) {
     return 'Check order $twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
   } else {
     return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';

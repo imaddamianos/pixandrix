@@ -55,12 +55,20 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
     }
   }
 
-  bool _shouldDisableButton() {
-    if (orders!.isEmpty) return false;
-    final latestOrderTime = orders!.last.orderTime.toDate();
-    final timeDifference = DateTime.now().difference(latestOrderTime);
-    return timeDifference.inMinutes < -5;
+bool _shouldDisableButton() {
+  if (orders == null || orders!.isEmpty) return false;
+  
+  final latestOrder = orders!.last;
+  final lastOrderTimeUpdate = latestOrder.lastOrderTimeUpdate.toDate();
+  final adjustedLastOrderTimeUpdate = lastOrderTimeUpdate.add(const Duration(minutes: 10));
+  final currentTime = DateTime.now();
+  final status = latestOrder.status;
+  if (currentTime.isBefore(adjustedLastOrderTimeUpdate) && status == 'OrderStatus.pending') {
+    return true;
   }
+  // Otherwise, return true
+  return false;
+}
 
   Future<void> _removeOrder(int index) async {
     // remove order from owner
@@ -174,6 +182,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
                                   driverInfo: orders![index].driverInfo,
                                   storeInfo: orders![index].storeInfo,
                                   orderID: orders![index].orderID,
+                                  lastOrderTimeUpdate: orders![index].lastOrderTimeUpdate,
                                   press: () {
                                     String orderID = orders![index].orderID;
                                     String orderLocation =

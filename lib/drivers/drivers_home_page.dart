@@ -42,36 +42,50 @@ class _DriversHomePageState extends State<DriversHomePage> {
       print('Failed to load orders: $e');
     }
   }
+Future<void> _changeOrderStatus(int index) async {
+  final orderToChange = orders![index].orderID;
+  final lastOrderTimeUpdate = orders![index].lastOrderTimeUpdate.toDate();
+  final driver = driverInfo?.name;
+  final now = DateTime.now();
+  final timeSinceLastUpdate = now.difference(lastOrderTimeUpdate);
 
-  Future<void> _changeOrderStatus(int index) async {
-    // change the status from driver
-    final orderToChange = orders![index].orderID;
-    final driver = driverInfo?.name;
-    if (orders![index].status == 'OrderStatus.pending') {
+  if (orders![index].status == 'OrderStatus.pending') {
+    if (index >= 0 && index < orders!.length) {
+      showAlertChangeProgress(
+        context,
+        'Take Order',
+        "Are you sure you want to take the order?",
+        'OrderStatus.pending',
+        orderToChange,
+        driver!,
+        _loadOrders
+      );
+    }
+  } else if (orders![index].status == 'OrderStatus.inProgress') {
+    if (timeSinceLastUpdate.inMinutes >= 5) {
       if (index >= 0 && index < orders!.length) {
         showAlertChangeProgress(
-            context,
-            'Take Order',
-            "Are you sure you want to take the order?",
-            'OrderStatus.pending',
-            orderToChange,
-            driver!,
-            _loadOrders);
+          context,
+          'Finish Order',
+          "Are you sure you want to finish the order?",
+          'OrderStatus.inProgress',
+          orderToChange,
+          driver!,
+          _loadOrders
+        );
       }
     } else {
-      if (index >= 0 && index < orders!.length) {
-        showAlertChangeProgress(
-            context,
-            'Finish Order',
-            "Are you sure you want to finish the order?",
-            'OrderStatus.inProgress',
-            orderToChange,
-            driver!,
-            _loadOrders);
-      }
+      showAlertDialog(
+        context,
+        'Alert!',
+        'You need to wait at least 5 minutes from the accept time of the order before finishing it.'
+      );
     }
-    _loadOrders(); // Refresh the drivers list after removing the driver
   }
+
+  await _loadOrders(); // Refresh the orders list after status change
+}
+
 
   Future<void> _cancelOrderStatus(int index) async {
     // cancel order from driver
