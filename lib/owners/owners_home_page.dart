@@ -63,17 +63,25 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
   }
 
   Future<void> _removeOrder(int index) async {
+    // remove order from owner
     if (index >= 0 && index < orders!.length) {
       final orderToRemove = orders![index];
-      showAlertChangeProgress(
-        context,
-        'Remove Order',
-        "Are you sure you want to remove and cancel the order?",
-        'OrderStatus.remove',
-        orderToRemove.orderID,
-        '',
-        _loadOrders,
-      );
+      final status = orders![index].status;
+      if (status == 'OrderStatus.pending') {
+        if (index >= 0 && index < orders!.length) {
+          showAlertChangeProgress(
+            context,
+            'Remove Order',
+            "Are you sure you want to remove and cancel the order?",
+            'OrderStatus.remove',
+            orderToRemove.orderID,
+            '',
+            _loadOrders,
+          );
+        }
+      }else if (status == 'OrderStatus.inProgress'){
+      showAlertDialog(context, 'Order in Progress', 'You cannot delete the Order!');
+      }
     }
   }
 
@@ -177,8 +185,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
                                       context: context,
                                       builder: (context) =>
                                           OrderCardOwnersWindow(
-                                        driverName:
-                                            orders![index].driverInfo,
+                                        driverName: orders![index].driverInfo,
                                         orderID: orderID,
                                         orderLocation: orderLocation,
                                       ),
