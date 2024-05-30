@@ -24,14 +24,15 @@ class _AdminPassPageState extends State<AdminPassPage> {
   @override
   void initState() {
     super.initState();
-    _passwordController.addListener(_checkName);
     _loadSavedCredentials();
   }
 
-  void _checkPassword() {
+  Future<void> _checkPassword() async {
     _globalLoader.showLoader(context);
-    String enteredPassword = _passwordController.text.trim();
-    if (enteredPassword == '123450') {
+     String enteredPassword = _passwordController.text.trim();
+    bool available =
+        await FirebaseOperations.checkAdminPass(enteredPassword);
+    if (available) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const AdminPanelPage()),
@@ -44,14 +45,6 @@ class _AdminPassPageState extends State<AdminPassPage> {
         _globalLoader.hideLoader();
       });
     }
-  }
-
-  void _checkName() async {
-    String enteredName = _passwordController.text.trim();
-    bool available =
-        await FirebaseOperations.checkDriverNameExists(enteredName);
-    setState(() {
-    });
   }
 
   Future<void> _loadSavedCredentials() async {

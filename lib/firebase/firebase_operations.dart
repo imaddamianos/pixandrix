@@ -184,6 +184,24 @@ static Future<bool> checkOwnerVerification(String ownerName) async {
     }
   }
 
+  static Future<bool> checkAdminPass(String enteredPassword) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
+          .instance
+          .collection('admin')
+          .where('password', isEqualTo: enteredPassword)
+          .limit(
+              1) // Limit to 1 document since we only need to check if it exists
+          .get();
+
+      // If there's at least one document with the given restaurant name, return true
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      print('Error checking Admin password: $e');
+      return false;
+    }
+  }
+
   static Future<DriverData?> checkDriverCredentials(
       String type, String name, String password) async {
     try {
