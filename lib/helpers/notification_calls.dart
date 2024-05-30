@@ -16,8 +16,23 @@ import 'package:pixandrix/main.dart';
 //     configureFirebaseMessaging();
 //     subscribeToTakenOrders();
 //   }
-final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
+void _showNotification(Map<String, dynamic>? data) async {
+  if (data != null) {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails('new_order', 'New Order',
+            importance: Importance.max, priority: Priority.high);
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0, // Replace with a unique ID for the notification
+      "New Order",
+      "A new order has been added.",
+      platformChannelSpecifics,
+      payload: "item x", // Optional payload data as a String or Map
+    );
+  }
+}
 
 void initializeNotifications() async {
   const AndroidInitializationSettings initializationSettingsAndroid =
@@ -27,20 +42,7 @@ void initializeNotifications() async {
       InitializationSettings(android: initializationSettingsAndroid);
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   configureFirebaseMessaging();
-  _firebaseMessaging.onTokenRefresh
-        .listen((fcmToken) {
-          // Send token to your application server if needed
-          if (fcmToken != null) {
-            // Send the token to your server using your preferred method (e.g., HTTP request)
-            print('FCM token refreshed: $fcmToken');
-            // Replace with your actual server communication logic
-            // ...
-          }
-        })
-        .onError((err) {
-          print('Error getting FCM token: $err');
-        });
-  }
+}
 
 void configureFirebaseMessaging() {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
@@ -67,23 +69,6 @@ void _showNotificationReject(Map<String, dynamic>? data) async {
   }
 }
 
-void _showNotificationAdd(Map<String, dynamic>? data) async {
-  if (data != null) {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails('new_order', 'New Order',
-            importance: Importance.max, priority: Priority.high);
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(
-      0, // Replace with a unique ID for the notification
-      "New Order",
-      "A new order has been added.",
-      platformChannelSpecifics,
-      payload: "item x", // Optional payload data as a String or Map
-    );
-  }
-}
-
 void _showNotificationTaking(Map<String, dynamic>? data) async {
   if (data != null) {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
@@ -101,11 +86,10 @@ void _showNotificationTaking(Map<String, dynamic>? data) async {
   }
 }
 
-void subscribeToaddOrders(String userToken) {
-  FirebaseFirestore.instance.collection('orders').snapshots().listen((snapshot) async {
-    final fCMToken = await FirebaseMessaging.instance.getToken();
+void subscribeToaddOrders() {
+  FirebaseFirestore.instance.collection('orders').snapshots().listen((snapshot) {
     for (var change in snapshot.docChanges) {
-        _showNotificationAdd(change.doc.data());
+        _showNotification(change.doc.data());
     }
   });
 }

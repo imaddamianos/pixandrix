@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
+import 'package:pixandrix/helpers/notification_calls.dart';
 import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/orders/order_card_drivers.dart';
@@ -33,55 +34,50 @@ class _DriversHomePageState extends State<DriversHomePage> {
       orders = fetchedOrders.cast<OrderData>();
 
       if (mounted) {
+        initializeNotifications();
         setState(() {}); // Trigger a rebuild to reflect the updated orders data
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   }
-Future<void> _changeOrderStatus(int index) async {
-  final orderToChange = orders![index].orderID;
-  final lastOrderTimeUpdate = orders![index].lastOrderTimeUpdate.toDate();
-  final driver = driverInfo?.name;
-  final now = DateTime.now();
-  final timeSinceLastUpdate = now.difference(lastOrderTimeUpdate);
 
-  if (orders![index].status == 'OrderStatus.pending') {
-    if (index >= 0 && index < orders!.length) {
-      showAlertChangeProgress(
-        context,
-        'Take Order',
-        "Are you sure you want to take the order?",
-        'OrderStatus.pending',
-        orderToChange,
-        driver!,
-        _loadOrders
-      );
-    }
-  } else if (orders![index].status == 'OrderStatus.inProgress') {
-    if (timeSinceLastUpdate.inMinutes >= 5) {
+  Future<void> _changeOrderStatus(int index) async {
+    final orderToChange = orders![index].orderID;
+    final lastOrderTimeUpdate = orders![index].lastOrderTimeUpdate.toDate();
+    final driver = driverInfo?.name;
+    final now = DateTime.now();
+    final timeSinceLastUpdate = now.difference(lastOrderTimeUpdate);
+
+    if (orders![index].status == 'OrderStatus.pending') {
       if (index >= 0 && index < orders!.length) {
         showAlertChangeProgress(
-          context,
-          'Finish Order',
-          "Are you sure you want to finish the order?",
-          'OrderStatus.inProgress',
-          orderToChange,
-          driver!,
-          _loadOrders
-        );
+            context,
+            'Take Order',
+            "Are you sure you want to take the order?",
+            'OrderStatus.pending',
+            orderToChange,
+            driver!,
+            _loadOrders);
       }
-    } else {
-      showAlertDialog(
-        context,
-        'Alert!',
-        'You need to wait at least 5 minutes from the accept time of the order before finishing it.'
-      );
+    } else if (orders![index].status == 'OrderStatus.inProgress') {
+      if (timeSinceLastUpdate.inMinutes >= 5) {
+        if (index >= 0 && index < orders!.length) {
+          showAlertChangeProgress(
+              context,
+              'Finish Order',
+              "Are you sure you want to finish the order?",
+              'OrderStatus.inProgress',
+              orderToChange,
+              driver!,
+              _loadOrders);
+        }
+      } else {
+        showAlertDialog(context, 'Alert!',
+            'You need to wait at least 5 minutes from the accept time of the order before finishing it.');
+      }
     }
+
+    await _loadOrders(); // Refresh the orders list after status change
   }
-
-  await _loadOrders(); // Refresh the orders list after status change
-}
-
 
   Future<void> _cancelOrderStatus(int index) async {
     // cancel order from driver
@@ -97,6 +93,13 @@ Future<void> _changeOrderStatus(int index) async {
             _loadOrders);
       }
     }
+  }
+
+  int _countDriverOrders(String driverName) {
+    if (orders == null || driverName.isEmpty) {
+      return 0;
+    }
+    return orders!.where((order) => order.driverInfo == driverName).length;
   }
 
   @override
@@ -127,8 +130,9 @@ Future<void> _changeOrderStatus(int index) async {
                 ),
                 IconButton(
                   icon: const Icon(Icons.logout),
-                   onPressed: () {
-                    showAlertWithDestination(context, 'Log Out', 'Are you sure you want to Log out?', const FirstPage());
+                  onPressed: () {
+                    showAlertWithDestination(context, 'Log Out',
+                        'Are you sure you want to Log out?', const FirstPage());
                   },
                 ),
               ],
@@ -144,7 +148,7 @@ Future<void> _changeOrderStatus(int index) async {
               children: [
                 const SizedBox(height: 10),
                 Text(
-                  'Orders: ${orders?.length ?? 0}',
+                  'Orders: ${_countDriverOrders(driverInfo?.name ?? '')} ',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
@@ -204,7 +208,7 @@ Future<void> _changeOrderStatus(int index) async {
                                       final driverOrder =
                                           orders![index].driverInfo;
                                       final currentDriver = driverInfo?.name;
-        
+
                                       int driverOrderCount = 0;
                                       for (final order in orders!) {
                                         if (order.driverInfo == currentDriver) {
@@ -237,7 +241,8 @@ Future<void> _changeOrderStatus(int index) async {
                                 ],
                               );
                             } else {
-                              return const SizedBox.shrink(); // Return an empty SizedBox if driverInfo is not empty
+                              return const SizedBox
+                                  .shrink(); // Return an empty SizedBox if driverInfo is not empty
                             }
                           },
                         ),
