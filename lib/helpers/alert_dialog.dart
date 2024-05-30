@@ -53,6 +53,15 @@ void showAlertWithDestination(BuildContext context, String title,
             },
             child: const Text('OK'),
           ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
         ],
       );
     },

@@ -3,6 +3,7 @@ import 'package:pixandrix/admin/drivers_page.dart';
 import 'package:pixandrix/admin/orders_page.dart';
 import 'package:pixandrix/admin/owners_page.dart';
 import 'package:pixandrix/first_page.dart';
+import 'package:pixandrix/helpers/alert_dialog.dart';
 
 class AdminPanelPage extends StatefulWidget {
   const AdminPanelPage({super.key});
@@ -48,12 +49,9 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
               ),
               IconButton(
                 icon: const Icon(Icons.logout),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const FirstPage()),
-                  );
-                },
+                 onPressed: () {
+                    showAlertWithDestination(context, 'Log Out', 'Are you sure you want to Log out?', const FirstPage());
+                  },
               ),
             ],
           ),

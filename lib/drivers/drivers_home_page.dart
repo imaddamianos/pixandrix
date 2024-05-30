@@ -132,12 +132,8 @@ Future<void> _changeOrderStatus(int index) async {
                 ),
                 IconButton(
                   icon: const Icon(Icons.logout),
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const FirstPage()),
-                    );
+                   onPressed: () {
+                    showAlertWithDestination(context, 'Log Out', 'Are you sure you want to Log out?', const FirstPage());
                   },
                 ),
               ],

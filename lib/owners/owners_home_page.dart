@@ -122,12 +122,7 @@ bool _shouldDisableButton() {
                 IconButton(
                   icon: const Icon(Icons.logout),
                   onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const FirstPage(),
-                      ),
-                    );
+                    showAlertWithDestination(context, 'Log Out', 'Are you sure you want to Log out?', const FirstPage());
                   },
                 ),
               ],
