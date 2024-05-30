@@ -22,13 +22,11 @@ class _DriversHomePageState extends State<DriversHomePage> {
   @override
   void initState() {
     super.initState();
-    print('DriversHomePage initState');
     driverInfo = widget.driverInfo; // Initialize driverInfo in initState
     _loadOrders();
   }
 
   Future<void> _loadOrders() async {
-    print('Loading orders...');
     try {
       // Fetch orders data and cast it to a List<OrderData>
       final fetchedOrders = await FirebaseOperations.getOrders();
@@ -36,10 +34,8 @@ class _DriversHomePageState extends State<DriversHomePage> {
 
       if (mounted) {
         setState(() {}); // Trigger a rebuild to reflect the updated orders data
-        print('Orders loaded successfully');
       }
     } catch (e) {
-      print('Failed to load orders: $e');
     }
   }
 Future<void> _changeOrderStatus(int index) async {
@@ -105,7 +101,6 @@ Future<void> _changeOrderStatus(int index) async {
 
   @override
   Widget build(BuildContext context) {
-    print('DriversHomePage build');
     return WillPopScope(
       // This widget will intercept the back button press
       onWillPop: () async {

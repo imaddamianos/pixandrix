@@ -7,7 +7,6 @@ import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/form_helper.dart';
 import 'package:pixandrix/helpers/image_id.dart';
 import 'package:pixandrix/helpers/loader.dart';
-import 'package:pixandrix/helpers/notification_calls.dart';
 import 'package:pixandrix/helpers/profile_pic.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/models/driver_model.dart';
@@ -129,8 +128,7 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
               // Subscribe to notifications
               FirebaseOperations.addTokentoUsers('', name);
             }
-            // Ensure subscription to notifications only once
-            subscribeToAdd();
+            
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(

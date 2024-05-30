@@ -65,6 +65,8 @@ bool _shouldDisableButton() {
   final status = latestOrder.status;
   if (currentTime.isBefore(adjustedLastOrderTimeUpdate) && status == 'OrderStatus.pending') {
     return true;
+  }else if((currentTime.isBefore(adjustedLastOrderTimeUpdate) && status == 'OrderStatus.inProgress')){
+  return true;  
   }
   // Otherwise, return true
   return false;

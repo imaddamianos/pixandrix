@@ -164,7 +164,8 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
             _secureStorage.saveOwner(name, password);
             _secureStorage.saveOwnerInfo(ownerAuth); // Save OwnerData
           }
-          subscribeToOwners();
+          
+          
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
