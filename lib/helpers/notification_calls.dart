@@ -86,26 +86,60 @@ void _showNotificationTaking(Map<String, dynamic>? data) async {
   }
 }
 
-void subscribeToaddOrders() {
-  FirebaseFirestore.instance.collection('orders').snapshots().listen((snapshot) {
-    for (var change in snapshot.docChanges) {
-        _showNotification(change.doc.data());
-    }
-  });
+void subscribeToaddOrders(String driver) {
+  FirebaseFirestore.instance
+      .collection('orders')
+      .where('driverInfo', isEqualTo: driver)
+      .snapshots()
+      .listen((snapshot) {
+        for (var change in snapshot.docChanges) {
+          if (change.type == DocumentChangeType.added) {
+            var newData = change.doc.data() as Map<String, dynamic>;
+            if (newData['driverInfo'] == driver) {
+            _showNotification(change.doc.data());
+          }
+          }
+        }
+      });
 }
 
-void subscribeToChangedOrders(String driver, String orderNumber) {
-  FirebaseFirestore.instance.collection('orders').snapshots().listen((snapshot) {
-    for (var change in snapshot.docChanges) {
-      if (change.type == DocumentChangeType.modified) {
-        var newData = change.doc.data() as Map<String, dynamic>;
-        if (newData['status'] == 'OrderStatus.pending') {
-          _showNotificationReject(newData);
+void subscribeToOrderStatusChanges(String owner) {
+  FirebaseFirestore.instance
+      .collection('orders')
+      .where('storeInfo', isEqualTo: owner)
+      .snapshots()
+      .listen((snapshot) {
+        for (var change in snapshot.docChanges) {
+          if (change.type == DocumentChangeType.modified ) {
+            var newData = change.doc.data() as Map<String, dynamic>;
+            if (newData['storeInfo'] == owner) {
+              _showNotificationTaking(newData);
+            }
+          }
         }
-      }
-    }
-  });
+      });
 }
+
+
+
+void subscribeToChangedOrders(String storeInfo, String orderID) {
+  FirebaseFirestore.instance
+      .collection('orders')
+      .where('orderID', isEqualTo: orderID)
+      .where('storeInfo', isEqualTo: storeInfo)
+      .snapshots()
+      .listen((snapshot) {
+        for (var change in snapshot.docChanges) {
+          if (change.type == DocumentChangeType.modified) {
+            var newData = change.doc.data() as Map<String, dynamic>;
+            if (newData['status'] == 'OrderStatus.pending') {
+              _showNotificationTaking(newData);
+            }
+          }
+        }
+      });
+}
+
 
 void subscribeToTakenOrders() {
   FirebaseFirestore.instance.collection('orders').snapshots().listen((snapshot) {

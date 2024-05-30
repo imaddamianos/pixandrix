@@ -23,6 +23,8 @@ class _DriversHomePageState extends State<DriversHomePage> {
   @override
   void initState() {
     super.initState();
+     initializeNotifications();
+       subscribeToaddOrders(widget.driverInfo!.name);
     driverInfo = widget.driverInfo; // Initialize driverInfo in initState
     _loadOrders();
   }
@@ -34,7 +36,6 @@ class _DriversHomePageState extends State<DriversHomePage> {
       orders = fetchedOrders.cast<OrderData>();
 
       if (mounted) {
-        initializeNotifications();
         setState(() {}); // Trigger a rebuild to reflect the updated orders data
       }
     } catch (e) {}

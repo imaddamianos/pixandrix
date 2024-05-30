@@ -29,6 +29,8 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
   @override
   void initState() {
     super.initState();
+    initializeNotifications();
+       subscribeToOrderStatusChanges(widget.ownerInfo!.name);
     _loadOwnerInfo();
     _loadOrders();
   }
@@ -188,6 +190,7 @@ bool _shouldDisableButton() {
                                     if (orderID.isEmpty) {
                                       orderID = 'No driver';
                                     }
+                                     subscribeToChangedOrders(ownerInfo!.name, orders![index].orderID);
                                     showDialog(
                                       context: context,
                                       builder: (context) =>
