@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
-import 'package:pixandrix/owners/owners_home_page.dart';
-
-import 'package:flutter/material.dart';
 
 void showAlertDialog(BuildContext context, String title, String message,
     {bool goBackOnDismiss = false}) {

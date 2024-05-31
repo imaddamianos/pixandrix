@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pixandrix/admin/add%20owners/add_owner.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/models/owner_model.dart';
-import 'package:pixandrix/theme/buttons/add_button.dart';
 import 'package:pixandrix/owners/owner_card.dart';
 import 'package:pixandrix/owners/owner_card_window.dart';
 
@@ -49,18 +47,6 @@ class _OwnersPageState extends State<OwnersPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // AddButton(
-            //   text: 'Add Owner',
-            //   onPressed: () async {
-            //     // Navigate to the AddOwnerPage and await the result
-            //     await Navigator.push(
-            //       context,
-            //       MaterialPageRoute(builder: (context) => const AddOwnerPage()),
-            //     );
-            //     // Refresh the owners list after adding a new owner
-            //     _loadOwners();
-            //   },
-            // ),
             const SizedBox(height: 10),
             Text(
                   'Owners: ${owners?.length ?? 0}',

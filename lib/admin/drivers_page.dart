@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pixandrix/admin/add%20drivers/add_driver.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/models/driver_model.dart';
-import 'package:pixandrix/theme/buttons/add_button.dart';
 import 'package:pixandrix/drivers/driver_card.dart';
 import 'package:pixandrix/drivers/driver_card_window.dart';
 
@@ -49,19 +47,6 @@ class _DriversPageState extends State<DriversPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // AddButton(
-            //   text: 'Add Drivers',
-            //   onPressed: () async {
-            //     // Navigate to the AddDriverPage and await the result
-            //     await Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //           builder: (context) => const AddDriverPage()),
-            //     );
-            //     // Refresh the drivers list after adding a new driver
-            //     _loadDrivers();
-            //   },
-            // ),
             const SizedBox(height: 10),
             Text(
                   'Drivers: ${drivers?.length ?? 0}',

@@ -6,7 +6,6 @@ import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
-import 'package:pixandrix/owners/owners_home_page.dart';
 
 OwnerData submitFormStore({
   required String imageUrl,

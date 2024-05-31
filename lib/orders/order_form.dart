@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:pixandrix/helpers/form_helper.dart';
-import 'package:pixandrix/helpers/loader.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/owners/owners_home_page.dart';
@@ -23,7 +21,6 @@ class _OrderFormState extends State<OrderForm> {
   final TextEditingController _locationController = TextEditingController();
   TimeOfDay _selectedTime = const TimeOfDay(hour: 0, minute: 15);
   bool _isSubmitting = false;
-  final GlobalLoader _globalLoader = GlobalLoader();
 
   @override
   void initState() {
