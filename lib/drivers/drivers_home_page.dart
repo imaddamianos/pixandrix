@@ -24,7 +24,9 @@ class _DriversHomePageState extends State<DriversHomePage> {
   void initState() {
     super.initState();
      initializeNotifications();
-       subscribeToaddOrders(widget.driverInfo!.name);
+       subscribeToaddOrders();
+       subscribeToDriversReturnedOrders();
+       subscribeToDriverChangeOrders(widget.driverInfo!.name);
     driverInfo = widget.driverInfo; // Initialize driverInfo in initState
     _loadOrders();
   }

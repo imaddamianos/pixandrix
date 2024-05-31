@@ -4,36 +4,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:pixandrix/main.dart';
 
-//  void subscribeToAdd(String driver) {
-//     initializeNotifications();
-//     configureFirebaseMessaging();
-//     subscribeToaddOrders();
-//     subscribeToChangedOrders(driver);
-//   }
-
-//   void subscribeToOwners() {
-//     initializeNotifications();
-//     configureFirebaseMessaging();
-//     subscribeToTakenOrders();
-//   }
-
-void _showNotification(Map<String, dynamic>? data) async {
-  if (data != null) {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails('new_order', 'New Order',
-            importance: Importance.max, priority: Priority.high);
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(
-      0, // Replace with a unique ID for the notification
-      "New Order",
-      "A new order has been added.",
-      platformChannelSpecifics,
-      payload: "item x", // Optional payload data as a String or Map
-    );
-  }
-}
-
 void initializeNotifications() async {
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings(
@@ -52,7 +22,25 @@ void configureFirebaseMessaging() {
   });
 }
 
-void _showNotificationReject(Map<String, dynamic>? data) async {
+void _showNotification(Map<String, dynamic>? data) async {
+  if (data != null) {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails('new_order', 'New Order',
+            importance: Importance.max, priority: Priority.high);
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0, // Replace with a unique ID for the notification
+      "New Order",
+      "A new order has been added.",
+      platformChannelSpecifics,
+      payload: "item x", // Optional payload data as a String or Map
+    );
+  }
+}
+
+
+void _showNotificationReturned(Map<String, dynamic>? data) async {
   if (data != null) {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails('order_Returned', 'Order Returned',
@@ -86,7 +74,7 @@ void _showNotificationTaking(Map<String, dynamic>? data) async {
   }
 }
 
-void subscribeToaddOrders(String driver) {
+void subscribeToDriverChangeOrders(String driver) {
   FirebaseFirestore.instance
       .collection('orders')
       .where('driverInfo', isEqualTo: driver)
@@ -98,6 +86,36 @@ void subscribeToaddOrders(String driver) {
             if (newData['driverInfo'] == driver) {
             _showNotification(change.doc.data());
           }
+          }
+        }
+      });
+}
+
+void subscribeToaddOrders() {
+  FirebaseFirestore.instance
+      .collection('orders')
+      .snapshots()
+      .listen((snapshot) {
+        for (var change in snapshot.docChanges) {
+          if (change.type == DocumentChangeType.added) {
+            _showNotification(change.doc.data());
+          }
+        }
+      });
+}
+
+
+void subscribeToDriversReturnedOrders() {
+  FirebaseFirestore.instance
+      .collection('orders')
+      .snapshots()
+      .listen((snapshot) {
+        for (var change in snapshot.docChanges) {
+          if (change.type == DocumentChangeType.modified) {
+            var newData = change.doc.data() as Map<String, dynamic>;
+            if (newData['status'] == 'OrderStatus.pending') {
+              _showNotificationReturned(newData);
+            }
           }
         }
       });
@@ -133,7 +151,7 @@ void subscribeToChangedOrders(String storeInfo, String orderID) {
           if (change.type == DocumentChangeType.modified) {
             var newData = change.doc.data() as Map<String, dynamic>;
             if (newData['status'] == 'OrderStatus.pending') {
-              _showNotificationTaking(newData);
+              _showNotificationReturned(newData);
             }
           }
         }
