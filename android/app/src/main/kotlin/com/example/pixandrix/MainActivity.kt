@@ -1,4 +1,4 @@
-package com.example.pixandrix
+package dev.impsdev.pixandrix
 
 import io.flutter.embedding.android.FlutterActivity
 
