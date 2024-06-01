@@ -33,6 +33,7 @@ class _AdminPassPageState extends State<AdminPassPage> {
     bool available =
         await FirebaseOperations.checkAdminPass(enteredPassword);
     if (available) {
+      FirebaseOperations.addTokentoUsers('', '');
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const AdminPanelPage()),

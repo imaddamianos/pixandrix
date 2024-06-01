@@ -511,6 +511,17 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
     } else {
       throw Exception('Order not found or does not belong to owner');
     }
+    }else{
+        CollectionReference ordersRef = FirebaseFirestore.instance.collection('admin');
+    QuerySnapshot orderSnapshot = await ordersRef.where('name').limit(1).get();
+    if (orderSnapshot.docs.isNotEmpty) {
+      String docId = orderSnapshot.docs.first.id;
+      await ordersRef.doc(docId).update({
+        'token': fCMToken
+      });
+    } else {
+      throw Exception('Order not found or does not belong to owner');
+    }
     }
     
 

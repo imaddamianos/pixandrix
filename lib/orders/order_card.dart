@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pixandrix/helpers/notification_calls.dart';
 import 'package:pixandrix/helpers/order_status_utils.dart';
 import 'package:timer_builder/timer_builder.dart';
 
 class OrderCard extends StatelessWidget {
-  const OrderCard({
+  OrderCard({
     super.key,
     required this.orderTime,
     required this.orderLocation,
@@ -23,6 +24,8 @@ class OrderCard extends StatelessWidget {
   final GestureTapCallback press;
   final VoidCallback onChangeStatus;
   final VoidCallback onCancel;
+
+  bool _hasSentNotification = false; // Flag to track notification sent
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +92,7 @@ class OrderCard extends StatelessWidget {
                             builder: (context) {
                               Duration timeLeft = orderTime.toDate().difference(now);
                               return Text(
-                               'Time: ${_formatDuration(timeLeft, orderTime, lastOrderTimeUpdate)}',
+                                'Time: ${_formatDuration(timeLeft, orderTime, lastOrderTimeUpdate)}',
                                 // style: TextStyle(
                                 //   color: _isOrderElapsed(orderTime)
                                 //       ? Colors.red
@@ -139,27 +142,29 @@ class OrderCard extends StatelessWidget {
   }
 
   String _formatDuration(Duration duration, Timestamp orderTimestamp, Timestamp lastOrderTimeUpdate) {
-  DateTime now = DateTime.now();
-  DateTime orderTime = orderTimestamp.toDate();
-  DateTime lastOrderTime = lastOrderTimeUpdate.toDate();
+    DateTime now = DateTime.now();
+    DateTime orderTime = orderTimestamp.toDate();
+    DateTime lastOrderTime = lastOrderTimeUpdate.toDate();
 
-  Duration timeLeft = orderTime.difference(now);
-  Duration timeSinceLastUpdate = now.difference(lastOrderTime);
+    Duration timeLeft = orderTime.difference(now);
+    Duration timeSinceLastUpdate = now.difference(lastOrderTime);
 
-  if (timeLeft.isNegative) {
-    return 'Expired';
+    if (timeLeft.isNegative) {
+      return 'Expired';
+    }
+
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String twoDigitHours = twoDigits(timeLeft.inHours.remainder(24));
+    String twoDigitMinutes = twoDigits(timeLeft.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(timeLeft.inSeconds.remainder(60));
+
+    if (timeSinceLastUpdate.inMinutes >= 10 && !_hasSentNotification) {
+      _hasSentNotification = true; // Set flag after sending notification
+      orderTimeExceed(); // Call your function to handle order exceeding time
+      initializeNotifications(); // Initialize notification service (if needed)
+      return 'Check order $twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
+    } else {
+      return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
+    }
   }
-
-  String twoDigits(int n) => n.toString().padLeft(2, '0');
-  String twoDigitHours = twoDigits(timeLeft.inHours.remainder(24));
-  String twoDigitMinutes = twoDigits(timeLeft.inMinutes.remainder(60));
-  String twoDigitSeconds = twoDigits(timeLeft.inSeconds.remainder(60));
-
-  if (timeSinceLastUpdate.inMinutes >= 10) {
-    return 'Check order $twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
-  } else {
-    return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
-  }
-}
-
 }
