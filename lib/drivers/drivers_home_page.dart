@@ -34,7 +34,6 @@ class _DriversHomePageState extends State<DriversHomePage> {
     subscribeToDriverChangeOrders(widget.driverInfo!.name);
     driverInfo = widget.driverInfo; // Initialize driverInfo in initState
     _loadOrders();
-    _loadHelpRequest();
   }
 
   Future<void> _loadOrders() async {
@@ -46,6 +45,7 @@ class _DriversHomePageState extends State<DriversHomePage> {
       if (mounted) {
         setState(() {}); // Trigger a rebuild to reflect the updated orders data
       }
+      _loadHelpRequest();
     } catch (e) {}
   }
 

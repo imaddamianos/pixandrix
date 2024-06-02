@@ -581,6 +581,28 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
       throw e;
     }
   }
+  static Future<void> changeHelpStatus(bool isHelped, String driverName) async {
+    try {
+      // Reference to the orders collection
+      CollectionReference ordersRef =
+          FirebaseFirestore.instance.collection('helpRequests');
+
+      // Check if the order belongs to the owner
+      QuerySnapshot orderSnapshot =
+          await ordersRef.where('driverInfo', isEqualTo: driverName).limit(1).get();
+
+      // If order belongs to the owner, update the status
+      if (orderSnapshot.docs.isNotEmpty) {
+        String docId = orderSnapshot.docs.first.id;
+        await ordersRef.doc(docId).update({'isHelped': isHelped});
+      } else {
+        throw Exception('help not found or does not belong to driver');
+      }
+    } catch (e) {
+      print('Error changing driver help: $e');
+      // Handle error
+    }
+  }
 }
 
   

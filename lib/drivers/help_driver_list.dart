@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/helpRequest_model.dart';
+import 'package:pixandrix/theme/buttons/add_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HelpDriverButton extends StatelessWidget {
   final List<HelpRequestData> helpRequests;
 
-  const HelpDriverButton({Key? key, required this.helpRequests}) : super(key: key);
+  const HelpDriverButton({Key? key, required this.helpRequests})
+      : super(key: key);
 
   List<HelpRequestData> _getUnhelpedRequests() {
     return helpRequests.where((help) => !help.isHelped).toList();
   }
 
-  void _showHelpRequestsDialog(BuildContext context, List<HelpRequestData> unhelpedRequests) {
+  void _showHelpRequestsDialog(
+      BuildContext context, List<HelpRequestData> unhelpedRequests) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -25,24 +29,36 @@ class HelpDriverButton extends StatelessWidget {
               return Column(
                 children: [
                   ListTile(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 16.0),
                     title: Text(unhelpedRequests[index].description),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(unhelpedRequests[index].driverInfo ?? 'N/A'),
-                        Text(unhelpedRequests[index].driverNumber ?? 'N/A'),
-                        Text('Time: ${TimeOfDay.fromDateTime(unhelpedRequests[index].timestamp.toDate()).format(context)}'),
+                        Text(unhelpedRequests[index].driverInfo),
+                        Text(unhelpedRequests[index].driverNumber),
+                        Text(
+                            'Time: ${TimeOfDay.fromDateTime(unhelpedRequests[index].timestamp.toDate()).format(context)}'),
                       ],
                     ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.navigation),
-                      onPressed: () {
-                        _openGoogleMaps(
-                          unhelpedRequests[index].latitude,
-                          unhelpedRequests[index].longitude,
-                        );
-                      },
+                    trailing: Column(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            FirebaseOperations.changeHelpStatus(true, unhelpedRequests[index].driverInfo);
+                          },
+                          child: const Text('Helped'),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.navigation),
+                          onPressed: () {
+                            _openGoogleMaps(
+                              unhelpedRequests[index].latitude,
+                              unhelpedRequests[index].longitude,
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ),
                   const Divider(),
@@ -62,7 +78,8 @@ class HelpDriverButton extends StatelessWidget {
   }
 
   void _openGoogleMaps(double latitude, double longitude) async {
-    final url = 'https://www.google.com/maps/dir/?api=1&destination=$latitude,$longitude';
+    final url =
+        'https://www.google.com/maps/dir/?api=1&destination=$latitude,$longitude';
     if (await canLaunch(url)) {
       await launch(url);
     } else {
