@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:pixandrix/drivers/ask_for_help.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/first_page.dart';
@@ -25,10 +26,10 @@ class _DriversHomePageState extends State<DriversHomePage> {
   @override
   void initState() {
     super.initState();
-     initializeNotifications();
-       subscribeToaddOrders();
-       subscribeToDriversReturnedOrders();
-       subscribeToDriverChangeOrders(widget.driverInfo!.name);
+    initializeNotifications();
+    subscribeToaddOrders();
+    subscribeToDriversReturnedOrders();
+    subscribeToDriverChangeOrders(widget.driverInfo!.name);
     driverInfo = widget.driverInfo; // Initialize driverInfo in initState
     _loadOrders();
   }
@@ -149,39 +150,45 @@ class _DriversHomePageState extends State<DriversHomePage> {
           child: RefreshIndicator(
             onRefresh: _loadOrders,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                helpButton(text: 'Ask for Help', onPressed: (){
-                   Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => AskForHelpPage(driverInfo: driverInfo),
-              ),
-            );
-                }),
-                const SizedBox(height: 10),
-                Text(
-                  'Orders: ${_countDriverOrders(driverInfo?.name ?? '')} ',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
+                helpButton(
+                    text: 'Ask for Help',
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              AskForHelpPage(driverInfo: driverInfo),
+                        ),
+                      );
+                    }),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Switch(
-                      value: driverInfo!.isAvailable,
-                      onChanged: (value) {
-                        setState(() {
-                          driverInfo!.isAvailable = value;
-                        });
-                        FirebaseOperations.changeDriverAvailable(
-                            driverInfo!.name, value);
-                      },
-                      activeColor: Colors.green,
-                      inactiveThumbColor: Colors.red,
+                    Text(
+                      'Orders: ${_countDriverOrders(driverInfo?.name ?? '')} ',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const Text('Status'),
+                    TextButton(onPressed: () {}, child: const Text('Help Driver', style: TextStyle(color: Colors.red),)),
+                    Column(
+                      children: [
+                        Switch(
+                          value: driverInfo!.isAvailable,
+                          onChanged: (value) {
+                            setState(() {
+                              driverInfo!.isAvailable = value;
+                            });
+                            FirebaseOperations.changeDriverAvailable(
+                                driverInfo!.name, value);
+                          },
+                          activeColor: Colors.green,
+                          inactiveThumbColor: Colors.red,
+                        ),
+                        const Text('Status'),
+                      ],
+                    )
                   ],
                 ),
+                const SizedBox(height: 10),
                 Expanded(
                   child: orders == null
                       ? const Center(child: CircularProgressIndicator())

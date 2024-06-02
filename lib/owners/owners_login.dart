@@ -194,6 +194,17 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
   });
 }
 
+  void _onMapTapped(LatLng tappedPoint) {
+    setState(() {
+      userLocation = tappedPoint;
+    });
+    _mapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: tappedPoint, zoom: 15.0),
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -309,6 +320,7 @@ class _StoreLoginPageState extends State<StoreLoginPage> {
                                     const InfoWindow(title: "Current Location"),
                               ),
                             },
+                            onTap: _onMapTapped,
                             gestureRecognizers: <Factory<
                                 OneSequenceGestureRecognizer>>{
                               Factory<OneSequenceGestureRecognizer>(
