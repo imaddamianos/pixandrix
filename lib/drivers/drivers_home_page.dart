@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:pixandrix/drivers/ask_for_help.dart';
+import 'package:pixandrix/drivers/help_driver_list.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/helpers/notification_calls.dart';
 import 'package:pixandrix/models/driver_model.dart';
+import 'package:pixandrix/models/helpRequest_model.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/orders/order_card_drivers.dart';
 import 'package:pixandrix/orders/order_card_drivers_windows.dart';
@@ -22,6 +23,7 @@ class DriversHomePage extends StatefulWidget {
 class _DriversHomePageState extends State<DriversHomePage> {
   late DriverData? driverInfo;
   List<OrderData>? orders;
+  List<HelpRequestData>? helpRequest;
 
   @override
   void initState() {
@@ -32,6 +34,7 @@ class _DriversHomePageState extends State<DriversHomePage> {
     subscribeToDriverChangeOrders(widget.driverInfo!.name);
     driverInfo = widget.driverInfo; // Initialize driverInfo in initState
     _loadOrders();
+    _loadHelpRequest();
   }
 
   Future<void> _loadOrders() async {
@@ -44,6 +47,16 @@ class _DriversHomePageState extends State<DriversHomePage> {
         setState(() {}); // Trigger a rebuild to reflect the updated orders data
       }
     } catch (e) {}
+  }
+
+  Future<void> _loadHelpRequest() async {
+    // Fetch help requests data and cast it to a List<HelpRequestData>
+    final fetchedHelps = await FirebaseOperations.getHelpRequest();
+    helpRequest = fetchedHelps.cast<HelpRequestData>();
+
+    if (mounted) {
+      setState(() {}); // Trigger a rebuild to reflect the updated help requests data
+    }
   }
 
   Future<void> _changeOrderStatus(int index) async {
@@ -168,7 +181,7 @@ class _DriversHomePageState extends State<DriversHomePage> {
                       'Orders: ${_countDriverOrders(driverInfo?.name ?? '')} ',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    TextButton(onPressed: () {}, child: const Text('Help Driver', style: TextStyle(color: Colors.red),)),
+                    HelpDriverButton(helpRequests: helpRequest ?? []),
                     Column(
                       children: [
                         Switch(

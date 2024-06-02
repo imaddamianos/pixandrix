@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pixandrix/models/driver_model.dart';
+import 'package:pixandrix/models/helpRequest_model.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
 
@@ -553,4 +554,33 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
       throw e;
     }
   }
+
+  static Future<List<HelpRequestData>> getHelpRequest() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance.collection('helpRequests').get();
+
+      List<HelpRequestData> helpRequest =
+          await Future.wait(querySnapshot.docs.map((doc) async {
+        Map<String, dynamic> data = doc.data();
+
+        return HelpRequestData(
+          description: data['description'],
+          longitude: data['userLocation']['longitude'],
+          latitude: data['userLocation']['longitude'],
+          driverInfo: data['driverInfo'],
+          driverNumber: data['driverNumber'],
+          isHelped: data['isHelped'],
+          timestamp: data['timestamp'],
+        );
+      }).toList());
+
+      return helpRequest;
+    } catch (e) {
+      print('Error fetching stores: $e');
+      throw e;
+    }
+  }
 }
+
+  

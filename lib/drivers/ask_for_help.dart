@@ -5,7 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pixandrix/helpers/location_helper.dart';
 import 'package:pixandrix/models/driver_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
 
 class AskForHelpPage extends StatefulWidget {
   final DriverData? driverInfo;
@@ -34,7 +33,7 @@ class _AskForHelpPageState extends State<AskForHelpPage> {
         },
         'description': description,
         'timestamp': FieldValue.serverTimestamp(),
-        'isHelped': false,
+        'isHelped' : false,
       });
 
       // Clear the text fields
@@ -74,8 +73,7 @@ class _AskForHelpPageState extends State<AskForHelpPage> {
       print("Error updating user location: $e");
     }
   }
-
-  void _onMapTapped(LatLng tappedPoint) {
+   void _onMapTapped(LatLng tappedPoint) {
     setState(() {
       userLocation = tappedPoint;
     });
@@ -109,12 +107,11 @@ class _AskForHelpPageState extends State<AskForHelpPage> {
                     zoom: 15.0,
                   ),
                   markers: {
-                    if (userLocation != null)
-                      Marker(
-                        markerId: const MarkerId("userLocation"),
-                        position: userLocation!,
-                        infoWindow: const InfoWindow(title: "Current Location"),
-                      ),
+                    Marker(
+                      markerId: const MarkerId("userLocation"),
+                      position: LatLng(userLocation!.latitude, userLocation!.longitude),
+                      infoWindow: const InfoWindow(title: "Current Location"),
+                    ),
                   },
                   onTap: _onMapTapped,
                   gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
