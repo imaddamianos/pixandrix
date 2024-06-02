@@ -24,6 +24,13 @@ void configureFirebaseMessaging() {
     print('Received message: ${message.notification?.title}');
     // You can customize the handling of incoming messages, such as showing notifications
   });
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+}
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Handle background message
+  print('Handling a background message: ${message.messageId}');
 }
 
 void _showNotification(Map<String, dynamic>? data, String channelId, String channelName, String title, String body) async {

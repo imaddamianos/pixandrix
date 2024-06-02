@@ -5,7 +5,7 @@ import 'package:pixandrix/helpers/order_status_utils.dart';
 import 'package:timer_builder/timer_builder.dart';
 
 class OrderCard extends StatelessWidget {
-  OrderCard({
+   OrderCard({
     super.key,
     required this.orderTime,
     required this.orderLocation,
@@ -141,7 +141,7 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  String _formatDuration(Duration duration, Timestamp orderTimestamp, Timestamp lastOrderTimeUpdate) {
+String _formatDuration(Duration duration, Timestamp orderTimestamp, Timestamp lastOrderTimeUpdate) {
     DateTime now = DateTime.now();
     DateTime orderTime = orderTimestamp.toDate();
     DateTime lastOrderTime = lastOrderTimeUpdate.toDate();
