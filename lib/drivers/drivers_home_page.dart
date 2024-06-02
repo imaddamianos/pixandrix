@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pixandrix/drivers/ask_for_help.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
@@ -7,6 +8,7 @@ import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/orders/order_card_drivers.dart';
 import 'package:pixandrix/orders/order_card_drivers_windows.dart';
+import 'package:pixandrix/theme/buttons/add_button.dart';
 
 class DriversHomePage extends StatefulWidget {
   final DriverData? driverInfo;
@@ -149,6 +151,13 @@ class _DriversHomePageState extends State<DriversHomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                helpButton(text: 'Ask for Help', onPressed: (){
+                   Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => AskForHelpPage(driverInfo: driverInfo),
+              ),
+            );
+                }),
                 const SizedBox(height: 10),
                 Text(
                   'Orders: ${_countDriverOrders(driverInfo?.name ?? '')} ',
