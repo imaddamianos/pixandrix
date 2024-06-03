@@ -181,7 +181,8 @@ class _DriversHomePageState extends State<DriversHomePage> {
                       'Orders: ${_countDriverOrders(driverInfo?.name ?? '')} ',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    HelpDriverButton(helpRequests: helpRequest ?? []),
+                    HelpDriverButton(helpRequests: helpRequest ?? [],
+            onHelped: _loadHelpRequest),
                     Column(
                       children: [
                         Switch(

@@ -581,7 +581,7 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
       throw e;
     }
   }
-  static Future<void> changeHelpStatus(bool isHelped, String driverName) async {
+  static Future<void> changeHelpStatus(bool isHelped, String description) async {
     try {
       // Reference to the orders collection
       CollectionReference ordersRef =
@@ -589,7 +589,7 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
 
       // Check if the order belongs to the owner
       QuerySnapshot orderSnapshot =
-          await ordersRef.where('driverInfo', isEqualTo: driverName).limit(1).get();
+          await ordersRef.where('description', isEqualTo: description).limit(1).get();
 
       // If order belongs to the owner, update the status
       if (orderSnapshot.docs.isNotEmpty) {

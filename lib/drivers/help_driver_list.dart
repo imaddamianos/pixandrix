@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/helpRequest_model.dart';
-import 'package:pixandrix/theme/buttons/add_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HelpDriverButton extends StatelessWidget {
   final List<HelpRequestData> helpRequests;
+  final VoidCallback onHelped; // Callback function to refresh the list
 
-  const HelpDriverButton({Key? key, required this.helpRequests})
-      : super(key: key);
+  const HelpDriverButton({
+    Key? key,
+    required this.helpRequests,
+    required this.onHelped,
+  }) : super(key: key);
 
   List<HelpRequestData> _getUnhelpedRequests() {
     return helpRequests.where((help) => !help.isHelped).toList();
   }
 
-  void _showHelpRequestsDialog(
-      BuildContext context, List<HelpRequestData> unhelpedRequests) {
+  Future<void> _showHelpRequestsDialog(
+      BuildContext context, List<HelpRequestData> unhelpedRequests) async {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -30,7 +33,9 @@ class HelpDriverButton extends StatelessWidget {
                 children: [
                   ListTile(
                     contentPadding: const EdgeInsets.symmetric(
-                        vertical: 8.0, horizontal: 16.0),
+                      vertical: 8.0,
+                      horizontal: 16.0,
+                    ),
                     title: Text(unhelpedRequests[index].description),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,8 +49,12 @@ class HelpDriverButton extends StatelessWidget {
                     trailing: Column(
                       children: [
                         ElevatedButton(
-                          onPressed: () {
-                            FirebaseOperations.changeHelpStatus(true, unhelpedRequests[index].driverInfo);
+                          onPressed: () async {
+                            await FirebaseOperations.changeHelpStatus(
+                              true,
+                              unhelpedRequests[index].description,
+                            );
+                            onHelped(); // Trigger refresh callback
                           },
                           child: const Text('Helped'),
                         ),
