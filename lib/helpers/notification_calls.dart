@@ -8,7 +8,6 @@ import 'dart:collection';
 
 
 final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-StreamSubscription<QuerySnapshot>? _subscription;
 // Set to track which notifications have already been sent
 final Set<String> _sentNotifications = HashSet<String>();
 
@@ -124,7 +123,6 @@ void subscribeToaddOrders() {
         }
       });
 }
-
 
 void subscribeToDriversReturnedOrders() {
   FirebaseFirestore.instance
