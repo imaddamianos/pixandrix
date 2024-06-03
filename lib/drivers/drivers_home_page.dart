@@ -28,13 +28,10 @@ class _DriversHomePageState extends State<DriversHomePage> {
   @override
   void initState() {
     super.initState();
-    initializeNotifications();
-    subscribeToaddOrders();
-    subscribeToDriversReturnedOrders();
-    subscribeToDriverChangeOrders(widget.driverInfo!.name);
     driverInfo = widget.driverInfo; // Initialize driverInfo in initState
     _loadOrders();
   }
+  
 
   Future<void> _loadOrders() async {
     try {
@@ -55,7 +52,8 @@ class _DriversHomePageState extends State<DriversHomePage> {
     helpRequest = fetchedHelps.cast<HelpRequestData>();
 
     if (mounted) {
-      setState(() {}); // Trigger a rebuild to reflect the updated help requests data
+      setState(
+          () {}); // Trigger a rebuild to reflect the updated help requests data
     }
   }
 
@@ -181,18 +179,33 @@ class _DriversHomePageState extends State<DriversHomePage> {
                       'Orders: ${_countDriverOrders(driverInfo?.name ?? '')} ',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    HelpDriverButton(helpRequests: helpRequest ?? [],
-            onHelped: _loadHelpRequest),
+                    HelpDriverButton(
+                        helpRequests: helpRequest ?? [],
+                        onHelped: _loadHelpRequest),
                     Column(
                       children: [
                         Switch(
                           value: driverInfo!.isAvailable,
                           onChanged: (value) {
                             setState(() {
-                              driverInfo!.isAvailable = value;
-                            });
-                            FirebaseOperations.changeDriverAvailable(
+                              FirebaseOperations.changeDriverAvailable(
                                 driverInfo!.name, value);
+                                driverInfo!.isAvailable = value;
+                              if (value) {
+                                 initializeNotifications();
+                                  subscribeToaddOrders();
+                                 subscribeToDriversReturnedOrders();
+                                 subscribeToDriverChangeOrders(
+                                     widget.driverInfo!.name);
+                                     
+                              }else{
+                                stopListening();
+                              
+                               
+                              }
+                             
+                            });
+                            
                           },
                           activeColor: Colors.green,
                           inactiveThumbColor: Colors.red,

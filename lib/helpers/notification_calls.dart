@@ -1,11 +1,14 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:pixandrix/main.dart';
 import 'dart:collection';
 
-final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
+final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+StreamSubscription<QuerySnapshot>? _subscription;
 // Set to track which notifications have already been sent
 final Set<String> _sentNotifications = HashSet<String>();
 
@@ -32,6 +35,10 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Handle background message
   print('Handling a background message: ${message.messageId}');
 }
+
+ void stopListening() {
+       FirebaseFirestore.instance.terminate();
+  }
 
 void _showNotification(Map<String, dynamic>? data, String channelId, String channelName, String title, String body) async {
   if (data != null) {
@@ -117,6 +124,7 @@ void subscribeToaddOrders() {
         }
       });
 }
+
 
 void subscribeToDriversReturnedOrders() {
   FirebaseFirestore.instance
