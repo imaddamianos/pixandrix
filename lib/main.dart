@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:pixandrix/firebase/firebase_options.dart';
 import 'package:pixandrix/first_page.dart';
+import 'package:pixandrix/splash_screen.dart';
 import 'package:pixandrix/theme/custom_theme.dart';
 import 'package:pixandrix/helpers/permission_handler.dart';
 
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: customTheme,
-      home: const FirstPage(),
+      home: SplashScreen(),
     );
   }
 }

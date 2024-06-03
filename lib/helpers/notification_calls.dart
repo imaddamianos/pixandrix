@@ -64,6 +64,10 @@ void _showNotificationReturned(Map<String, dynamic>? data) async {
   _showNotification(data, 'order_Returned', 'Order Returned', "Order Returned", "An order has been returned.");
 }
 
+void _showNotificationTaking(Map<String, dynamic>? data) async {
+  _showNotification(data, 'order_Take', 'Order Take', "Order Taken", "An order has been taken.");
+}
+
 void _showNotificationExceed() async {
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails('order_Exceed', 'Order Exceed',
@@ -79,10 +83,6 @@ void _showNotificationExceed() async {
   );
 }
 
-void _showNotificationTaking(Map<String, dynamic>? data) async {
-  _showNotification(data, 'order_Take', 'Order Take', "Order Taken", "An order has been taken.");
-}
-
 void subscribeToDriverChangeOrders(String driver) {
   FirebaseFirestore.instance
       .collection('orders')
@@ -93,7 +93,7 @@ void subscribeToDriverChangeOrders(String driver) {
           if (change.type == DocumentChangeType.added) {
             var newData = change.doc.data() as Map<String, dynamic>;
             if (newData['driverInfo'] == driver) {
-              _showNotificationAdd(change.doc.data());
+              _showNotificationTaking(change.doc.data());
             }
           }
         }
@@ -108,6 +108,11 @@ void subscribeToaddOrders() {
         for (var change in snapshot.docChanges) {
           if (change.type == DocumentChangeType.added) {
             _showNotificationAdd(change.doc.data());
+          }else if (change.type == DocumentChangeType.modified) {
+            var newData = change.doc.data() as Map<String, dynamic>;
+             if (newData['status'] == 'OrderStatus.pending') {
+            _showNotificationAdd(change.doc.data());
+             }
           }
         }
       });

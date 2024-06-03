@@ -3,8 +3,9 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 const firestore = admin.firestore();
 
+// Function to send a notification when a new document is added to the "orders" collection
 exports.sendNotification = functions.firestore
-  .document('orders/')
+  .document('orders/{orderId}')
   .onCreate((snapshot, context) => {
     const newData = snapshot.data();
 
@@ -18,13 +19,31 @@ exports.sendNotification = functions.firestore
     return admin.messaging().sendToTopic('new_document_notifications', payload);
   });
 
-  exports.checkOrderTime = functions.firestore
-  .document('orders/}')
+// Helper function to send a notification to a specific user
+async function sendNotification(userId, notification) {
+  const userRef = firestore.collection('users').doc(userId);
+  const userDoc = await userRef.get();
+
+  if (userDoc.exists) {
+    const userData = userDoc.data();
+    const tokens = userData.fcmTokens || [];
+
+    const payload = {
+      notification: notification,
+    };
+
+    return admin.messaging().sendToDevice(tokens, payload);
+  }
+}
+
+// Function to check the order time and send a notification when the time left crosses a threshold
+exports.checkOrderTime = functions.firestore
+  .document('orders/{orderId}')
   .onWrite(async (change, context) => {
     const newOrderData = change.after.data();
     const oldOrderData = change.before.data();
 
-    if (!newOrderData || !oldOrderData) return;
+    if (!newOrderData || !oldOrderData) return null;
 
     const timeThreshold = 10 * 60 * 1000; // 10 minutes in milliseconds
     const currentTime = Date.now();
@@ -37,10 +56,6 @@ exports.sendNotification = functions.firestore
       };
       await sendNotification(newOrderData.userId, notification);
     }
-  });
 
-  async function sendNotification(userId, notification) {
-    // Implement your logic to send notification to the user with userId
-    // This could involve FCM messaging or other notification services
-    console.log(`Sending notification to user ${userId}: ${JSON.stringify(notification)}`);
-  }
+    return null;
+  });
