@@ -1,30 +1,46 @@
 import 'dart:async';
-
+import 'dart:collection';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:pixandrix/main.dart';
-import 'dart:collection';
+import 'package:pixandrix/drivers/drivers_home_page.dart';
 
-
-final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-// Set to track which notifications have already been sent
 final Set<String> _sentNotifications = HashSet<String>();
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+StreamSubscription<QuerySnapshot>? _firestoreSubscription;
+StreamSubscription<RemoteMessage>? _foregroundMessageSubscription;
+StreamSubscription<RemoteMessage>? _backgroundMessageSubscription;
+List<StreamSubscription<QuerySnapshot>> _firestoreSubscriptions = [];
 
-void initializeNotifications() async {
+Future<void> initializeNotifications() async {
   const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('logopixandrix'); // Replace 'icon' with your notification icon name
-  final InitializationSettings initializationSettings =
+      AndroidInitializationSettings('logopixandrix'); // Replace with notification icon
+  const InitializationSettings initializationSettings =
       InitializationSettings(android: initializationSettingsAndroid);
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) async {
+      if (notificationResponse.payload != null) {
+        // navigatorKey.currentState?.pushAndRemoveUntil(
+        //   MaterialPageRoute(builder: (context) => DriversHomePage()),
+        //   (Route<dynamic> route) => false,
+        // );
+      }
+    },
+  );
   configureFirebaseMessaging();
 }
 
 void configureFirebaseMessaging() {
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    // Handle incoming FCM messages here
+  _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     print('Received message: ${message.notification?.title}');
-    // You can customize the handling of incoming messages, such as showing notifications
+    _showNotification(
+      message.data['channelId'] ?? 'default_channel',
+      message.data['channelName'] ?? 'Default Channel',
+      message.notification?.title ?? 'Notification',
+      message.notification?.body ?? 'You have a new notification',
+    );
   });
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -32,46 +48,54 @@ void configureFirebaseMessaging() {
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Handle background message
-  print('Handling a background message: ${message.messageId}');
+  _showNotification(
+    message.data['channelId'] ?? 'default_channel',
+    message.data['channelName'] ?? 'Default Channel',
+    message.notification?.title ?? 'Notification',
+    message.notification?.body ?? 'You have a new notification',
+  );
 }
 
- void stopListening() {
-       FirebaseFirestore.instance.terminate();
+void stopListeningToNotifications() {
+  for (var subscription in _firestoreSubscriptions) {
+    subscription.cancel();
   }
+  _firestoreSubscriptions.clear();
+  
+  _foregroundMessageSubscription?.cancel();
+  _backgroundMessageSubscription?.cancel();
+  FirebaseMessaging.onBackgroundMessage((message) async {}); // Remove background message handler
+}
 
-void _showNotification(Map<String, dynamic>? data, String channelId, String channelName, String title, String body) async {
-  if (data != null) {
-    String notificationId = data['orderID'] ?? 'defaultId';
-    if (_sentNotifications.contains(notificationId)) return;
-
-    final AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(channelId, channelName,
-            importance: Importance.max, priority: Priority.high);
-    final NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(
-      0, // Replace with a unique ID for the notification
-      title,
-      body,
-      platformChannelSpecifics,
-      payload: "item x", // Optional payload data as a String or Map
-    );
-
-    // Mark the notification as sent
-    _sentNotifications.add(notificationId);
-  }
+void _showNotification(String channelId, String channelName, String title, String body) async {
+  final AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(channelId, channelName,
+          importance: Importance.max, priority: Priority.high);
+  final NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+  await flutterLocalNotificationsPlugin.show(
+    0, // Replace with a unique ID for the notification
+    title,
+    body,
+    platformChannelSpecifics,
+    payload: "driverHomePage", // Optional payload data as a String or Map
+  );
 }
 
 void _showNotificationAdd(Map<String, dynamic>? data) async {
-  _showNotification(data, 'new_order', 'New Order', "New Order", "A new order has been added.");
+  _showNotification('new_order', 'New Order', "New Order", "A new order has been added.");
 }
 
 void _showNotificationReturned(Map<String, dynamic>? data) async {
-  _showNotification(data, 'order_Returned', 'Order Returned', "Order Returned", "An order has been returned.");
+  _showNotification('order_Returned', 'Order Returned', "Order Returned", "An order has been returned.");
 }
 
 void _showNotificationTaking(Map<String, dynamic>? data) async {
-  _showNotification(data, 'order_Take', 'Order Take', "Order Taken", "An order has been taken.");
+  _showNotification('order_Take', 'Order Take', "Order Taken", "An order has been taken.");
+}
+
+void orderTimeExceed() {
+  _showNotificationExceed();
 }
 
 void _showNotificationExceed() async {
@@ -90,7 +114,7 @@ void _showNotificationExceed() async {
 }
 
 void subscribeToDriverChangeOrders(String driver) {
-  FirebaseFirestore.instance
+  var subscription = FirebaseFirestore.instance
       .collection('orders')
       .where('driverInfo', isEqualTo: driver)
       .snapshots()
@@ -99,33 +123,35 @@ void subscribeToDriverChangeOrders(String driver) {
           if (change.type == DocumentChangeType.added) {
             var newData = change.doc.data() as Map<String, dynamic>;
             if (newData['driverInfo'] == driver) {
-              _showNotificationTaking(change.doc.data());
+              _showNotificationTaking(newData);
             }
           }
         }
       });
+  _firestoreSubscriptions.add(subscription);
 }
 
 void subscribeToaddOrders() {
-  FirebaseFirestore.instance
+  var subscription = FirebaseFirestore.instance
       .collection('orders')
       .snapshots()
       .listen((snapshot) {
         for (var change in snapshot.docChanges) {
           if (change.type == DocumentChangeType.added) {
             _showNotificationAdd(change.doc.data());
-          }else if (change.type == DocumentChangeType.modified) {
+          } else if (change.type == DocumentChangeType.modified) {
             var newData = change.doc.data() as Map<String, dynamic>;
-             if (newData['status'] == 'OrderStatus.pending') {
-            _showNotificationAdd(change.doc.data());
-             }
+            if (newData['status'] == 'OrderStatus.pending') {
+              _showNotificationAdd(change.doc.data());
+            }
           }
         }
       });
+  _firestoreSubscriptions.add(subscription);
 }
 
 void subscribeToDriversReturnedOrders() {
-  FirebaseFirestore.instance
+  var subscription = FirebaseFirestore.instance
       .collection('orders')
       .snapshots()
       .listen((snapshot) {
@@ -138,14 +164,11 @@ void subscribeToDriversReturnedOrders() {
           }
         }
       });
-}
-
-void orderTimeExceed() {
-  _showNotificationExceed();
+  _firestoreSubscriptions.add(subscription);
 }
 
 void subscribeToOrderStatusChanges(String owner) {
-  FirebaseFirestore.instance
+  var subscription = FirebaseFirestore.instance
       .collection('orders')
       .where('storeInfo', isEqualTo: owner)
       .snapshots()
@@ -159,10 +182,11 @@ void subscribeToOrderStatusChanges(String owner) {
           }
         }
       });
+  _firestoreSubscriptions.add(subscription);
 }
 
 void subscribeToChangedOrders(String storeInfo, String orderID) {
-  FirebaseFirestore.instance
+  var subscription = FirebaseFirestore.instance
       .collection('orders')
       .where('orderID', isEqualTo: orderID)
       .where('storeInfo', isEqualTo: storeInfo)
@@ -177,10 +201,11 @@ void subscribeToChangedOrders(String storeInfo, String orderID) {
           }
         }
       });
+  _firestoreSubscriptions.add(subscription);
 }
 
 void subscribeToTakenOrders() {
-  FirebaseFirestore.instance.collection('orders').snapshots().listen((snapshot) {
+  var subscription = FirebaseFirestore.instance.collection('orders').snapshots().listen((snapshot) {
     for (var change in snapshot.docChanges) {
       if (change.type == DocumentChangeType.modified) {
         var newData = change.doc.data() as Map<String, dynamic>;
@@ -190,4 +215,5 @@ void subscribeToTakenOrders() {
       }
     }
   });
+  _firestoreSubscriptions.add(subscription);
 }

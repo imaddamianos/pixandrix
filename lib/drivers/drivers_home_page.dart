@@ -29,18 +29,21 @@ class _DriversHomePageState extends State<DriversHomePage> {
   void initState() {
     super.initState();
     driverInfo = widget.driverInfo; // Initialize driverInfo in initState
-    _loadOrders();
+    loadOrders();
+    // FirebaseOperations.checkDriverCredentials('drivers', driverInfo!.name, driverInfo!.password);
   }
   
 
-  Future<void> _loadOrders() async {
+  Future<void> loadOrders() async {
     try {
       // Fetch orders data and cast it to a List<OrderData>
       final fetchedOrders = await FirebaseOperations.getOrders();
       orders = fetchedOrders.cast<OrderData>();
 
       if (mounted) {
-        setState(() {}); // Trigger a rebuild to reflect the updated orders data
+        setState(() {
+          changeDriverStatus(widget.driverInfo!.isAvailable);
+        }); // Trigger a rebuild to reflect the updated orders data
       }
       _loadHelpRequest();
     } catch (e) {}
@@ -73,7 +76,7 @@ class _DriversHomePageState extends State<DriversHomePage> {
             'OrderStatus.pending',
             orderToChange,
             driver!,
-            _loadOrders);
+            loadOrders);
       }
     } else if (orders![index].status == 'OrderStatus.inProgress') {
       if (timeSinceLastUpdate.inMinutes >= 5) {
@@ -85,7 +88,7 @@ class _DriversHomePageState extends State<DriversHomePage> {
               'OrderStatus.inProgress',
               orderToChange,
               driver!,
-              _loadOrders);
+              loadOrders);
         }
       } else {
         showAlertDialog(context, 'Alert!',
@@ -93,7 +96,14 @@ class _DriversHomePageState extends State<DriversHomePage> {
       }
     }
 
-    await _loadOrders(); // Refresh the orders list after status change
+    await loadOrders(); // Refresh the orders list after status change
+  }
+
+  void notificationSubscribe() {
+    initializeNotifications();
+    subscribeToaddOrders();
+    subscribeToDriversReturnedOrders();
+    subscribeToDriverChangeOrders(widget.driverInfo!.name);
   }
 
   Future<void> _cancelOrderStatus(int index) async {
@@ -107,7 +117,7 @@ class _DriversHomePageState extends State<DriversHomePage> {
             'Cancel order',
             'Are you sure you want to cancel the order',
             orderNumber,
-            _loadOrders);
+            loadOrders);
       }
     }
   }
@@ -117,6 +127,22 @@ class _DriversHomePageState extends State<DriversHomePage> {
       return 0;
     }
     return orders!.where((order) => order.driverInfo == driverName).length;
+  }
+
+   Future<void> refreshOrders() async {
+    await loadOrders(); // Call _loadOrders to refresh orders data
+  }
+
+  changeDriverStatus(bool value) {
+    // FirebaseOperations.checkDriverCredentials('drivers', driverInfo!.name, driverInfo!.password);
+    driverInfo!.isAvailable = value;
+    FirebaseOperations.changeDriverAvailable(driverInfo!.name, value);
+
+    if (value) {
+      notificationSubscribe();
+    } else {
+      stopListeningToNotifications();
+    }
   }
 
   @override
@@ -159,7 +185,7 @@ class _DriversHomePageState extends State<DriversHomePage> {
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: RefreshIndicator(
-            onRefresh: _loadOrders,
+            onRefresh: refreshOrders,
             child: Column(
               children: [
                 helpButton(
@@ -187,25 +213,10 @@ class _DriversHomePageState extends State<DriversHomePage> {
                         Switch(
                           value: driverInfo!.isAvailable,
                           onChanged: (value) {
-                            setState(() {
-                              FirebaseOperations.changeDriverAvailable(
-                                driverInfo!.name, value);
-                                driverInfo!.isAvailable = value;
-                              if (value) {
-                                 initializeNotifications();
-                                  subscribeToaddOrders();
-                                 subscribeToDriversReturnedOrders();
-                                 subscribeToDriverChangeOrders(
-                                     widget.driverInfo!.name);
-                                     
-                              }else{
-                                stopListening();
-                              
-                               
-                              }
-                             
+                            setState(()  {
+                              changeDriverStatus(value);
                             });
-                            
+
                           },
                           activeColor: Colors.green,
                           inactiveThumbColor: Colors.red,
@@ -272,7 +283,7 @@ class _DriversHomePageState extends State<DriversHomePage> {
                                               driverOrder == currentDriver) {
                                         await _changeOrderStatus(
                                             index); // Change status for pending orders without driver or in-progress with current driver
-                                        await _loadOrders();
+                                        await loadOrders();
                                         // }
                                       } else {
                                         showAlertDialog(context, 'Alert!',

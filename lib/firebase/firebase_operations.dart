@@ -225,6 +225,7 @@ static Future<bool> checkOwnerVerification(String ownerName) async {
           driverImage: data['driverImage'],
           verified: data['verified'],
           isAvailable: data['isAvailable'],
+          password: data['password'],
         );
       } else {
         // If no documents are found, return null
@@ -275,6 +276,7 @@ static Future<bool> checkOwnerVerification(String ownerName) async {
           driverID: data['driverID'],
           verified: data['verified'],
           isAvailable: data['isAvailable'],
+          password: data['password'],
         );
       }).toList());
 
@@ -303,6 +305,7 @@ static Future<bool> checkOwnerVerification(String ownerName) async {
         driverID: data['driverID'],
         verified: data['verified'],
         isAvailable: data['isAvailable'],
+        password: data['password'],
       );
         } catch (e) {
       print('Error fetching driver: $e');

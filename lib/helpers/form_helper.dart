@@ -103,6 +103,7 @@ OwnerData submitFormStore({
       driverImage: imageUrl,
       driverID: '',
       isAvailable: isAvailable,
+      password: password,
     );
     } catch (error) {
       print('Error submitting form: $error');
