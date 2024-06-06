@@ -570,7 +570,7 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
         return HelpRequestData(
           description: data['description'],
           longitude: data['userLocation']['longitude'],
-          latitude: data['userLocation']['longitude'],
+          latitude: data['userLocation']['latitude'],
           driverInfo: data['driverInfo'],
           driverNumber: data['driverNumber'],
           isHelped: data['isHelped'],

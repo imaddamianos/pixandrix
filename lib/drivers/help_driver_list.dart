@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/helpRequest_model.dart';
+import 'package:pixandrix/widgets/google_maps_view.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HelpDriverButton extends StatelessWidget {
   final List<HelpRequestData> helpRequests;
-  final VoidCallback onHelped; // Callback function to refresh the list
+  final VoidCallback onHelped;
 
   const HelpDriverButton({
     Key? key,
@@ -29,24 +30,28 @@ class HelpDriverButton extends StatelessWidget {
             shrinkWrap: true,
             itemCount: unhelpedRequests.length,
             itemBuilder: (context, index) {
-              return Column(
-                children: [
-                  ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 8.0,
-                      horizontal: 16.0,
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Column(
+                  children: [
+                    ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 8.0,
+                        horizontal: 16.0,
+                      ),
+                      title: Text(unhelpedRequests[index].description),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(unhelpedRequests[index].driverInfo),
+                          Text(unhelpedRequests[index].driverNumber),
+                          Text(
+                              'Time: ${TimeOfDay.fromDateTime(unhelpedRequests[index].timestamp.toDate()).format(context)}'),
+                        ],
+                      ),
                     ),
-                    title: Text(unhelpedRequests[index].description),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(unhelpedRequests[index].driverInfo),
-                        Text(unhelpedRequests[index].driverNumber),
-                        Text(
-                            'Time: ${TimeOfDay.fromDateTime(unhelpedRequests[index].timestamp.toDate()).format(context)}'),
-                      ],
-                    ),
-                    trailing: Column(
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         ElevatedButton(
                           onPressed: () async {
@@ -54,24 +59,28 @@ class HelpDriverButton extends StatelessWidget {
                               true,
                               unhelpedRequests[index].description,
                             );
+                            Navigator.of(context).pop();
                             onHelped(); // Trigger refresh callback
                           },
                           child: const Text('Helped'),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.navigation),
-                          onPressed: () {
-                            _openGoogleMaps(
-                              unhelpedRequests[index].latitude,
-                              unhelpedRequests[index].longitude,
-                            );
-                          },
-                        ),
+                        TextButton.icon(onPressed: (){
+                          Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => GoogleMapsView(
+                                    latitude: unhelpedRequests[index].latitude,
+                                    longitude: unhelpedRequests[index].longitude,
+                                  ),
+                                ),
+                              );
+                        }, icon: const Icon(Icons.navigation),
+                         label: const Text('Open Map')),
                       ],
                     ),
-                  ),
-                  const Divider(),
-                ],
+                    const Divider(),
+                  ],
+                ),
               );
             },
           ),
@@ -84,16 +93,6 @@ class HelpDriverButton extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  void _openGoogleMaps(double latitude, double longitude) async {
-    final url =
-        'https://www.google.com/maps/dir/?api=1&destination=$latitude,$longitude';
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
   }
 
   @override
