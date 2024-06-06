@@ -90,17 +90,15 @@ class OrderCard extends StatelessWidget {
                           TimerBuilder.periodic(
                             const Duration(seconds: 1),
                             builder: (context) {
-                              Duration timeLeft = orderTime.toDate().difference(now);
-                              return Text(
-                                'Time: ${_formatDuration(timeLeft, orderTime, lastOrderTimeUpdate)}',
-                                // style: TextStyle(
-                                //   color: _isOrderElapsed(orderTime)
-                                //       ? Colors.red
-                                //       : const Color.fromARGB(255, 255, 255, 255),
-                                //   fontSize: 15,
-                                //   fontWeight: FontWeight.bold,
-                                // ),
-                              );
+                              Duration timeLeft =
+                                  orderTime.toDate().difference(now);
+                              if (status == 'OrderStatus.pending') {
+                                return Text(
+                                  'Time: ${_formatDuration(timeLeft, orderTime, lastOrderTimeUpdate)}',
+                                );
+                              } else {
+                                return const Text('');
+                              }
                             },
                           ),
                         ],

@@ -25,7 +25,7 @@ Future<void> initializeNotifications(BuildContext context, String type) async {
         if (type == 'driver'){
           navigateAndRefresh(const DriversHomePage(), context);
         }else if(type == 'admin'){
-          navigateAndRefresh(const OrdersPage(), context);
+          // navigateAndRefresh(const OrdersPage(), context);
         }else if(type == 'owner'){
           navigateAndRefresh(const OwnersHomePage(), context);
         }

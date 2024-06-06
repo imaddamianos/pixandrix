@@ -65,10 +65,14 @@ class OrderCardDrivers extends StatelessWidget {
                         builder: (context) {
                           Duration timeLeft =
                               orderTime.toDate().difference(now);
-                          return Text(
-                            'Time: ${_formatDuration(timeLeft, orderTime)}',
-                            style: const TextStyle(color: Colors.white),
-                          );
+                          if (status == 'OrderStatus.pending') {
+                            return Text(
+                              'Time: ${_formatDuration(timeLeft, orderTime)}',
+                              style: const TextStyle(color: Colors.white),
+                            );
+                          }else{
+                            return const Text('');
+                          }
                         },
                       ),
                     ],
