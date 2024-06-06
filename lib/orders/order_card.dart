@@ -161,7 +161,6 @@ String _formatDuration(Duration duration, Timestamp orderTimestamp, Timestamp la
     if (timeSinceLastUpdate.inMinutes >= 10 && !_hasSentNotification) {
       _hasSentNotification = true; // Set flag after sending notification
       orderTimeExceed(); // Call your function to handle order exceeding time
-      initializeNotifications(); // Initialize notification service (if needed)
       return 'Check order $twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
     } else {
       return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';

@@ -139,13 +139,14 @@ void showAlertChangeProgress(
           TextButton(
             onPressed: () async {
               DateTime now = DateTime.now().toLocal();
-              if (status == 'OrderStatus.pending') {
-                await FirebaseOperations.changeOrderStatus(
-                    'OrderStatus.inProgress', orderNumber, now);
-                await FirebaseOperations.changeDriverName(
-                    driverOrder, orderNumber);
-                Navigator.pop(context);
-              } else if (status == 'OrderStatus.inProgress') {
+              // if (status == 'OrderStatus.pending') {
+              //   await FirebaseOperations.changeOrderStatus(
+              //       'OrderStatus.inProgress', orderNumber, now);
+              //   await FirebaseOperations.changeDriverName(
+              //       driverOrder, orderNumber);
+              //   Navigator.pop(context);
+              // } else 
+              if (status == 'OrderStatus.inProgress') {
                 await FirebaseOperations.changeOrderStatus(
                     'OrderStatus.delivered', orderNumber, now);
                 Navigator.pop(context);

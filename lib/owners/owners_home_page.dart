@@ -29,7 +29,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
   @override
   void initState() {
     super.initState();
-    initializeNotifications();
+    initializeNotifications(context);
        subscribeToOrderStatusChanges(widget.ownerInfo!.name);
     _loadOwnerInfo();
     _loadOrders();

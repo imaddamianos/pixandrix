@@ -2,18 +2,17 @@ import 'dart:async';
 import 'dart:collection';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:pixandrix/main.dart';
+import 'package:pixandrix/helpers/location_helper.dart';
 import 'package:pixandrix/drivers/drivers_home_page.dart';
 
-final Set<String> _sentNotifications = HashSet<String>();
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-StreamSubscription<QuerySnapshot>? _firestoreSubscription;
 StreamSubscription<RemoteMessage>? _foregroundMessageSubscription;
 StreamSubscription<RemoteMessage>? _backgroundMessageSubscription;
 List<StreamSubscription<QuerySnapshot>> _firestoreSubscriptions = [];
 
-Future<void> initializeNotifications() async {
+Future<void> initializeNotifications(BuildContext context) async {
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('logopixandrix'); // Replace with notification icon
   const InitializationSettings initializationSettings =
@@ -22,10 +21,7 @@ Future<void> initializeNotifications() async {
     initializationSettings,
     onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) async {
       if (notificationResponse.payload != null) {
-        // navigatorKey.currentState?.pushAndRemoveUntil(
-        //   MaterialPageRoute(builder: (context) => DriversHomePage()),
-        //   (Route<dynamic> route) => false,
-        // );
+        navigateAndRefresh(const DriversHomePage(), context);
       }
     },
   );
@@ -138,8 +134,6 @@ void subscribeToaddOrders() {
       .listen((snapshot) {
         for (var change in snapshot.docChanges) {
           if (change.type == DocumentChangeType.added) {
-            _showNotificationAdd(change.doc.data());
-          } else if (change.type == DocumentChangeType.modified) {
             var newData = change.doc.data() as Map<String, dynamic>;
             if (newData['status'] == 'OrderStatus.pending') {
               _showNotificationAdd(change.doc.data());
