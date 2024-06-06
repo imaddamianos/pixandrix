@@ -22,7 +22,7 @@ class _OrdersPageState extends State<OrdersPage> {
   @override
   void initState() {
     super.initState();
-    initializeNotifications(context);
+    initializeNotifications(context, 'admin');
     _loadOrders();
   }
 

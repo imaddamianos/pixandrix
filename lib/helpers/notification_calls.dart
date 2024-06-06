@@ -1,18 +1,19 @@
 import 'dart:async';
-import 'dart:collection';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:pixandrix/admin/orders_page.dart';
 import 'package:pixandrix/helpers/location_helper.dart';
 import 'package:pixandrix/drivers/drivers_home_page.dart';
+import 'package:pixandrix/owners/owners_home_page.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 StreamSubscription<RemoteMessage>? _foregroundMessageSubscription;
 StreamSubscription<RemoteMessage>? _backgroundMessageSubscription;
 List<StreamSubscription<QuerySnapshot>> _firestoreSubscriptions = [];
 
-Future<void> initializeNotifications(BuildContext context) async {
+Future<void> initializeNotifications(BuildContext context, String type) async {
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('logopixandrix'); // Replace with notification icon
   const InitializationSettings initializationSettings =
@@ -21,7 +22,13 @@ Future<void> initializeNotifications(BuildContext context) async {
     initializationSettings,
     onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) async {
       if (notificationResponse.payload != null) {
-        navigateAndRefresh(const DriversHomePage(), context);
+        if (type == 'driver'){
+          navigateAndRefresh(const DriversHomePage(), context);
+        }else if(type == 'admin'){
+          navigateAndRefresh(const OrdersPage(), context);
+        }else if(type == 'owner'){
+          navigateAndRefresh(const OwnersHomePage(), context);
+        }
       }
     },
   );

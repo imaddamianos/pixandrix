@@ -21,7 +21,7 @@ class OwnersHomePage extends StatefulWidget {
   _OwnersHomePageState createState() => _OwnersHomePageState();
 }
 
-class _OwnersHomePageState extends State<OwnersHomePage> {
+class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, WidgetsBindingObserver {
   OwnerData? ownerInfo;
   List<OrderData>? orders;
   bool isButtonDisabled = false;
@@ -29,54 +29,72 @@ class _OwnersHomePageState extends State<OwnersHomePage> {
   @override
   void initState() {
     super.initState();
-    initializeNotifications(context);
-       subscribeToOrderStatusChanges(widget.ownerInfo!.name);
-    _loadOwnerInfo();
-    _loadOrders();
+    WidgetsBinding.instance.addObserver(this);
+    initializeNotifications(context, 'owner');
+    loadOwnerInfo().then((_) {
+      loadOrders();
+    });
   }
 
-  Future<void> _loadOwnerInfo() async {
-    if (widget.ownerInfo != null) {
-      ownerInfo = widget.ownerInfo;
-    } else {
-      ownerInfo = await _secureStorage.getOwnerInfo();
-    }
-    setState(() {});
-  }
-
-  Future<void> _loadOrders() async {
-    if (ownerInfo != null) {
-      final fetchedOrders = await FirebaseOperations.getOrders();
-      orders = fetchedOrders
-          .where((order) => order.storeInfo == ownerInfo?.name)
-          .toList();
-      orders!.sort((a, b) => a.orderTime.compareTo(b.orderTime));
-
-      setState(() {
-        isButtonDisabled = _shouldDisableButton();
-      });
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      loadOwnerInfo();
     }
   }
 
-bool _shouldDisableButton() {
-  if (orders == null || orders!.isEmpty) return false;
-  
-  final latestOrder = orders!.last;
-  final lastOrderTimeUpdate = latestOrder.lastOrderTimeUpdate.toDate();
-  final adjustedLastOrderTimeUpdate = lastOrderTimeUpdate.add(const Duration(minutes: 10));
-  final currentTime = DateTime.now();
-  final status = latestOrder.status;
-  if (currentTime.isBefore(adjustedLastOrderTimeUpdate) && status == 'OrderStatus.pending') {
-    return true;
-  }else if((currentTime.isAfter(adjustedLastOrderTimeUpdate) && status == 'OrderStatus.inProgress')){
-  return false;  
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
-  // Otherwise, return true
-  return false;
+
+  Future<void> loadOwnerInfo() async {
+    ownerInfo = await _secureStorage.getOwnerInfo();
+    subscribeToOrderStatusChanges(ownerInfo!.name);
+  }
+
+Future<void> loadOrders() async {
+  if (ownerInfo != null) {
+    final fetchedOrders = await FirebaseOperations.getOrders();
+
+    // Sort fetched orders by status
+    fetchedOrders.sort((a, b) {
+      const statusOrder = {
+        'OrderStatus.pending': 0,
+        'OrderStatus.inProgress': 1,
+        'OrderStatus.delivered': 2,
+      };
+      return statusOrder[a.status]!.compareTo(statusOrder[b.status]!);
+    });
+
+    // Filter orders to include only those related to the owner's store
+    orders = fetchedOrders.where((order) => order.storeInfo == ownerInfo?.name).toList();
+
+    setState(() {
+      isButtonDisabled = _shouldDisableButton();
+    });
+  }
 }
 
+
+  bool _shouldDisableButton() {
+    if (orders == null || orders!.isEmpty) return false;
+
+    final latestOrder = orders!.last;
+    final lastOrderTimeUpdate = latestOrder.lastOrderTimeUpdate.toDate();
+    final adjustedLastOrderTimeUpdate = lastOrderTimeUpdate.add(const Duration(minutes: 10));
+    final currentTime = DateTime.now();
+    final status = latestOrder.status;
+    if (currentTime.isBefore(adjustedLastOrderTimeUpdate) && status == 'OrderStatus.pending') {
+      return true;
+    } else if ((currentTime.isAfter(adjustedLastOrderTimeUpdate) && status == 'OrderStatus.inProgress')) {
+      return false;
+    }
+    return false;
+  }
+
   Future<void> _removeOrder(int index) async {
-    // remove order from owner
     if (index >= 0 && index < orders!.length) {
       final orderToRemove = orders![index];
       final status = orders![index].status;
@@ -89,11 +107,11 @@ bool _shouldDisableButton() {
             'OrderStatus.remove',
             orderToRemove.orderID,
             '',
-            _loadOrders,
+            loadOrders,
           );
         }
-      }else if (status == 'OrderStatus.inProgress'){
-      showAlertDialog(context, 'Order in Progress', 'You cannot delete the Order!');
+      } else if (status == 'OrderStatus.inProgress') {
+        showAlertDialog(context, 'Order in Progress', 'You cannot delete the Order!');
       }
     }
   }
@@ -101,9 +119,7 @@ bool _shouldDisableButton() {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      // This widget will intercept the back button press
       onWillPop: () async {
-        // Return false to prevent the back button action
         return false;
       },
       child: Scaffold(
@@ -122,7 +138,10 @@ bool _shouldDisableButton() {
               children: [
                 IconButton(
                   icon: const Icon(Icons.notifications),
-                  onPressed: () {},
+                  onPressed: () async {
+                    await loadOwnerInfo();
+                    await loadOrders();
+                  },
                 ),
                 IconButton(
                   icon: const Icon(Icons.logout),
@@ -137,7 +156,7 @@ bool _shouldDisableButton() {
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: RefreshIndicator(
-            onRefresh: _loadOrders,
+            onRefresh: loadOrders,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -151,8 +170,7 @@ bool _shouldDisableButton() {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    OrderForm(ownerInfo: ownerInfo),
+                                builder: (context) => OrderForm(ownerInfo: ownerInfo),
                               ),
                             );
                           },
@@ -185,16 +203,14 @@ bool _shouldDisableButton() {
                                   lastOrderTimeUpdate: orders![index].lastOrderTimeUpdate,
                                   press: () {
                                     String orderID = orders![index].orderID;
-                                    String orderLocation =
-                                        orders![index].orderLocation;
+                                    String orderLocation = orders![index].orderLocation;
                                     if (orderID.isEmpty) {
                                       orderID = 'No driver';
                                     }
-                                     subscribeToChangedOrders(ownerInfo!.name, orders![index].orderID);
+                                    subscribeToChangedOrders(ownerInfo!.name, orders![index].orderID);
                                     showDialog(
                                       context: context,
-                                      builder: (context) =>
-                                          OrderCardOwnersWindow(
+                                      builder: (context) => OrderCardOwnersWindow(
                                         driverName: orders![index].driverInfo,
                                         orderID: orderID,
                                         orderLocation: orderLocation,

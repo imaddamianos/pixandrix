@@ -69,10 +69,43 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
     return FirebaseOperations.checkDriverCredentials('drivers', savedDriver!, savedPassword!);
   }
 
+//   Future<void> loadOrders() async {
+//   if (driverInfo != null) {
+//     final fetchedOrders = await FirebaseOperations.getOrders();
+// try {
+//     // Sort fetched orders by status
+//     fetchedOrders.sort((a, b) {
+//       const statusOrder = {
+//         'OrderStatus.pending': 0,
+//         'OrderStatus.inProgress': 1,
+//         'OrderStatus.delivered': 2,
+//       };
+//       return statusOrder[a.status]!.compareTo(statusOrder[b.status]!);
+//     });
+
+//     // Filter orders to include only those related to the owner's store
+//     orders = fetchedOrders.where((order) => order.storeInfo == driverInfo?.name).toList();
+
+//     _loadHelpRequest();
+//        } catch (e) {
+//       // Handle error
+//     }
+//   }
+// }
+
   Future<void> loadOrders() async {
     try {
       final fetchedOrders = await FirebaseOperations.getOrders();
       orders = fetchedOrders.cast<OrderData>();
+      fetchedOrders.sort((a, b) {
+      const statusOrder = {
+        'OrderStatus.pending': 0,
+        'OrderStatus.inProgress': 1,
+        'OrderStatus.delivered': 2,
+      };
+      return statusOrder[a.status]!.compareTo(statusOrder[b.status]!);
+    });
+
       if (mounted) {
         setState(() {
           // changeDriverStatus(driverInfo!.isAvailable);
@@ -99,10 +132,10 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
 
   void notificationSubscribe() {
     if(driverInfo!.isAvailable){
-initializeNotifications(context);
+initializeNotifications(context, 'driver');
     subscribeToaddOrders();
     subscribeToDriversReturnedOrders();
-    subscribeToDriverChangeOrders(driverInfo!.name);
+    // subscribeToDriverChangeOrders(driverInfo!.name);
     }else{
       stopListeningToNotifications();
     }
