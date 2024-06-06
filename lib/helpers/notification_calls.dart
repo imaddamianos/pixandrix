@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:pixandrix/admin/orders_page.dart';
+import 'package:pixandrix/admin/admin_panel.dart';
 import 'package:pixandrix/helpers/location_helper.dart';
 import 'package:pixandrix/drivers/drivers_home_page.dart';
 import 'package:pixandrix/owners/owners_home_page.dart';
@@ -25,7 +25,7 @@ Future<void> initializeNotifications(BuildContext context, String type) async {
         if (type == 'driver'){
           navigateAndRefresh(const DriversHomePage(), context);
         }else if(type == 'admin'){
-          // navigateAndRefresh(const OrdersPage(), context);
+          navigateAndRefresh(const AdminPanelPage(), context);
         }else if(type == 'owner'){
           navigateAndRefresh(const OwnersHomePage(), context);
         }
@@ -97,22 +97,22 @@ void _showNotificationTaking(Map<String, dynamic>? data) async {
   _showNotification('order_Take', 'Order Take', "Order Taken", "An order has been taken.");
 }
 
-void orderTimeExceed() {
-  _showNotificationExceed();
+void orderTimeExceed() async {
+  _showNotificationExceed('order_Exceed', 'Order Exceed', "Order exceed 10 minutes", "An order has been exceeded the 10 minutes.");
 }
 
-void _showNotificationExceed() async {
-  const AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails('order_Exceed', 'Order Exceed',
+void _showNotificationExceed(String channelId, String channelName, String title, String body) async {
+   final AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(channelId, channelName,
           importance: Importance.max, priority: Priority.high);
-  const NotificationDetails platformChannelSpecifics =
+  final NotificationDetails platformChannelSpecifics =
       NotificationDetails(android: androidPlatformChannelSpecifics);
   await flutterLocalNotificationsPlugin.show(
     0, // Replace with a unique ID for the notification
-    "Order exceed 10 minutes",
-    "An order has been exceeded the 10 minutes.",
+    title,
+    body,
     platformChannelSpecifics,
-    payload: "item x", // Optional payload data as a String or Map
+    payload: "adminPanel", // Optional payload data as a String or Map
   );
 }
 

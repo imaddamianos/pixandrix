@@ -4,6 +4,7 @@ import 'package:pixandrix/admin/orders_page.dart';
 import 'package:pixandrix/admin/owners_page.dart';
 import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
+import 'package:pixandrix/helpers/notification_calls.dart';
 
 class AdminPanelPage extends StatefulWidget {
   const AdminPanelPage({super.key});
@@ -12,20 +13,39 @@ class AdminPanelPage extends StatefulWidget {
   _AdminPanelPageState createState() => _AdminPanelPageState();
 }
 
-class _AdminPanelPageState extends State<AdminPanelPage> {
-  int _selectedIndex = 0;
+class _AdminPanelPageState extends State<AdminPanelPage>  with RouteAware, WidgetsBindingObserver {
+  int _selectedIndex = 2;
 
   final List<Widget> _pages = [
     const OwnersPage(),
     const DriversPage(),
     const OrdersPage(),
   ];
+ @override
+  void initState() {
+    super.initState();
+   WidgetsBinding.instance.addObserver(this);
+  }
+
+   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _onItemTapped(2);
+    }
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
+
+   @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+  
 
   @override
   Widget build(BuildContext context) {

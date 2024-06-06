@@ -148,6 +148,7 @@ String _formatDuration(Duration duration, Timestamp orderTimestamp, Timestamp la
     Duration timeSinceLastUpdate = now.difference(lastOrderTime);
 
     if (timeLeft.isNegative) {
+      orderTimeExceed();
       return 'Expired';
     }
 

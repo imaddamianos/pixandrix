@@ -23,10 +23,10 @@ class _OrdersPageState extends State<OrdersPage> {
   void initState() {
     super.initState();
     initializeNotifications(context, 'admin');
-    _loadOrders();
+    loadOrders();
   }
 
-  Future<void> _loadOrders() async {
+  Future<void> loadOrders() async {
     final fetchedOrders = await FirebaseOperations.getOrders();
     setState(() {
       orders = fetchedOrders.cast<OrderData>();
@@ -44,7 +44,7 @@ class _OrdersPageState extends State<OrdersPage> {
         'OrderStatus.remove',
         orderToRemove.orderID,
         '',
-        _loadOrders,
+        loadOrders,
       );
     }
   }
@@ -85,7 +85,7 @@ class _OrdersPageState extends State<OrdersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: _loadOrders,
+        onRefresh: loadOrders,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
