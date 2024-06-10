@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pixandrix/helpers/notification_calls.dart';
 import 'package:pixandrix/helpers/order_status_utils.dart';
+import 'package:pixandrix/models/order_model.dart';
 import 'package:timer_builder/timer_builder.dart';
 
-class OrderCard extends StatelessWidget {
-   OrderCard({
+class OrderCard extends StatefulWidget {
+  const OrderCard({
     super.key,
     required this.orderTime,
     required this.orderLocation,
@@ -25,17 +26,28 @@ class OrderCard extends StatelessWidget {
   final VoidCallback onChangeStatus;
   final VoidCallback onCancel;
 
+  @override
+  _OrderCardState createState() => _OrderCardState();
+}
+
+class _OrderCardState extends State<OrderCard> {
   bool _hasSentNotification = false; // Flag to track notification sent
+  bool _hasSubscribedToOrderTimeExceed = false; // Flag to track subscription
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> statusInfo = getStatusInfo(status, 'owner');
+    final Map<String, dynamic> statusInfo = getStatusInfo(widget.status, 'owner');
     DateTime now = DateTime.now();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: GestureDetector(
-        onTap: press,
+        onTap: widget.press,
         child: SizedBox(
           width: MediaQuery.of(context).size.width - 10,
           height: 100,
@@ -61,7 +73,7 @@ class OrderCard extends StatelessWidget {
                 Row(
                   children: [
                     TextButton(
-                      onPressed: onCancel,
+                      onPressed: widget.onCancel,
                       child: const Text(
                         'Cancel',
                         style: TextStyle(color: Color.fromARGB(255, 255, 0, 0)),
@@ -74,7 +86,7 @@ class OrderCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            storeInfo,
+                            widget.storeInfo,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -83,7 +95,7 @@ class OrderCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            orderLocation,
+                            widget.orderLocation,
                             style: const TextStyle(color: Colors.green),
                           ),
                           const SizedBox(height: 4),
@@ -91,10 +103,10 @@ class OrderCard extends StatelessWidget {
                             const Duration(seconds: 1),
                             builder: (context) {
                               Duration timeLeft =
-                                  orderTime.toDate().difference(now);
-                              if (status == 'OrderStatus.pending') {
+                                  widget.orderTime.toDate().difference(now);
+                              if (widget.status == 'OrderStatus.pending') {
                                 return Text(
-                                  'Time: ${_formatDuration(timeLeft, orderTime, lastOrderTimeUpdate)}',
+                                  'Time: ${_formatDuration(timeLeft, widget.orderTime, widget.lastOrderTimeUpdate)}',
                                 );
                               } else {
                                 return const Text('');
@@ -110,7 +122,7 @@ class OrderCard extends StatelessWidget {
                   top: 10,
                   right: 10,
                   child: TextButton(
-                    onPressed: onChangeStatus,
+                    onPressed: widget.onChangeStatus,
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
                     ),
@@ -139,7 +151,27 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-String _formatDuration(Duration duration, Timestamp orderTimestamp, Timestamp lastOrderTimeUpdate) {
+  void subscribeToOrderTimeExceed() {
+    if (!_hasSubscribedToOrderTimeExceed) {
+      FirebaseFirestore.instance.collection('orders').snapshots().listen((snapshot) {
+        for (var doc in snapshot.docs) {
+          final order = OrderData.fromDocument(doc);
+
+          final lastOrderTimeUpdate = order.lastOrderTimeUpdate.toDate();
+          final currentTime = DateTime.now();
+          final duration = currentTime.difference(lastOrderTimeUpdate);
+
+          if (duration.inMinutes > 10 && order.status == 'OrderStatus.pending') {
+            // Handle the order time exceed event
+            orderTimeExceed();
+          }
+        }
+      });
+      _hasSubscribedToOrderTimeExceed = true;
+    }
+  }
+
+  String _formatDuration(Duration duration, Timestamp orderTimestamp, Timestamp lastOrderTimeUpdate) {
     DateTime now = DateTime.now();
     DateTime orderTime = orderTimestamp.toDate();
     DateTime lastOrderTime = lastOrderTimeUpdate.toDate();
@@ -148,7 +180,6 @@ String _formatDuration(Duration duration, Timestamp orderTimestamp, Timestamp la
     Duration timeSinceLastUpdate = now.difference(lastOrderTime);
 
     if (timeLeft.isNegative) {
-      // orderTimeExceed();
       return 'Expired';
     }
 
@@ -159,7 +190,7 @@ String _formatDuration(Duration duration, Timestamp orderTimestamp, Timestamp la
 
     if (timeSinceLastUpdate.inMinutes >= 10 && !_hasSentNotification) {
       _hasSentNotification = true; // Set flag after sending notification
-      // orderTimeExceed(); // Call your function to handle order exceeding time
+      subscribeToOrderTimeExceed(); // Call your function to handle order exceeding time
       return 'Check order $twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
     } else {
       return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';

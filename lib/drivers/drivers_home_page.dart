@@ -49,7 +49,7 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
     super.dispose();
   }
 
-  Future<void> loadDriverInfo() async {
+   Future<void> loadDriverInfo() async {
     driverInfo = await getDriverInfo();
     if (mounted) {
       setState(() {
@@ -58,6 +58,11 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
           notificationSubscribe();
           notificationsSubscribed = true;
         }
+        // Retrieve help requests for the driver
+        helpRequest = []; // Initialize as empty list
+        // if (driverInfo != null) {
+          loadHelpRequests(driverInfo!.name);
+        // }
       });
     }
   }
@@ -84,6 +89,14 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
     } else {
       stopListeningToNotifications();
     }
+  }
+
+  // Method to retrieve help requests for the driver
+  Future<void> loadHelpRequests(String driverName) async {
+    final helpRequests = await FirebaseOperations.getHelpRequest();
+    setState(() {
+      helpRequest = helpRequests;
+    });
   }
 
   Future<void> _changeOrderStatus(int index, List<OrderData> orders) async {
@@ -196,7 +209,7 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
                         return Center(child: Text('Error: ${snapshot.error}'));
                       }
                       if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                        return const Center(child: Text('No orders available'));
+                        //No orders
                       }
 
                       final orders = snapshot.data!.docs.map((doc) {
@@ -236,7 +249,9 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
                               ),
                               HelpDriverButton(
                                 helpRequests: helpRequest ?? [],
-                                onHelped: () => setState(() {}),
+                                onHelped: () => setState(() {
+                                  loadHelpRequests(driverInfo!.name);
+                                }),
                               ),
                               Column(
                                 children: [

@@ -137,7 +137,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Text('No orders available'));
+                  // No orders
                 }
 
                 final orders = snapshot.data!.docs.map((doc) {

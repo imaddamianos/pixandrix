@@ -61,7 +61,7 @@ class HelpDriverButton extends StatelessWidget {
                             Navigator.of(context).pop();
                             onHelped(); // Trigger refresh callback
                           },
-                          child: const Text('Helped'),
+                          child: const Text('Take Help'),
                         ),
                         TextButton.icon(onPressed: (){
                           Navigator.push(
