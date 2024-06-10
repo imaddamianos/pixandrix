@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/helpRequest_model.dart';
 import 'package:pixandrix/widgets/google_maps_view.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class HelpDriverButton extends StatelessWidget {
   final List<HelpRequestData> helpRequests;
   final VoidCallback onHelped;
 
   const HelpDriverButton({
-    Key? key,
+    super.key,
     required this.helpRequests,
     required this.onHelped,
-  }) : super(key: key);
+  });
 
   List<HelpRequestData> _getUnhelpedRequests() {
     return helpRequests.where((help) => !help.isHelped).toList();

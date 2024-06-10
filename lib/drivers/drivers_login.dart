@@ -11,7 +11,6 @@ import 'package:pixandrix/helpers/profile_pic.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/helpers/secure_storage.dart';
-import 'package:pixandrix/theme/buttons/main_button.dart';
 
 final _secureStorage = SecureStorage();
 
