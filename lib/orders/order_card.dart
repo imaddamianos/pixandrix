@@ -148,7 +148,7 @@ String _formatDuration(Duration duration, Timestamp orderTimestamp, Timestamp la
     Duration timeSinceLastUpdate = now.difference(lastOrderTime);
 
     if (timeLeft.isNegative) {
-      orderTimeExceed();
+      // orderTimeExceed();
       return 'Expired';
     }
 
@@ -159,7 +159,7 @@ String _formatDuration(Duration duration, Timestamp orderTimestamp, Timestamp la
 
     if (timeSinceLastUpdate.inMinutes >= 10 && !_hasSentNotification) {
       _hasSentNotification = true; // Set flag after sending notification
-      orderTimeExceed(); // Call your function to handle order exceeding time
+      // orderTimeExceed(); // Call your function to handle order exceeding time
       return 'Check order $twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
     } else {
       return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';

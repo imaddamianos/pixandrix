@@ -16,37 +16,24 @@ class OrdersPage extends StatefulWidget {
 }
 
 class _OrdersPageState extends State<OrdersPage> {
-  List<OrderData>? orders;
-  String _selectedSortOption = 'Last Order';
+  final String _selectedSortOption = 'Last Order';
 
   @override
   void initState() {
     super.initState();
     initializeNotifications(context, 'admin');
-    loadOrders();
   }
 
-  Future<void> loadOrders() async {
-    final fetchedOrders = await FirebaseOperations.getOrders();
-    setState(() {
-      orders = fetchedOrders.cast<OrderData>();
-      _sortOrders();
-    });
-  }
-
-  Future<void> _removeOrder(int index) async {
-    if (index >= 0 && index < orders!.length) {
-      final orderToRemove = orders![index];
-      showAlertChangeProgress(
-        context,
-        'Remove Order',
-        "Are you sure you want to remove and cancel the order?",
-        'OrderStatus.remove',
-        orderToRemove.orderID,
-        '',
-        loadOrders,
-      );
-    }
+  Future<void> _removeOrder(String orderId) async {
+    showAlertChangeProgress(
+      context,
+      'Remove Order',
+      "Are you sure you want to remove and cancel the order?",
+      'OrderStatus.remove',
+      orderId,
+      '',
+      () => setState(() {}),
+    );
   }
 
   Future<void> _resetOrderNumber() async {
@@ -57,35 +44,32 @@ class _OrdersPageState extends State<OrdersPage> {
           .doc('orderNumber')
           .set({'value': currentOrderNumber});
     } catch (error) {
-      print('Error getting next order number: $error');
+      print('Error resetting order number: $error');
       throw error;
     }
   }
 
- void _sortOrders() {
-    if (orders != null) {
-      if (_selectedSortOption == 'Last Order') {
-        orders!.sort((a, b) => b.lastOrderTimeUpdate.compareTo(a.lastOrderTimeUpdate));
-      } else if (_selectedSortOption == 'Status') {
-        orders!.sort((a, b) {
-          const statusOrder = {
-            'OrderStatus.pending': 0,
-            'OrderStatus.inProgress': 1,
-            'OrderStatus.delivered': 2,
-          };
-          return statusOrder[a.status]!.compareTo(statusOrder[b.status]!);
-        });
-      }
-      setState(() {});
+  List<OrderData> _sortOrders(List<OrderData> orders) {
+    if (_selectedSortOption == 'Last Order') {
+      orders.sort((a, b) => b.lastOrderTimeUpdate.compareTo(a.lastOrderTimeUpdate));
+    } else if (_selectedSortOption == 'Status') {
+      const statusOrder = {
+        'OrderStatus.pending': 0,
+        'OrderStatus.inProgress': 1,
+        'OrderStatus.delivered': 2,
+      };
+      orders.sort((a, b) => statusOrder[a.status]!.compareTo(statusOrder[b.status]!));
     }
+    return orders;
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: loadOrders,
+        onRefresh: () async {
+          setState(() {});
+        },
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -94,81 +78,72 @@ class _OrdersPageState extends State<OrdersPage> {
               CustomButton(
                 text: 'Reset orders',
                 onPressed: () {
-                  showAlertWithFunction(context, 'Reset Orders Number',
-                      'Are you sure you want to reset the order number', _resetOrderNumber());
+                  showAlertWithFunction(
+                    context,
+                    'Reset Orders Number',
+                    'Are you sure you want to reset the order number?',
+                    _resetOrderNumber,
+                  );
                 },
               ),
               const SizedBox(height: 10),
-              Text(
-                'Orders: ${orders?.length ?? 0}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  const Text('Sort by:',),
-                  const SizedBox(width: 10),
-                  DropdownButton<String>(
-                    value: _selectedSortOption,
-                    dropdownColor: Colors.black,
-                    style: const TextStyle(color: Colors.white),
-                    items: <String>['Last Order', 'Status']
-                        .map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedSortOption = newValue!;
-                      });
-                      _sortOrders();
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Expanded(
-                child: orders == null
-                    ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : ListView.builder(
-                        itemCount: orders!.length,
-                        itemBuilder: (context, index) {
-                          return Column(
-                            children: [
-                              OrderCard(
-                                orderTime: orders![index].orderTime,
-                                orderLocation: orders![index].orderLocation,
-                                status: orders![index].status,
-                                driverInfo: orders![index].driverInfo,
-                                storeInfo: orders![index].storeInfo,
-                                lastOrderTimeUpdate: orders![index].lastOrderTimeUpdate,
-                                press: () {
-                                  String orderID = orders![index].orderID;
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => OrderCardWindow(
-                                      driverName: orders![index].driverInfo,
-                                      orderID: orderID,
-                                      ownerName: orders![index].storeInfo,
-                                      orderLocation: orders![index].orderLocation,
-                                      lastOrderTimeUpdate: orders![index].lastOrderTimeUpdate,
-                                    ),
-                                  );
-                                },
-                                onChangeStatus: () {},
-                                onCancel: () {
-                                  _removeOrder(index);
-                                },
-                              ),
-                              const SizedBox(height: 20),
-                            ],
-                          );
-                        },
-                      ),
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance.collection('orders').snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(child: Text('No orders available'));
+                  }
+
+                  final orders = snapshot.data!.docs.map((doc) {
+                    return OrderData.fromDocument(doc);
+                  }).toList();
+
+                  final sortedOrders = _sortOrders(orders);
+
+                  return Expanded(
+                    child: ListView.builder(
+                      itemCount: sortedOrders.length,
+                      itemBuilder: (context, index) {
+                        return Column(
+                          children: [
+                            OrderCard(
+                              orderTime: sortedOrders[index].orderTime,
+                              orderLocation: sortedOrders[index].orderLocation,
+                              status: sortedOrders[index].status,
+                              driverInfo: sortedOrders[index].driverInfo,
+                              storeInfo: sortedOrders[index].storeInfo,
+                              lastOrderTimeUpdate: sortedOrders[index].lastOrderTimeUpdate,
+                              press: () {
+                                String orderID = sortedOrders[index].orderID;
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => OrderCardWindow(
+                                    driverName: sortedOrders[index].driverInfo,
+                                    orderID: orderID,
+                                    ownerName: sortedOrders[index].storeInfo,
+                                    orderLocation: sortedOrders[index].orderLocation,
+                                    lastOrderTimeUpdate: sortedOrders[index].lastOrderTimeUpdate,
+                                  ),
+                                );
+                              },
+                              onChangeStatus: () {},
+                              onCancel: () {
+                                _removeOrder(sortedOrders[index].orderID);
+                              },
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        );
+                      },
+                    ),
+                  );
+                },
               ),
             ],
           ),
