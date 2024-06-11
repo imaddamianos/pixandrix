@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pixandrix/first_page.dart';
-import 'package:pixandrix/helpers/notification_calls.dart';
+import 'package:pixandrix/helpers/notification_bell.dart';
 import 'package:pixandrix/helpers/secure_storage.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
@@ -10,7 +10,8 @@ import 'package:pixandrix/orders/order_card_owners_windows.dart';
 import 'package:pixandrix/orders/order_form.dart';
 import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
-import 'package:pixandrix/firebase/firebase_operations.dart';
+import 'package:pixandrix/helpers/notification_bell.dart';
+
 
 final _secureStorage = SecureStorage();
 
@@ -30,7 +31,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    initializeNotifications(context, 'owner');
+    notificationService.initializeNotifications(context, 'owner');
     loadOwnerInfo();
   }
 
@@ -49,7 +50,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
 
   Future<void> loadOwnerInfo() async {
     ownerInfo = await _secureStorage.getOwnerInfo();
-    subscribeToOrderStatusChanges(ownerInfo!.name);
+    notificationService.subscribeToOrderStatusChanges(ownerInfo!.name);
     setState(() {});
   }
 
@@ -105,15 +106,49 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
           actions: [
             Row(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.notifications),
-                  onPressed: () async {
-                    await loadOwnerInfo();
+                ValueListenableBuilder<int>(
+                  valueListenable: notificationService.notificationCountNotifier,
+                  builder: (context, notificationCount, child) {
+                    return Stack(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.notifications),
+                          onPressed: () {
+                            notificationService.resetNotificationCount();
+                          },
+                        ),
+                        if (notificationCount > 0)
+                          Positioned(
+                            right: 11,
+                            top: 11,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 14,
+                                minHeight: 14,
+                              ),
+                              child: Text(
+                                '$notificationCount',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
                   },
                 ),
                 IconButton(
                   icon: const Icon(Icons.logout),
                   onPressed: () {
+                    notificationService.stopListeningToNotifications();
                     showAlertWithDestination(context, 'Log Out', 'Are you sure you want to Log out?', const FirstPage());
                   },
                 ),
@@ -205,7 +240,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
                                   if (orderID.isEmpty) {
                                     orderID = 'No driver';
                                   }
-                                  subscribeToChangedOrders(ownerInfo!.name, ownerOrders[index].orderID);
+                                  notificationService.subscribeToChangedOrders(ownerInfo!.name, ownerOrders[index].orderID);
                                   showDialog(
                                     context: context,
                                     builder: (context) => OrderCardOwnersWindow(

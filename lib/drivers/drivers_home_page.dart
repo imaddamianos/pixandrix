@@ -5,7 +5,7 @@ import 'package:pixandrix/drivers/help_driver_list.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
-import 'package:pixandrix/helpers/notification_calls.dart';
+import 'package:pixandrix/helpers/notification_bell.dart';
 import 'package:pixandrix/helpers/secure_storage.dart';
 import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/models/helpRequest_model.dart';
@@ -82,12 +82,12 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
 
   void notificationSubscribe() {
     if (driverInfo!.isAvailable) {
-      initializeNotifications(context, 'driver');
-      subscribeToaddOrders();
-      subscribeToDriversReturnedOrders();
+      notificationService.initializeNotifications(context, 'driver');
+      notificationService.subscribeToaddOrders();
+      notificationService.subscribeToDriversReturnedOrders();
       // subscribeToDriverChangeOrders(driverInfo!.name);
     } else {
-      stopListeningToNotifications();
+      notificationService.stopListeningToNotifications();
     }
   }
 
@@ -174,13 +174,49 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
           actions: [
             Row(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.notifications),
-                  onPressed: () {},
+                ValueListenableBuilder<int>(
+                  valueListenable: notificationService.notificationCountNotifier,
+                  builder: (context, notificationCount, child) {
+                    return Stack(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.notifications),
+                          onPressed: () {
+                            notificationService.resetNotificationCount();
+                          },
+                        ),
+                        if (notificationCount > 0)
+                          Positioned(
+                            right: 11,
+                            top: 11,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 14,
+                                minHeight: 14,
+                              ),
+                              child: Text(
+                                '$notificationCount',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
                 ),
                 IconButton(
                   icon: const Icon(Icons.logout),
                   onPressed: () {
+                    notificationService.stopListeningToNotifications();
                     showAlertWithDestination(context, 'Log Out',
                         'Are you sure you want to Log out?', const FirstPage());
                   },

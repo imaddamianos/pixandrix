@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:pixandrix/helpers/notification_calls.dart';
+import 'package:pixandrix/helpers/notification_bell.dart';
 import 'package:pixandrix/helpers/order_status_utils.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:timer_builder/timer_builder.dart';
@@ -163,7 +163,7 @@ class _OrderCardState extends State<OrderCard> {
 
           if (duration.inMinutes > 10 && order.status == 'OrderStatus.pending') {
             // Handle the order time exceed event
-            orderTimeExceed();
+            notificationService.orderTimeExceed();
           }
         }
       });

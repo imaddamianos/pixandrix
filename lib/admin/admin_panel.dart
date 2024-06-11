@@ -4,7 +4,7 @@ import 'package:pixandrix/admin/orders_page.dart';
 import 'package:pixandrix/admin/owners_page.dart';
 import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
-import 'package:pixandrix/helpers/notification_calls.dart';
+import 'package:pixandrix/helpers/notification_bell.dart';
 
 class AdminPanelPage extends StatefulWidget {
   const AdminPanelPage({super.key});
@@ -61,15 +61,49 @@ class _AdminPanelPageState extends State<AdminPanelPage>  with RouteAware, Widge
         actions: [
           Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.notifications),
-                onPressed: () {
-                  // Handle notifications action
-                },
-              ),
+             ValueListenableBuilder<int>(
+                  valueListenable: notificationService.notificationCountNotifier,
+                  builder: (context, notificationCount, child) {
+                    return Stack(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.notifications),
+                          onPressed: () {
+                            notificationService.resetNotificationCount();
+                          },
+                        ),
+                        if (notificationCount > 0)
+                          Positioned(
+                            right: 11,
+                            top: 11,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 14,
+                                minHeight: 14,
+                              ),
+                              child: Text(
+                                '$notificationCount',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
               IconButton(
                 icon: const Icon(Icons.logout),
                  onPressed: () {
+                  notificationService.stopListeningToNotifications;
                     showAlertWithDestination(context, 'Log Out', 'Are you sure you want to Log out?', const FirstPage());
                   },
               ),

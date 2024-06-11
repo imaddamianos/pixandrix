@@ -8,10 +8,16 @@ import 'package:pixandrix/helpers/location_helper.dart';
 import 'package:pixandrix/drivers/drivers_home_page.dart';
 import 'package:pixandrix/owners/owners_home_page.dart';
 
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+final notificationService = NotificationService();
+
+class NotificationService {
+  int _notificationCount = 0;
+  final ValueNotifier<int> notificationCountNotifier = ValueNotifier<int>(0);
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 StreamSubscription<RemoteMessage>? _foregroundMessageSubscription;
 StreamSubscription<RemoteMessage>? _backgroundMessageSubscription;
-List<StreamSubscription<QuerySnapshot>> _firestoreSubscriptions = [];
+final List<StreamSubscription<QuerySnapshot>> _firestoreSubscriptions = [];
+
 
 Future<void> initializeNotifications(BuildContext context, String type) async {
   const AndroidInitializationSettings initializationSettingsAndroid =
@@ -59,6 +65,18 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   );
 }
 
+  void addNotificationCount() {
+       _notificationCount = 1;
+      notificationCountNotifier.value = _notificationCount;
+  }
+
+  int get notificationCount => _notificationCount;
+
+  void resetNotificationCount() {
+    _notificationCount = 0;
+    notificationCountNotifier.value = 0;
+  }
+
 void stopListeningToNotifications() {
   for (var subscription in _firestoreSubscriptions) {
     subscription.cancel();
@@ -76,12 +94,29 @@ void _showNotification(String channelId, String channelName, String title, Strin
           importance: Importance.max, priority: Priority.high);
   final NotificationDetails platformChannelSpecifics =
       NotificationDetails(android: androidPlatformChannelSpecifics);
+      addNotificationCount();
   await flutterLocalNotificationsPlugin.show(
     0, // Replace with a unique ID for the notification
     title,
     body,
     platformChannelSpecifics,
     payload: "driverHomePage", // Optional payload data as a String or Map
+  );
+}
+
+void _showNotificationExceed(String channelId, String channelName, String title, String body) async {
+   final AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(channelId, channelName,
+          importance: Importance.max, priority: Priority.high);
+  final NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+      addNotificationCount();
+  await flutterLocalNotificationsPlugin.show(
+    0, // Replace with a unique ID for the notification
+    title,
+    body,
+    platformChannelSpecifics,
+    payload: "adminPanel", // Optional payload data as a String or Map
   );
 }
 
@@ -99,21 +134,6 @@ void _showNotificationTaking(Map<String, dynamic>? data) async {
 
 void orderTimeExceed() async {
   _showNotificationExceed('order_Exceed', 'Order Exceed', "Order exceed 10 minutes", "An order has been exceeded the 10 minutes.");
-}
-
-void _showNotificationExceed(String channelId, String channelName, String title, String body) async {
-   final AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(channelId, channelName,
-          importance: Importance.max, priority: Priority.high);
-  final NotificationDetails platformChannelSpecifics =
-      NotificationDetails(android: androidPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin.show(
-    0, // Replace with a unique ID for the notification
-    title,
-    body,
-    platformChannelSpecifics,
-    payload: "adminPanel", // Optional payload data as a String or Map
-  );
 }
 
 void subscribeToDriverChangeOrders(String driver) {
@@ -217,4 +237,5 @@ void subscribeToTakenOrders() {
     }
   });
   _firestoreSubscriptions.add(subscription);
+}
 }
