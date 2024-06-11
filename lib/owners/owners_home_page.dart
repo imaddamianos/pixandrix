@@ -10,7 +10,6 @@ import 'package:pixandrix/orders/order_card_owners_windows.dart';
 import 'package:pixandrix/orders/order_form.dart';
 import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
-import 'package:pixandrix/helpers/notification_bell.dart';
 
 
 final _secureStorage = SecureStorage();

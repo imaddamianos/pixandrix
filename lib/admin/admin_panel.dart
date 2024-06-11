@@ -5,6 +5,7 @@ import 'package:pixandrix/admin/owners_page.dart';
 import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/helpers/notification_bell.dart';
+import 'package:pixandrix/settings_page.dart';
 
 class AdminPanelPage extends StatefulWidget {
   const AdminPanelPage({super.key});
@@ -24,6 +25,7 @@ class _AdminPanelPageState extends State<AdminPanelPage>  with RouteAware, Widge
  @override
   void initState() {
     super.initState();
+    notificationService.initializeNotifications(context, 'admin');
    WidgetsBinding.instance.addObserver(this);
   }
 
@@ -66,6 +68,7 @@ class _AdminPanelPageState extends State<AdminPanelPage>  with RouteAware, Widge
                   builder: (context, notificationCount, child) {
                     return Stack(
                       children: [
+                        
                         IconButton(
                           icon: const Icon(Icons.notifications),
                           onPressed: () {
@@ -100,6 +103,16 @@ class _AdminPanelPageState extends State<AdminPanelPage>  with RouteAware, Widge
                     );
                   },
                 ),
+                IconButton(
+                          icon: const Icon(Icons.settings),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const SettingsPage(),
+                              ),
+                            );
+                          },
+                        ),
               IconButton(
                 icon: const Icon(Icons.logout),
                  onPressed: () {

@@ -21,7 +21,6 @@ class _OrdersPageState extends State<OrdersPage> {
   @override
   void initState() {
     super.initState();
-    notificationService.initializeNotifications(context, 'admin');
   }
 
   Future<void> _removeOrder(String orderId) async {

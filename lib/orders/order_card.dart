@@ -163,7 +163,7 @@ class _OrderCardState extends State<OrderCard> {
 
           if (duration.inMinutes > 10 && order.status == 'OrderStatus.pending') {
             // Handle the order time exceed event
-            notificationService.orderTimeExceed();
+            notificationService.subscribeTotimeExceed();
           }
         }
       });

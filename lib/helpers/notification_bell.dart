@@ -104,22 +104,6 @@ void _showNotification(String channelId, String channelName, String title, Strin
   );
 }
 
-void _showNotificationExceed(String channelId, String channelName, String title, String body) async {
-   final AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(channelId, channelName,
-          importance: Importance.max, priority: Priority.high);
-  final NotificationDetails platformChannelSpecifics =
-      NotificationDetails(android: androidPlatformChannelSpecifics);
-      addNotificationCount();
-  await flutterLocalNotificationsPlugin.show(
-    0, // Replace with a unique ID for the notification
-    title,
-    body,
-    platformChannelSpecifics,
-    payload: "adminPanel", // Optional payload data as a String or Map
-  );
-}
-
 void _showNotificationAdd(Map<String, dynamic>? data) async {
   _showNotification('new_order', 'New Order', "New Order", "A new order has been added.");
 }
@@ -132,8 +116,31 @@ void _showNotificationTaking(Map<String, dynamic>? data) async {
   _showNotification('order_Take', 'Order Take', "Order Taken", "An order has been taken.");
 }
 
-void orderTimeExceed() async {
-  _showNotificationExceed('order_Exceed', 'Order Exceed', "Order exceed 10 minutes", "An order has been exceeded the 10 minutes.");
+void _orderTimeExceed() async {
+  _showNotification('order_Exceed', 'Order Exceed', "Order exceed 10 minutes", "An order has been exceeded the 10 minutes.");
+}
+
+void subscribeTotimeExceed() {
+  var subscription = FirebaseFirestore.instance
+      .collection('orders')
+      .snapshots()
+      .listen((snapshot) {
+        for (var change in snapshot.docChanges) {
+          if (change.type == DocumentChangeType.added) {
+            var newData = change.doc.data() as Map<String, dynamic>;
+           
+             final lastOrderTimeUpdate = newData['lastOrderTimeUpdate'].toDate();
+          final currentTime = DateTime.now();
+          final duration = currentTime.difference(lastOrderTimeUpdate);
+
+          if (duration.inMinutes > 10 && newData['status'] == 'OrderStatus.pending') {
+            // Handle the order time exceed event
+            _showNotificationTaking(newData);
+          }
+          }
+        }
+      });
+  _firestoreSubscriptions.add(subscription);
 }
 
 void subscribeToDriverChangeOrders(String driver) {
