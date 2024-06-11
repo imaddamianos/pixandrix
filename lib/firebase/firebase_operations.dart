@@ -464,7 +464,7 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
     }
   }
 
-  static Future<void> changeOrderStatus(String newStatus, String ownerId, DateTime timePicked) async {
+  static Future<void> changeOrderStatus(String newStatus, String ownerId) async {
     try {
       // Reference to the orders collection
       CollectionReference ordersRef =
@@ -478,7 +478,6 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
       if (orderSnapshot.docs.isNotEmpty) {
         String docId = orderSnapshot.docs.first.id;
         await ordersRef.doc(docId).update({'status': newStatus});
-        await ordersRef.doc(docId).update({'lastOrderTimeUpdate': timePicked});
       } else {
         throw Exception('Order not found or does not belong to owner');
       }

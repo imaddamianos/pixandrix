@@ -53,21 +53,26 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
     setState(() {});
   }
 
-  bool _shouldDisableButton(List<OrderData> orders) {
-    if (orders.isEmpty) return false;
+bool _shouldDisableButton(List<OrderData> orders) {
+  if (orders.isEmpty) return false;
 
-    final latestOrder = orders.last;
-    final lastOrderTimeUpdate = latestOrder.lastOrderTimeUpdate.toDate();
-    final adjustedLastOrderTimeUpdate = lastOrderTimeUpdate.add(const Duration(minutes: 10));
-    final currentTime = DateTime.now();
-    final status = latestOrder.status;
-    if (currentTime.isBefore(adjustedLastOrderTimeUpdate) && status == 'OrderStatus.pending') {
-      return true;
-    } else if ((currentTime.isAfter(adjustedLastOrderTimeUpdate) && status == 'OrderStatus.inProgress')) {
-      return false;
-    }
+  // Sort the orders by lastOrderTimeUpdate in ascending order
+  orders.sort((a, b) => a.lastOrderTimeUpdate.toDate().compareTo(b.lastOrderTimeUpdate.toDate()));
+
+  final latestOrder = orders.last;
+  final lastOrderTimeUpdate = latestOrder.lastOrderTimeUpdate.toDate();
+  final currentTime = DateTime.now();
+
+  // Calculate the difference in minutes between currentTime and lastOrderTimeUpdate
+  final timeDifference = currentTime.difference(lastOrderTimeUpdate).inMinutes;
+
+  // Return false if the time difference is greater than 10 minutes, otherwise return true
+  if (timeDifference > 10) {
     return false;
   }
+  return true;
+}
+
 
   Future<void> _removeOrder(String orderId, String status) async {
     if (status == 'OrderStatus.pending') {
@@ -190,7 +195,6 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
                   };
                   return statusOrder[a.status]!.compareTo(statusOrder[b.status]!);
                 });
-
                 isButtonDisabled = _shouldDisableButton(ownerOrders);
 
                 return Column(
