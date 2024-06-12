@@ -1,5 +1,6 @@
 // settings_page.dart
 import 'package:flutter/material.dart';
+import 'package:pixandrix/volume_control_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -17,13 +18,17 @@ class SettingsPage extends StatelessWidget {
           children: [
             const Text(
               'Notification Sound',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
             ),
             ListTile(
-              title: const Text('Select Notification Sound'),
-              trailing: const Icon(Icons.arrow_forward_ios),
+              title: const Text('Volume', style: TextStyle(color: Colors.white),),
+              trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white,),
               onTap: () {
-                // Implement functionality to change notification sound
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => VolumeControlPage(),
+                  ),
+                );
               },
             ),
             const Divider(),
