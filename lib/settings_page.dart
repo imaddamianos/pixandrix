@@ -1,5 +1,6 @@
 // settings_page.dart
 import 'package:flutter/material.dart';
+import 'package:pixandrix/sound_selection_page.dart';
 import 'package:pixandrix/volume_control_page.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -40,7 +41,11 @@ class SettingsPage extends StatelessWidget {
               title: const Text('Select Ringtone'),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
-                // Implement functionality to change ringtone
+               Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => SoundSelectionPage(),
+                  ),
+                );
               },
             ),
           ],

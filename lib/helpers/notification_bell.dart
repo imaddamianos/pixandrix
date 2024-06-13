@@ -90,11 +90,16 @@ void stopListeningToNotifications() {
 
 void _showNotification(String channelId, String channelName, String title, String body) async {
   final AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(channelId, channelName,
-          importance: Importance.max, priority: Priority.high);
+      AndroidNotificationDetails(
+        channelId,
+        channelName,
+        importance: Importance.max,
+        priority: Priority.high,
+        sound: RawResourceAndroidNotificationSound('collectring.mp3'), // Custom sound added here
+      );
   final NotificationDetails platformChannelSpecifics =
       NotificationDetails(android: androidPlatformChannelSpecifics);
-      addNotificationCount();
+  addNotificationCount();
   await flutterLocalNotificationsPlugin.show(
     0, // Replace with a unique ID for the notification
     title,
@@ -103,6 +108,7 @@ void _showNotification(String channelId, String channelName, String title, Strin
     payload: "driverHomePage", // Optional payload data as a String or Map
   );
 }
+
 
 void _showNotificationAdd(Map<String, dynamic>? data) async {
   _showNotification('new_order', 'New Order', "New Order", "A new order has been added.");

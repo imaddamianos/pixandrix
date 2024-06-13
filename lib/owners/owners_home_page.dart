@@ -8,6 +8,7 @@ import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/orders/order_card_owners.dart';
 import 'package:pixandrix/orders/order_card_owners_windows.dart';
 import 'package:pixandrix/orders/order_form.dart';
+import 'package:pixandrix/settings_page.dart';
 import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
 
@@ -149,6 +150,16 @@ bool _shouldDisableButton(List<OrderData> orders) {
                     );
                   },
                 ),
+                 IconButton(
+                          icon: const Icon(Icons.settings),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const SettingsPage(),
+                              ),
+                            );
+                          },
+                        ),
                 IconButton(
                   icon: const Icon(Icons.logout),
                   onPressed: () {

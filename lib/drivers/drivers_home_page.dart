@@ -12,6 +12,7 @@ import 'package:pixandrix/models/helpRequest_model.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/orders/order_card_drivers.dart';
 import 'package:pixandrix/orders/order_card_drivers_windows.dart';
+import 'package:pixandrix/settings_page.dart';
 import 'package:pixandrix/theme/buttons/add_button.dart';
 
 final _secureStorage = SecureStorage();
@@ -212,6 +213,16 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
                     );
                   },
                 ),
+                 IconButton(
+                          icon: const Icon(Icons.settings),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const SettingsPage(),
+                              ),
+                            );
+                          },
+                        ),
                 IconButton(
                   icon: const Icon(Icons.logout),
                   onPressed: () {
