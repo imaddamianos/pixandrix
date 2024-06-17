@@ -109,7 +109,7 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
   }
   
 
-  Future<void> _driverLogIn() async {
+  Future<void> driverLogIn() async {
     setState(() {
       _isLoading = true;
     });
@@ -267,7 +267,7 @@ class _DriversLoginPageState extends State<DriversLoginPage> {
                       ElevatedButton(
                         onPressed: () {
                           if (_driverNameAvailable) {
-                            _driverLogIn();
+                            driverLogIn();
                           } else {
                             _submitForm();
                           }

@@ -65,4 +65,17 @@ class SecureStorage {
   Future<String?> getAdminPassword() async {
     return await _storage.read(key: 'adminPassword');
   }
+
+ Future<void> setAutoLoginStatus(bool isLoggedOut, String role) async {
+  await _storage.write(key: 'islogout', value: isLoggedOut.toString());
+  await _storage.write(key: 'role', value: role);
+}
+
+Future<String?> getLogoutStatus() async {
+ return await _storage.read(key: 'islogout');
+}
+
+Future<String?> getAutoLoginRole() async {
+ return await _storage.read(key: 'role');
+}
 }

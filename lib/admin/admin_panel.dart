@@ -5,7 +5,10 @@ import 'package:pixandrix/admin/owners_page.dart';
 import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/helpers/notification_bell.dart';
+import 'package:pixandrix/helpers/secure_storage.dart';
 import 'package:pixandrix/settings_page.dart';
+
+final _secureStorage = SecureStorage();
 
 class AdminPanelPage extends StatefulWidget {
   const AdminPanelPage({super.key});
@@ -117,6 +120,7 @@ class _AdminPanelPageState extends State<AdminPanelPage>  with RouteAware, Widge
                 icon: const Icon(Icons.logout),
                  onPressed: () {
                   notificationService.stopListeningToNotifications;
+                  _secureStorage.setAutoLoginStatus(true, '');
                     showAlertWithDestination(context, 'Log Out', 'Are you sure you want to Log out?', const FirstPage());
                   },
               ),

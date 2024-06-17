@@ -49,6 +49,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
   }
 
   Future<void> loadOwnerInfo() async {
+    _secureStorage.setAutoLoginStatus(false, 'owner');
     ownerInfo = await _secureStorage.getOwnerInfo();
     notificationService.subscribeToOrderStatusChanges(ownerInfo!.name);
     setState(() {});
@@ -164,6 +165,7 @@ bool _shouldDisableButton(List<OrderData> orders) {
                   icon: const Icon(Icons.logout),
                   onPressed: () {
                     notificationService.stopListeningToNotifications();
+                    _secureStorage.setAutoLoginStatus(true, '');
                     showAlertWithDestination(context, 'Log Out', 'Are you sure you want to Log out?', const FirstPage());
                   },
                 ),

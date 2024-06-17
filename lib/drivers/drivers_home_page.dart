@@ -51,6 +51,7 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
   }
 
    Future<void> loadDriverInfo() async {
+     _secureStorage.setAutoLoginStatus(false, 'driver');
     driverInfo = await getDriverInfo();
     if (mounted) {
       setState(() {
@@ -227,6 +228,7 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
                   icon: const Icon(Icons.logout),
                   onPressed: () {
                     notificationService.stopListeningToNotifications();
+                    _secureStorage.setAutoLoginStatus(true, '');
                     showAlertWithDestination(context, 'Log Out',
                         'Are you sure you want to Log out?', const FirstPage());
                   },
