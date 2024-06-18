@@ -95,7 +95,9 @@ void _showNotification(String channelId, String channelName, String title, Strin
         channelName,
         importance: Importance.max,
         priority: Priority.high,
-        sound: RawResourceAndroidNotificationSound('collectring.mp3'), // Custom sound added here
+        ongoing: true,  // This makes the notification ongoing
+        autoCancel: false,  // This prevents the user from dismissing the notification
+        // sound: RawResourceAndroidNotificationSound('collectring.mp3'), // Custom sound added here
       );
   final NotificationDetails platformChannelSpecifics =
       NotificationDetails(android: androidPlatformChannelSpecifics);
@@ -108,6 +110,27 @@ void _showNotification(String channelId, String channelName, String title, Strin
     payload: "driverHomePage", // Optional payload data as a String or Map
   );
 }
+
+ Future<void> showOngoingNotification() async {
+    var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
+      'your channel id',
+      'your channel name',
+  //    'your channel description',
+      importance: Importance.max,
+      priority: Priority.high,
+      ongoing: true,  // This makes the notification ongoing
+      autoCancel: false,  // This prevents the user from dismissing the notification
+    );
+   
+    var platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      'Ongoing Notification',
+      'You are currently available for orders.',
+      platformChannelSpecifics,
+    );
+  }
 
 
 void _showNotificationAdd(Map<String, dynamic>? data) async {

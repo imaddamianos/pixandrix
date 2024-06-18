@@ -22,8 +22,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> autoLogin(BuildContext context) async {
     String? isLoggedOut = await _secureStorage.getLogoutStatus();
-    String? savedDriverPassword = await _secureStorage.getDriverPassword();
-    String? savedOwnerPassword = await _secureStorage.getOwnerPassword();
     String? savedRole = await _secureStorage.getAutoLoginRole();
 
     if (isLoggedOut == 'true') {
@@ -51,6 +49,11 @@ class _SplashScreenState extends State<SplashScreen> {
           context,
           MaterialPageRoute(builder: (context) => const AdminPanelPage()),
         );
+      }else{
+        Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const FirstPage()),
+      );
       }
     }
   }

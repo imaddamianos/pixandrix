@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:pixandrix/drivers/ask_for_help.dart';
 import 'package:pixandrix/drivers/help_driver_list.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
@@ -14,6 +14,7 @@ import 'package:pixandrix/orders/order_card_drivers.dart';
 import 'package:pixandrix/orders/order_card_drivers_windows.dart';
 import 'package:pixandrix/settings_page.dart';
 import 'package:pixandrix/theme/buttons/add_button.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 final _secureStorage = SecureStorage();
 
@@ -80,6 +81,11 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
     driverInfo!.isAvailable = value;
     FirebaseOperations.changeDriverAvailable(driverInfo!.name, value);
     notificationSubscribe();
+    if (value) {
+      notificationService.showOngoingNotification();
+    } else {
+      notificationService.stopListeningToNotifications();
+    }
   }
 
   void notificationSubscribe() {
@@ -87,7 +93,6 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
       notificationService.initializeNotifications(context, 'driver');
       notificationService.subscribeToaddOrders();
       notificationService.subscribeToDriversReturnedOrders();
-      // subscribeToDriverChangeOrders(driverInfo!.name);
     } else {
       notificationService.stopListeningToNotifications();
     }
@@ -228,7 +233,6 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
                   icon: const Icon(Icons.logout),
                   onPressed: () {
                     notificationService.stopListeningToNotifications();
-                    _secureStorage.setAutoLoginStatus(true, '');
                     showAlertWithDestination(context, 'Log Out',
                         'Are you sure you want to Log out?', const FirstPage());
                   },
@@ -276,6 +280,26 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
 
                       return Column(
                         children: [
+                          // Banner to display when driver is available
+                          if (driverInfo!.isAvailable)
+                            Container(
+                              color: Colors.green,
+                              padding: const EdgeInsets.all(10),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.check, color: Colors.white),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'You are available!',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           helpButton(
                             text: 'Ask for Help',
                             onPressed: () {
@@ -375,9 +399,9 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
                                             }
                                           }
                                           if (driverOrderCount < 2 &&
-                                                  status ==
-                                                      'OrderStatus.pending' &&
-                                                  driverOrder == '' ||
+                                              status ==
+                                                  'OrderStatus.pending' &&
+                                              driverOrder == '' ||
                                               status ==
                                                       'OrderStatus.inProgress' &&
                                                   driverOrder ==
