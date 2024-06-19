@@ -30,7 +30,7 @@ class _AdminPanelPageState extends State<AdminPanelPage>  with RouteAware, Widge
     super.initState();
     _secureStorage.setAutoLoginStatus(false, 'admin');
     notificationService.initializeNotifications(context, 'admin');
-    notificationService.subscribeToOrderTimeExceed();
+    notificationService.subscribeTotimeExceed();
    WidgetsBinding.instance.addObserver(this);
   }
 

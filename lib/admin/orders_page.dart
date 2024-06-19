@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
-import 'package:pixandrix/helpers/notification_bell.dart';
 import 'package:pixandrix/helpers/secure_storage.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/orders/order_card.dart';
@@ -154,6 +153,7 @@ class _OrdersPageState extends State<OrdersPage> {
                                     driverInfo: sortedOrders[index].driverInfo,
                                     storeInfo: sortedOrders[index].storeInfo,
                                     lastOrderTimeUpdate: sortedOrders[index].lastOrderTimeUpdate,
+                                    orderNumber: sortedOrders[index].orderID,
                                     press: () {
                                       String orderID = sortedOrders[index].orderID;
                                       showDialog(
@@ -170,7 +170,7 @@ class _OrdersPageState extends State<OrdersPage> {
                                     onChangeStatus: () {},
                                     onCancel: () {
                                       _removeOrder(sortedOrders[index].orderID);
-                                    },
+                                    }
                                   ),
                                   const SizedBox(height: 20),
                                 ],

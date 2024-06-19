@@ -169,7 +169,7 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
       child: Scaffold(
         appBar: AppBar(
           title: Center(
-            child: Text(driverInfo?.name ?? 'Driver Name'),
+            child: Text(driverInfo?.name ?? ''),
           ),
           leading: Padding(
             padding: const EdgeInsets.only(left: 10.0),

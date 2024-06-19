@@ -150,37 +150,39 @@ class NotificationService {
 
   void _showNotificationTaking(Map<String, dynamic>? data) async {
     _showNotification(
-        'order_Take', 'Order Take', "Order Taken", "An order has been taken.");
+        'order_Take', 'Order Take', "Order Taken", "Order has been taken.");
   }
 
-  void _orderTimeExceed() async {
+  void _orderTimeExceed(Map<String, dynamic>? data) async {
     _showNotification('order_Exceed', 'Order Exceed', "Order exceed 10 minutes",
         "An order has been exceeded the 10 minutes.");
   }
 
 
-   void subscribeToOrderTimeExceed() {
-    if (!_hasSubscribedToOrderTimeExceed) {
-      _orderTimeExceed();
+  //  void subscribeToOrderTimeExceed() {
+  //   if (!_hasSubscribedToOrderTimeExceed) {
+  //     _orderTimeExceed();
 
-            // notificationService.subscribeTotimeExceed();
-      _hasSubscribedToOrderTimeExceed = true;
-    }
-  }
-
-  // void subscribeTotimeExceed() {
-  //   var subscription = FirebaseFirestore.instance
-  //       .collection('orders')
-  //       .snapshots()
-  //       .listen((snapshot) {
-  //     for (var change in snapshot.docChanges) {
-  //         var newData = change.doc.data() as Map<String, dynamic>;
-
-  //           _orderTimeExceed(newData);
-  //     }
-  //   });
-  //   _firestoreSubscriptions.add(subscription);
+  //           // notificationService.subscribeTotimeExceed();
+  //     _hasSubscribedToOrderTimeExceed = true;
+  //   }
   // }
+
+  void subscribeTotimeExceed() {
+    var subscription = FirebaseFirestore.instance
+        .collection('orders')
+        .where('isTaken')
+        .snapshots()
+        .listen((snapshot) {
+      for (var change in snapshot.docChanges) {
+        if (change.type == DocumentChangeType.modified) {
+          var newData = change.doc.data() as Map<String, dynamic>;
+            _orderTimeExceed(newData);
+        }
+      }
+    });
+    _firestoreSubscriptions.add(subscription);
+  }
 
   void subscribeToDriverChangeOrders(String driver) {
     var subscription = FirebaseFirestore.instance

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:pixandrix/helpers/notification_bell.dart';
+import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/helpers/order_status_utils.dart';
 import 'package:timer_builder/timer_builder.dart';
 
@@ -13,12 +13,13 @@ class OrderCard extends StatefulWidget {
     required this.lastOrderTimeUpdate,
     required this.driverInfo,
     required this.storeInfo,
+    required this.orderNumber,
     required this.press,
     required this.onChangeStatus,
     required this.onCancel,
   });
 
-  final String driverInfo, orderLocation, storeInfo;
+  final String driverInfo, orderLocation, storeInfo,orderNumber;
   final String status;
   final Timestamp orderTime, lastOrderTimeUpdate;
   final GestureTapCallback press;
@@ -167,7 +168,9 @@ class _OrderCardState extends State<OrderCard> {
     String twoDigitSeconds = twoDigits(timeLeft.inSeconds.remainder(60));
 
     if (timeSinceLastUpdate.inMinutes >= 10) {
-      notificationService.subscribeToOrderTimeExceed(); // Call your function to handle order exceeding time
+      // FirebaseOperations.changeOrderTaken(orderId);
+      // notificationService.subscribeTotimeExceed();
+
       return 'Check order $twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
     } else {
       return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';

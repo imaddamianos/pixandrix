@@ -124,7 +124,7 @@ class _OrderFormState extends State<OrderForm> {
                               orderTime: orderTime,
                               orderLocation: _locationController.text,
                               status: OrderStatus.pending,
-                              isTaken: false,
+                              isTaken: true,
                               driverInfo: '',
                               storeInfo: widget.ownerInfo!.name,
                               orderNumber: orderNumber,

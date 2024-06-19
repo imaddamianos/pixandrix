@@ -464,7 +464,7 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
     }
   }
 
-  static Future<void> changeOrderStatus(String newStatus, String ownerId) async {
+  static Future<void> changeOrderStatus(String newStatus, String orderId) async {
     try {
       // Reference to the orders collection
       CollectionReference ordersRef =
@@ -472,12 +472,35 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
 
       // Check if the order belongs to the owner
       QuerySnapshot orderSnapshot =
-          await ordersRef.where('orderID', isEqualTo: ownerId).limit(1).get();
+          await ordersRef.where('orderID', isEqualTo: orderId).limit(1).get();
 
       // If order belongs to the owner, update the status
       if (orderSnapshot.docs.isNotEmpty) {
         String docId = orderSnapshot.docs.first.id;
         await ordersRef.doc(docId).update({'status': newStatus});
+      } else {
+        throw Exception('Order not found or does not belong to owner');
+      }
+    } catch (e) {
+      print('Error changing order status: $e');
+      // Handle error
+    }
+  }
+
+  static Future<void> changeOrderTaken(String orderId) async {
+    try {
+      // Reference to the orders collection
+      CollectionReference ordersRef =
+          FirebaseFirestore.instance.collection('orders');
+
+      // Check if the order belongs to the owner
+      QuerySnapshot orderSnapshot =
+          await ordersRef.where('orderID', isEqualTo: orderId).limit(1).get();
+
+      // If order belongs to the owner, update the status
+      if (orderSnapshot.docs.isNotEmpty) {
+        String docId = orderSnapshot.docs.first.id;
+        await ordersRef.doc(docId).update({'isTaken': false});
       } else {
         throw Exception('Order not found or does not belong to owner');
       }
