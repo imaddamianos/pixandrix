@@ -89,7 +89,6 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-    - assets/sounds/collectring.mp3
     - assets/logo/
 
 

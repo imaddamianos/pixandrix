@@ -24,7 +24,6 @@ class _OrdersPageState extends State<OrdersPage> {
   @override
   void initState() {
     super.initState();
-    _secureStorage.setAutoLoginStatus(false, 'admin');
   }
 
   Future<void> _removeOrder(String orderId) async {

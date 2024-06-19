@@ -55,7 +55,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
     setState(() {});
   }
 
-bool _shouldDisableButton(List<OrderData> orders) {
+bool shouldDisableButton(List<OrderData> orders) {
   if (orders.isEmpty) return false;
 
   // Sort the orders by lastOrderTimeUpdate in ascending order
@@ -69,7 +69,7 @@ bool _shouldDisableButton(List<OrderData> orders) {
   final timeDifference = currentTime.difference(lastOrderTimeUpdate).inMinutes;
 
   // Return false if the time difference is greater than 10 minutes, otherwise return true
-  if (timeDifference > 10) {
+  if (timeDifference >= 10) {
     return false;
   }
   return true;
@@ -208,7 +208,7 @@ bool _shouldDisableButton(List<OrderData> orders) {
                   };
                   return statusOrder[a.status]!.compareTo(statusOrder[b.status]!);
                 });
-                isButtonDisabled = _shouldDisableButton(ownerOrders);
+                isButtonDisabled = shouldDisableButton(ownerOrders);
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,6 +240,7 @@ bool _shouldDisableButton(List<OrderData> orders) {
                       child: ListView.builder(
                         itemCount: ownerOrders.length,
                         itemBuilder: (context, index) {
+                          shouldDisableButton(orders);
                           return Column(
                             children: [
                               OrderCardOwners(

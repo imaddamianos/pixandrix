@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pixandrix/helpers/notification_bell.dart';
 import 'package:pixandrix/helpers/order_status_utils.dart';
-import 'package:pixandrix/models/order_model.dart';
 import 'package:timer_builder/timer_builder.dart';
 
 class OrderCard extends StatefulWidget {
@@ -31,8 +30,7 @@ class OrderCard extends StatefulWidget {
 }
 
 class _OrderCardState extends State<OrderCard> {
-  bool _hasSentNotification = false; // Flag to track notification sent
-  bool _hasSubscribedToOrderTimeExceed = false; // Flag to track subscription
+  // bool _hasSentNotification = false; // Flag to track notification sent
 
   @override
   void initState() {
@@ -151,26 +149,6 @@ class _OrderCardState extends State<OrderCard> {
     );
   }
 
-  void subscribeToOrderTimeExceed() {
-    if (!_hasSubscribedToOrderTimeExceed) {
-      FirebaseFirestore.instance.collection('orders').snapshots().listen((snapshot) {
-        for (var doc in snapshot.docs) {
-          final order = OrderData.fromDocument(doc);
-
-          final lastOrderTimeUpdate = order.lastOrderTimeUpdate.toDate();
-          final currentTime = DateTime.now();
-          final duration = currentTime.difference(lastOrderTimeUpdate);
-
-          if (duration.inMinutes > 10 && order.status == 'OrderStatus.pending') {
-            // Handle the order time exceed event
-            notificationService.subscribeTotimeExceed();
-          }
-        }
-      });
-      _hasSubscribedToOrderTimeExceed = true;
-    }
-  }
-
   String _formatDuration(Duration duration, Timestamp orderTimestamp, Timestamp lastOrderTimeUpdate) {
     DateTime now = DateTime.now();
     DateTime orderTime = orderTimestamp.toDate();
@@ -188,9 +166,8 @@ class _OrderCardState extends State<OrderCard> {
     String twoDigitMinutes = twoDigits(timeLeft.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(timeLeft.inSeconds.remainder(60));
 
-    if (timeSinceLastUpdate.inMinutes >= 10 && !_hasSentNotification) {
-      _hasSentNotification = true; // Set flag after sending notification
-      subscribeToOrderTimeExceed(); // Call your function to handle order exceeding time
+    if (timeSinceLastUpdate.inMinutes >= 10) {
+      notificationService.subscribeToOrderTimeExceed(); // Call your function to handle order exceeding time
       return 'Check order $twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
     } else {
       return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
