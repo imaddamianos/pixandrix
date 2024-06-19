@@ -91,7 +91,6 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
     if (driverInfo!.isAvailable) {
       notificationService.initializeNotifications(context, 'driver');
       notificationService.subscribeToaddOrders();
-      notificationService.subscribeToDriversReturnedOrders();
     } else {
       notificationService.stopListeningToNotifications();
     }
@@ -107,11 +106,12 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
 
   Future<void> _changeOrderStatus(int index, List<OrderData> orders) async {
     final orderToChange = orders[index].orderID;
-    final lastOrderTimeUpdate = orders[index].lastOrderTimeUpdate.toDate();
+    final orderTimeTaken = orders[index].orderTimeTaken.toDate();
     final driver = driverInfo?.name;
     final now = DateTime.now();
-    final timeSinceLastUpdate = now.difference(lastOrderTimeUpdate);
+    final timeSinceLastUpdate = now.difference(orderTimeTaken);
     final status = orders[index].status;
+
 
     if (status == 'OrderStatus.pending') {
       await FirebaseOperations.changeOrderStatus(
@@ -158,6 +158,33 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
     }
     return orders.where((order) => order.driverInfo == driverName).length;
   }
+
+  Future<void> handleChangeStatus(int index, List<OrderData> orders, BuildContext context, DriverData? driverInfo) async {
+         final status = orders[index].status;
+        final driverOrder = orders[index].driverInfo;
+        final currentDriver = driverInfo?.name;
+        int driverOrderCount = 0;
+          for (final order in orders) {
+           if (order.driverInfo ==currentDriver) {
+                driverOrderCount++;
+              }
+           if (order.status == 'OrderStatus.delivered') {
+              driverOrderCount--;
+               }
+            }
+            if (driverOrderCount < 2 && status == 'OrderStatus.pending' &&
+                driverOrder == '' || status == 'OrderStatus.inProgress' &&
+                 driverOrder == currentDriver) {
+                await _changeOrderStatus(index, orders);
+                await loadDriverInfo();
+            } else {
+                showAlertDialog(context, 'Alert!', 
+                'Hi $currentDriver, \nIt looks like you already have 2 orders assigned. Please wait for 20 minutes before accepting new orders.',
+                 );
+               }
+
+        }
+
 
   @override
   Widget build(BuildContext context) {
@@ -380,42 +407,11 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
                                           );
                                         },
                                         onChangeStatus: () async {
-                                          final status = orders[index].status;
-                                          final driverOrder =
-                                              orders[index].driverInfo;
-                                          final currentDriver =
-                                              driverInfo?.name;
-
-                                          int driverOrderCount = 0;
-                                          for (final order in orders) {
-                                            if (order.driverInfo ==
-                                                currentDriver) {
-                                              driverOrderCount++;
-                                            }
-                                            if (order.status ==
-                                                'OrderStatus.delivered') {
-                                              driverOrderCount--;
-                                            }
-                                          }
-                                          if (driverOrderCount < 2 &&
-                                              status ==
-                                                  'OrderStatus.pending' &&
-                                              driverOrder == '' ||
-                                              status ==
-                                                      'OrderStatus.inProgress' &&
-                                                  driverOrder ==
-                                                      currentDriver) {
-                                            await _changeOrderStatus(
-                                                index, orders);
-                                            await loadDriverInfo();
-                                          } else {
-                                            showAlertDialog(
-                                              context,
-                                              'Alert!',
-                                              'Hi $currentDriver, \nIt looks like you already have 2 orders assigned. Please wait for 20 minutes before accepting new orders.',
-                                            );
-                                          }
-                                        },
+  await Future.delayed(const Duration(seconds: 4), () {
+    loadDriverInfo();
+    handleChangeStatus(index, orders, context, driverInfo);
+  });
+},
                                         onCancel: () {
                                           _cancelOrderStatus(index, orders);
                                         },

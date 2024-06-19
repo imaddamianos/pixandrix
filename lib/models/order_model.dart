@@ -10,6 +10,7 @@ class OrderData {
   final String storeInfo;
   final Timestamp orderTime;
   final Timestamp lastOrderTimeUpdate;
+  final Timestamp orderTimeTaken;
   final bool isTaken;
 
 
@@ -22,6 +23,7 @@ class OrderData {
     required this.storeInfo,
     required this.orderTime,
     required this.lastOrderTimeUpdate,
+    required this.orderTimeTaken,
   });
 
   factory OrderData.fromDocument(DocumentSnapshot doc) {
@@ -35,6 +37,7 @@ class OrderData {
       orderTime: data['orderTime'] ?? Timestamp.now(),
       lastOrderTimeUpdate: data['lastOrderTimeUpdate'] ?? Timestamp.now(),
       isTaken: data['isTaken'],
+      orderTimeTaken: data['orderTimeTaken'],
     );
   }
 }

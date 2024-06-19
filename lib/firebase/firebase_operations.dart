@@ -376,6 +376,7 @@ static Future<bool> checkOwnerVerification(String ownerName) async {
           storeInfo: data['storeInfo'],
           orderTime: data['orderTime'],
           lastOrderTimeUpdate: data['lastOrderTimeUpdate'],
+          orderTimeTaken: data['orderTimeTaken'],
         );
       }).toList());
 
@@ -476,8 +477,10 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
 
       // If order belongs to the owner, update the status
       if (orderSnapshot.docs.isNotEmpty) {
+        DateTime now = DateTime.now().toLocal();
         String docId = orderSnapshot.docs.first.id;
         await ordersRef.doc(docId).update({'status': newStatus});
+        await ordersRef.doc(docId).update({'orderTimeTaken': now});
       } else {
         throw Exception('Order not found or does not belong to owner');
       }

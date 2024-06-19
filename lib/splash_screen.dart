@@ -70,10 +70,18 @@ autoLogin(context);
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Image.asset('assets/images/pimadoBackground.jpeg'), // Adjust the path as per your image file
+      body: Stack(
+        children: <Widget>[
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/pimadoBackground.jpeg', // Adjust the path as per your image file
+              fit: BoxFit.fitWidth, // This ensures the image covers the entire screen
+            ),
+          ),
+        ],
       ),
     );
   }

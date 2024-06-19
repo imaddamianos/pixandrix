@@ -129,7 +129,8 @@ class _OrderFormState extends State<OrderForm> {
                               storeInfo: widget.ownerInfo!.name,
                               orderNumber: orderNumber,
                               lastOrderTimeUpdate: now,
-                              context: context,
+                              orderTimeTaken: now,
+                              context: context, 
                               
                             );
 

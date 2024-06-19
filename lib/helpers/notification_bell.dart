@@ -227,7 +227,7 @@ class NotificationService {
       for (var change in snapshot.docChanges) {
         if (change.type == DocumentChangeType.modified) {
           var newData = change.doc.data() as Map<String, dynamic>;
-          if (newData['status'] == 'OrderStatus.pending') {
+          if (newData['orderTimeTaken'] != newData['lastOrderTimeUpdate']) {
             _showNotificationReturned(newData);
           }
         }
