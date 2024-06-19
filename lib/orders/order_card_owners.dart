@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/helpers/order_status_utils.dart';
+import 'package:pixandrix/models/order_model.dart';
+import 'package:pixandrix/owners/owners_home_page.dart';
 import 'package:timer_builder/timer_builder.dart';
 
 class OrderCardOwners extends StatelessWidget {
@@ -16,6 +18,7 @@ class OrderCardOwners extends StatelessWidget {
     required this.lastOrderTimeUpdate,
     required this.press,
     required this.onCancel,
+    required this.orders,
   });
 
   final String driverInfo, orderLocation, storeInfo;
@@ -24,6 +27,7 @@ class OrderCardOwners extends StatelessWidget {
   final Timestamp orderTime, lastOrderTimeUpdate;
   final GestureTapCallback press;
   final VoidCallback onCancel;
+  final List<OrderData> orders;
 
   @override
   Widget build(BuildContext context) {
@@ -152,6 +156,7 @@ class OrderCardOwners extends StatelessWidget {
 
   if (timeSinceLastUpdate.inMinutes >= 10) {
     FirebaseOperations.changeOrderTaken(orderId);
+    requestDriverCheck.shouldDisableButton(orders);
     return 'Check order $twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
   } else {
     return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/helpers/order_status_utils.dart';
 import 'package:timer_builder/timer_builder.dart';
 

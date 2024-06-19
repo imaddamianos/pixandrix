@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/notification_bell.dart';
+import 'package:pixandrix/helpers/request_driver_check.dart';
 import 'package:pixandrix/helpers/secure_storage.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
@@ -12,7 +13,7 @@ import 'package:pixandrix/settings_page.dart';
 import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
 
-
+final requestDriverCheck = RequestDriverCheck();
 final _secureStorage = SecureStorage();
 
 class OwnersHomePage extends StatefulWidget {
@@ -54,27 +55,6 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
     notificationService.subscribeToOrderStatusChanges(ownerInfo!.name);
     setState(() {});
   }
-
-bool shouldDisableButton(List<OrderData> orders) {
-  if (orders.isEmpty) return false;
-
-  // Sort the orders by lastOrderTimeUpdate in ascending order
-  orders.sort((a, b) => a.lastOrderTimeUpdate.toDate().compareTo(b.lastOrderTimeUpdate.toDate()));
-
-  final latestOrder = orders.last;
-  final lastOrderTimeUpdate = latestOrder.lastOrderTimeUpdate.toDate();
-  final currentTime = DateTime.now();
-
-  // Calculate the difference in minutes between currentTime and lastOrderTimeUpdate
-  final timeDifference = currentTime.difference(lastOrderTimeUpdate).inMinutes;
-
-  // Return false if the time difference is greater than 10 minutes, otherwise return true
-  if (timeDifference >= 10) {
-    return false;
-  }
-  return true;
-}
-
 
   Future<void> _removeOrder(String orderId, String status) async {
     if (status == 'OrderStatus.pending') {
@@ -208,7 +188,7 @@ bool shouldDisableButton(List<OrderData> orders) {
                   };
                   return statusOrder[a.status]!.compareTo(statusOrder[b.status]!);
                 });
-                isButtonDisabled = shouldDisableButton(ownerOrders);
+                isButtonDisabled = requestDriverCheck.shouldDisableButton(ownerOrders);
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,7 +220,7 @@ bool shouldDisableButton(List<OrderData> orders) {
                       child: ListView.builder(
                         itemCount: ownerOrders.length,
                         itemBuilder: (context, index) {
-                          shouldDisableButton(orders);
+                          requestDriverCheck.shouldDisableButton(orders);
                           return Column(
                             children: [
                               OrderCardOwners(
@@ -251,6 +231,7 @@ bool shouldDisableButton(List<OrderData> orders) {
                                 storeInfo: ownerOrders[index].storeInfo,
                                 orderID: ownerOrders[index].orderID,
                                 lastOrderTimeUpdate: ownerOrders[index].lastOrderTimeUpdate,
+                                orders: ownerOrders,
                                 press: () {
                                   String orderID = ownerOrders[index].orderID;
                                   String orderLocation = ownerOrders[index].orderLocation;

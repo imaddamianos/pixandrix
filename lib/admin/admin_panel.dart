@@ -64,7 +64,7 @@ class _AdminPanelPageState extends State<AdminPanelPage>  with RouteAware, Widge
       },
       child:  Scaffold(
       appBar: AppBar(
-        title: const Text('Pimado'),
+        title: const Text('Admin'),
         actions: [
           Row(
             children: [
