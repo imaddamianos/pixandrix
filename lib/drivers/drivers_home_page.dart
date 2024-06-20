@@ -91,6 +91,7 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
     if (driverInfo!.isAvailable) {
       notificationService.initializeNotifications(context, 'driver');
       notificationService.subscribeToaddOrders();
+      notificationService.subscribeToHelp(driverInfo!.name);
     } else {
       notificationService.stopListeningToNotifications();
     }
@@ -106,10 +107,10 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
 
   Future<void> _changeOrderStatus(int index, List<OrderData> orders) async {
     final orderToChange = orders[index].orderID;
-    final orderTimeTaken = orders[index].orderTimeTaken.toDate();
+    final lastOrderTimeUpdate = orders[index].lastOrderTimeUpdate.toDate();
     final driver = driverInfo?.name;
     final now = DateTime.now();
-    final timeSinceLastUpdate = now.difference(orderTimeTaken);
+    final timeSinceLastUpdate = now.difference(lastOrderTimeUpdate);
     final status = orders[index].status;
 
 

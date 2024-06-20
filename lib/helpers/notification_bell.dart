@@ -158,15 +158,10 @@ class NotificationService {
         "An order has been exceeded the 10 minutes.");
   }
 
-
-  //  void subscribeToOrderTimeExceed() {
-  //   if (!_hasSubscribedToOrderTimeExceed) {
-  //     _orderTimeExceed();
-
-  //           // notificationService.subscribeTotimeExceed();
-  //     _hasSubscribedToOrderTimeExceed = true;
-  //   }
-  // }
+  void _showNewHelpRequest(Map<String, dynamic>? data) async {
+    _showNotification('help_driver', 'help driver', "Help!",
+        "A driver need your help");
+  }
 
   void subscribeTotimeExceed() {
     var subscription = FirebaseFirestore.instance
@@ -178,6 +173,23 @@ class NotificationService {
         if (change.type == DocumentChangeType.modified) {
           var newData = change.doc.data() as Map<String, dynamic>;
             _orderTimeExceed(newData);
+        }
+      }
+    });
+    _firestoreSubscriptions.add(subscription);
+  }
+
+   void subscribeToHelp(String driver) {
+    var subscription = FirebaseFirestore.instance
+        .collection('helpRequests')
+        .snapshots()
+        .listen((snapshot) {
+      for (var change in snapshot.docChanges) {
+        if (change.type == DocumentChangeType.added) {
+          var newData = change.doc.data() as Map<String, dynamic>;
+          if (newData['isHelped'] == false) {
+            _showNewHelpRequest(newData);
+          }
         }
       }
     });

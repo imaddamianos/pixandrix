@@ -480,7 +480,7 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
         DateTime now = DateTime.now().toLocal();
         String docId = orderSnapshot.docs.first.id;
         await ordersRef.doc(docId).update({'status': newStatus});
-        await ordersRef.doc(docId).update({'orderTimeTaken': now});
+        await ordersRef.doc(docId).update({'lastOrderTimeUpdate': now});
       } else {
         throw Exception('Order not found or does not belong to owner');
       }
