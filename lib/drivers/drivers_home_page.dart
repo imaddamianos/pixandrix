@@ -35,6 +35,7 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     loadDriverInfo();
+    
   }
 
   @override
@@ -189,11 +190,13 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
-      child: Scaffold(
+    return 
+    // WillPopScope(
+      // onWillPop: () async {
+      //   return false;
+      // },
+      // child:
+       Scaffold(
         appBar: AppBar(
           title: Center(
             child: Text(driverInfo?.name ?? ''),
@@ -432,7 +435,7 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
                   ),
                 ),
               ),
-      ),
+      // ),
     );
   }
 }
