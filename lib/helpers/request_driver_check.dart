@@ -15,7 +15,7 @@ class RequestDriverCheck {
   final timeDifference = currentTime.difference(lastOrderTimeUpdate).inMinutes;
 
   // Return false if the time difference is greater than 10 minutes, otherwise return true
-  if (timeDifference >= 10) {
+  if (timeDifference >= 7) {
     return false;
   }
   return true;
