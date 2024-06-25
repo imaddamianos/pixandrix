@@ -11,9 +11,14 @@ class FirstPage extends StatefulWidget {
 class _FirstPageState extends State<FirstPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+    onWillPop: () async {
+      return false;
+    },
+    child: Scaffold(
       appBar: AppBar(
         title: const Text('Pimado'),
+        automaticallyImplyLeading: false,
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -107,6 +112,7 @@ class _FirstPageState extends State<FirstPage> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
