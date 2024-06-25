@@ -277,6 +277,7 @@ Widget build(BuildContext context) {
                 icon: const Icon(Icons.logout),
                 onPressed: () {
                   notificationService.stopListeningToNotifications();
+                  _secureStorage.setAutoLoginStatus(true, '');
                   showAlertWithDestination(context, 'Log Out',
                       'Are you sure you want to Log out?', const FirstPage());
                 },
