@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:pixandrix/admin/admin_panel.dart';
 import 'package:pixandrix/drivers/drivers_home_page.dart';
 import 'package:pixandrix/first_page.dart';
+import 'package:pixandrix/helpers/notification_bell.dart';
 import 'package:pixandrix/helpers/secure_storage.dart';
 import 'package:pixandrix/owners/owners_home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final _secureStorage = SecureStorage();
 
@@ -16,8 +18,16 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-
+     _loadSelectedSound();
     _navigateToFirstPage();
+  }
+
+
+  Future<void> _loadSelectedSound() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      NotificationService.selectedSound = prefs.getString('selectedSound');
+    });
   }
 
   Future<void> autoLogin(BuildContext context) async {

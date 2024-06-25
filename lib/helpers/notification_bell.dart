@@ -8,10 +8,11 @@ import 'package:pixandrix/admin/admin_panel.dart';
 import 'package:pixandrix/drivers/drivers_home_page.dart';
 import 'package:pixandrix/helpers/location_helper.dart';
 import 'package:pixandrix/owners/owners_home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final notificationService = NotificationService();
   bool _hasSubscribedToOrderTimeExceed = false; // Flag to track subscription
-
+     
 class NotificationService {
   int _notificationCount = 0;
   final ValueNotifier<int> notificationCountNotifier = ValueNotifier<int>(0);
@@ -20,10 +21,12 @@ class NotificationService {
   StreamSubscription<RemoteMessage>? _foregroundMessageSubscription;
   StreamSubscription<RemoteMessage>? _backgroundMessageSubscription;
   final List<StreamSubscription<QuerySnapshot>> _firestoreSubscriptions = [];
+   static String? selectedSound;
 
   Future<void> initializeNotifications(BuildContext context, String type) async {
     await Firebase.initializeApp();
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
 
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('logopixandrix'); // Replace with notification icon
@@ -56,6 +59,7 @@ class NotificationService {
           message.data['channelName'] ?? 'Default Channel',
           message.notification?.title ?? 'Notification',
           message.notification?.body ?? 'You have a new notification',
+          selectedSound!,
         );
       }
     });
@@ -68,6 +72,7 @@ class NotificationService {
         message.data['channelName'] ?? 'Default Channel',
         message.notification?.title ?? 'Notification',
         message.notification?.body ?? 'You have a new notification',
+        selectedSound!,
       );
     }
   }
@@ -95,7 +100,7 @@ class NotificationService {
     FirebaseMessaging.onBackgroundMessage((message) async {}); // Remove background message handler
   }
 
-  static void _showNotification(String channelId, String channelName, String title, String body) async {
+static void _showNotification(String channelId, String channelName, String title, String body, String sound) async {
     final AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
       channelId,
@@ -103,7 +108,7 @@ class NotificationService {
       importance: Importance.max,
       priority: Priority.high,
       ticker: 'ticker',
-      // sound: const RawResourceAndroidNotificationSound('collectring.mp3'), // Custom sound added here
+      sound: selectedSound != null && !selectedSound!.startsWith('/') ? RawResourceAndroidNotificationSound(selectedSound!.split('.').first) : null, // Use the selected sound
     );
     final NotificationDetails platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
@@ -140,27 +145,27 @@ class NotificationService {
 
   void _showNotificationAdd(Map<String, dynamic>? data) async {
     _showNotification(
-        'new_order', 'New Order', "New Order", "A new order has been added.");
+        'new_order', 'New Order', "New Order", "A new order has been added.", selectedSound!);
   }
 
   void _showNotificationReturned(Map<String, dynamic>? data) async {
     _showNotification('order_Returned', 'Order Returned', "Order Returned",
-        "An order has been returned.");
+        "An order has been returned.", selectedSound!);
   }
 
   void _showNotificationTaking(Map<String, dynamic>? data) async {
     _showNotification(
-        'order_Take', 'Order Take', "Order Taken", "Order has been taken.");
+        'order_Take', 'Order Take', "Order Taken", "Order has been taken.", selectedSound!);
   }
 
   void _orderTimeExceed(Map<String, dynamic>? data) async {
     _showNotification('order_Exceed', 'Order Exceed', "Order exceed 10 minutes",
-        "An order has been exceeded the 10 minutes.");
+        "An order has been exceeded the 10 minutes.", selectedSound!);
   }
 
   void _showNewHelpRequest(Map<String, dynamic>? data) async {
     _showNotification('help_driver', 'help driver', "Help!",
-        "A driver need your help");
+        "A driver need your help", selectedSound!);
   }
 
   void subscribeTotimeExceed() {
