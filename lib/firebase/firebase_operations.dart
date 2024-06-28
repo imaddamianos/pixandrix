@@ -386,30 +386,6 @@ static Future<bool> checkOwnerVerification(String ownerName) async {
       throw e;
     }
   }
-  
-static Future<void> changeDriverName(String driverName, String orderID) async {
-  
-    try {
-      // Reference to the orders collection
-      CollectionReference ordersRef =
-          FirebaseFirestore.instance.collection('orders');
-
-      // Check if the order belongs to the owner
-      QuerySnapshot orderSnapshot =
-          await ordersRef.where('orderID', isEqualTo: orderID).limit(1).get();
-
-      // If order belongs to the owner, update the status
-      if (orderSnapshot.docs.isNotEmpty) {
-        String docId = orderSnapshot.docs.first.id;
-        await ordersRef.doc(docId).update({'driverInfo': driverName});
-      } else {
-        throw Exception('driver not found or does not belong');
-      }
-    } catch (e) {
-      print('Error changing driver name: $e');
-      // Handle error
-    }
-  }
 
   static Future<void> changeDriverVerification(String driverName, bool isVerified) async {
     try {
@@ -465,7 +441,7 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
     }
   }
 
-  static Future<void> changeOrderStatus(String newStatus, String orderId) async {
+  static Future<void> changeOrderStatus(String newStatus, String orderId, String driverName) async {
     try {
       // Reference to the orders collection
       CollectionReference ordersRef =
@@ -479,6 +455,7 @@ static Future<void> changeDriverName(String driverName, String orderID) async {
       if (orderSnapshot.docs.isNotEmpty) {
         DateTime now = DateTime.now().toLocal();
         String docId = orderSnapshot.docs.first.id;
+         await ordersRef.doc(docId).update({'driverInfo': driverName});
         await ordersRef.doc(docId).update({'status': newStatus});
         await ordersRef.doc(docId).update({'lastOrderTimeUpdate': now});
       } else {

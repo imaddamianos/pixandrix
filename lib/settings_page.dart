@@ -35,11 +35,11 @@ class SettingsPage extends StatelessWidget {
             const Divider(),
             const Text(
               'Ringtone',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
             ),
             ListTile(
-              title: const Text('Select Ringtone'),
-              trailing: const Icon(Icons.arrow_forward_ios),
+              title: const Text('Select Ringtone'), textColor: Colors.white,
+              trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white,),
               onTap: () {
                Navigator.of(context).push(
                   MaterialPageRoute(

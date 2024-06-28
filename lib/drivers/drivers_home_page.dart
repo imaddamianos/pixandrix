@@ -116,8 +116,7 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
 
     if (status == 'OrderStatus.pending') {
       await FirebaseOperations.changeOrderStatus(
-          'OrderStatus.inProgress', orderToChange);
-      await FirebaseOperations.changeDriverName(driver!, orderToChange);
+          'OrderStatus.inProgress', orderToChange, driver!);
     } else if (status == 'OrderStatus.inProgress') {
       if (timeSinceLastUpdate.inMinutes >= 5) {
         showAlertChangeProgress(
