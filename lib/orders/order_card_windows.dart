@@ -1,5 +1,5 @@
-import 'package:cloud_firestore_platform_interface/src/timestamp.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore_platform_interface/src/timestamp.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
 import 'package:pixandrix/models/driver_model.dart';
 import 'package:pixandrix/models/owner_model.dart';
@@ -12,15 +12,17 @@ class OrderCardWindow extends StatefulWidget {
   final String orderID;
   final String orderLocation;
   final Timestamp lastOrderTimeUpdate;
+  final String orderTimePlaced;
 
   const OrderCardWindow({
-    super.key,
+    Key? key,
     required this.driverName,
     required this.ownerName,
     required this.orderID,
     required this.orderLocation,
     required this.lastOrderTimeUpdate,
-  });
+    required this.orderTimePlaced,
+  }) : super(key: key);
 
   @override
   _OrderCardWindowState createState() => _OrderCardWindowState();
@@ -34,16 +36,18 @@ class _OrderCardWindowState extends State<OrderCardWindow> {
   void initState() {
     super.initState();
     // Call the getDriverByName function and retrieve driver data
-    FirebaseOperations.getDriverByName(widget.driverName).then((data) {
+     if (widget.driverName != '') {
+       FirebaseOperations.getDriverByName(widget.driverName).then((data) {
       setState(() {
         driverData = data; // Update the driverData variable with retrieved data
       });
     }).catchError((error) {
       print('Error retrieving driver data: $error');
     });
+     }
     FirebaseOperations.getOwnerByName(widget.ownerName).then((data) {
       setState(() {
-        ownerData = data; // Update the driverData variable with retrieved data
+        ownerData = data; // Update the ownerData variable with retrieved data
       });
     }).catchError((error) {
       print('Error retrieving owner data: $error');
@@ -58,145 +62,145 @@ class _OrderCardWindowState extends State<OrderCardWindow> {
         height: 700,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(
-                height: 10,
-              ),
-              const Text(
-                'Order Info',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Color.fromARGB(255, 0, 0, 0),
+          child: SingleChildScrollView( // Wrap with SingleChildScrollView for scrolling
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 10),
+                const Text(
+                  'Order Info',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Color.fromARGB(255, 0, 0, 0),
+                  ),
                 ),
-              ),
-              Text(
-                '# ${widget.orderID}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 152, 152, 152),
+                Text(
+                  '# ${widget.orderID}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 152, 152, 152),
+                  ),
                 ),
-              ),
-              Text(
-                'Delivery to: ${widget.orderLocation}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 152, 152, 152),
+                Text(
+                  'Delivery to: ${widget.orderLocation}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 152, 152, 152),
+                  ),
                 ),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              const Text(
-                'Driver Info',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Color.fromARGB(255, 0, 0, 0),
+                Text(
+                  'Placed at: ${widget.orderTimePlaced}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 152, 152, 152),
+                  ),
                 ),
-              ),
-              Text(
-                'Name: ${widget.driverName}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 152, 152, 152),
+                const SizedBox(height: 30),
+                if (widget.driverName != '')
+                const Text(
+                  'Driver Info',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Color.fromARGB(255, 0, 0, 0),
+                  ),
                 ),
-              ),
-              Center(
-                child: ownerData != null // Check if driver data is available
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text(
-                            'Number: ${driverData?.phoneNumber ?? ''}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 152, 152, 152),
+                 if (widget.driverName != '')
+                Text(
+                  'Name: ${widget.driverName}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 152, 152, 152),
+                  ),
+                ),
+                Center(
+                  child: ownerData != null // Check if owner data is available
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                             if (widget.driverName != '')
+                            Text(
+                              'Number: ${driverData?.phoneNumber ?? ''}',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 152, 152, 152),
+                              ),
                             ),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          CircleAvatar(
-                            radius: 50,
-                            backgroundImage:
-                                NetworkImage(driverData?.driverImage ?? ''),
-                          ),
-                          const SizedBox(
-                            height: 30,
-                          ),
-                          const Text(
-                            'Store Info',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: Color.fromARGB(255, 0, 0, 0),
+                            const SizedBox(height: 20),
+                             if (widget.driverName != '')
+                            CircleAvatar(
+                              radius: 50,
+                              backgroundImage:
+                                  NetworkImage(driverData?.driverImage ?? ''),
                             ),
-                          ),
-                          Text(
-                            'Name: ${ownerData!.name}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 152, 152, 152),
+                            const SizedBox(height: 30),
+                            const Text(
+                              'Store Info',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Color.fromARGB(255, 0, 0, 0),
+                              ),
                             ),
-                          ),
-                          Text(
-                            'Number: ${ownerData!.phoneNumber}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 152, 152, 152),
+                            Text(
+                              'Name: ${ownerData!.name}',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 152, 152, 152),
+                              ),
                             ),
-                          ),
-                          Text(
-                            'Rate: ${ownerData!.rate}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 152, 152, 152),
+                            Text(
+                              'Number: ${ownerData!.phoneNumber}',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 152, 152, 152),
+                              ),
                             ),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          CircleAvatar(
-                            radius: 50,
-                            backgroundImage:
-                                NetworkImage(ownerData!.ownerImage),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          CustomButton(
-                            text: 'Open Map',
-                            onPressed: () {
-                              // Open Google Maps
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => GoogleMapsView(
-                                    latitude: ownerData!.latitude,
-                                    longitude: ownerData!.longitude,
+                            Text(
+                              'Rate: ${ownerData!.rate}',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 152, 152, 152),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            CircleAvatar(
+                              radius: 50,
+                              backgroundImage:
+                                  NetworkImage(ownerData!.ownerImage),
+                            ),
+                            const SizedBox(height: 20),
+                            CustomButton(
+                              text: 'Open Map',
+                              onPressed: () {
+                                // Open Google Maps
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => GoogleMapsView(
+                                      latitude: ownerData!.latitude,
+                                      longitude: ownerData!.longitude,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                        ],
-                      )
-                    : const CircularProgressIndicator(), // Display a loading indicator if data is being fetched
-              ),
-            ],
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 5),
+                          ],
+                        )
+                      : const CircularProgressIndicator(), // Display a loading indicator if data is being fetched
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pixandrix/models/driver_model.dart';
@@ -442,53 +443,57 @@ static Future<bool> checkOwnerVerification(String ownerName) async {
   }
 
   static Future<void> changeOrderStatus(String newStatus, String orderId, String driverName) async {
-    try {
-      // Reference to the orders collection
-      CollectionReference ordersRef =
-          FirebaseFirestore.instance.collection('orders');
+  try {
+    // Reference to the orders collection
+    DatabaseReference ordersRef = FirebaseDatabase.instance.ref().child('orders');
 
-      // Check if the order belongs to the owner
-      QuerySnapshot orderSnapshot =
-          await ordersRef.where('orderID', isEqualTo: orderId).limit(1).get();
+    // Check if the order exists
+    DatabaseEvent orderSnapshot = await ordersRef.orderByChild('orderID').equalTo(orderId).once();
 
-      // If order belongs to the owner, update the status
-      if (orderSnapshot.docs.isNotEmpty) {
-        DateTime now = DateTime.now().toLocal();
-        String docId = orderSnapshot.docs.first.id;
-         await ordersRef.doc(docId).update({'driverInfo': driverName});
-        await ordersRef.doc(docId).update({'status': newStatus});
-        await ordersRef.doc(docId).update({'lastOrderTimeUpdate': now});
-      } else {
-        throw Exception('Order not found or does not belong to owner');
-      }
-    } catch (e) {
-      print('Error changing order status: $e');
-      // Handle error
+    // If order exists, update the status
+    if (orderSnapshot.snapshot.value != null) {
+      Map<dynamic, dynamic> orders = orderSnapshot.snapshot.value as Map<dynamic, dynamic>;
+      String key = orders.keys.first;
+
+      DateTime now = DateTime.now().toLocal();
+      Map<String, dynamic> updates = {
+        'status': newStatus,
+        'driverInfo': driverName,
+        'lastOrderTimeUpdate': now.toIso8601String(),
+      };
+
+      await ordersRef.child(key).update(updates);
+    } else {
+      throw Exception('Order not found');
     }
+  } catch (e) {
+    print('Error changing order status: $e');
+    // Handle error
   }
+}
 
   static Future<void> changeOrderTaken(String orderId) async {
-    try {
-      // Reference to the orders collection
-      CollectionReference ordersRef =
-          FirebaseFirestore.instance.collection('orders');
+  try {
+    // Reference to the orders node in the Realtime Database
+    DatabaseReference ordersRef = FirebaseDatabase.instance.ref().child('orders');
 
-      // Check if the order belongs to the owner
-      QuerySnapshot orderSnapshot =
-          await ordersRef.where('orderID', isEqualTo: orderId).limit(1).get();
+    // Check if the order exists
+    DatabaseEvent orderSnapshot = await ordersRef.orderByChild('orderID').equalTo(orderId).once();
 
-      // If order belongs to the owner, update the status
-      if (orderSnapshot.docs.isNotEmpty) {
-        String docId = orderSnapshot.docs.first.id;
-        await ordersRef.doc(docId).update({'isTaken': false});
-      } else {
-        throw Exception('Order not found or does not belong to owner');
-      }
-    } catch (e) {
-      print('Error changing order status: $e');
-      // Handle error
+    // If order exists, update the 'isTaken' field
+    if (orderSnapshot.snapshot.value != null) {
+      Map<dynamic, dynamic> orders = orderSnapshot.snapshot.value as Map<dynamic, dynamic>;
+      String key = orders.keys.first;
+
+      await ordersRef.child(key).update({'isTaken': false});
+    } else {
+      throw Exception('Order not found');
     }
+  } catch (e) {
+    print('Error changing order status: $e');
+    // Handle error
   }
+}
 
   static Future<void> addTokentoUsers(String ownerName, String driverName) async {
     final fCMToken = await FirebaseMessaging.instance.getToken();
@@ -539,26 +544,28 @@ static Future<bool> checkOwnerVerification(String ownerName) async {
 }
 
   static Future<void> removeOrder(String orderNumber) async {
-    try {
-      // Query the Firestore collection to find the document with the specified name
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance
-              .collection('orders')
-              .where('orderID', isEqualTo: orderNumber)
-              .get();
+  try {
+    // Reference to the orders node in the Realtime Database
+    DatabaseReference ordersRef = FirebaseDatabase.instance.ref().child('orders');
 
-      // Check if any documents with the specified name were found
-      if (querySnapshot.docs.isNotEmpty) {
-        // Delete the first document found (assuming there's only one document with the same name)
-        await querySnapshot.docs.first.reference.delete();
-      } else {
-        print('No order found with the name: $orderNumber');
-      }
-    } catch (e) {
-      print('Error removing order: $e');
-      throw e;
+    // Query the Realtime Database to find the order with the specified order number
+    DatabaseEvent orderSnapshot = await ordersRef.orderByChild('orderID').equalTo(orderNumber).once();
+
+    // Check if any orders with the specified order number were found
+    if (orderSnapshot.snapshot.value != null) {
+      Map<dynamic, dynamic> orders = orderSnapshot.snapshot.value as Map<dynamic, dynamic>;
+      String key = orders.keys.first;
+
+      // Delete the order
+      await ordersRef.child(key).remove();
+    } else {
+      print('No order found with the order number: $orderNumber');
     }
+  } catch (e) {
+    print('Error removing order: $e');
+    throw e;
   }
+}
 
   static Future<List<HelpRequestData>> getHelpRequest() async {
     try {

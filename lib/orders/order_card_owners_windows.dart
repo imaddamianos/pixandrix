@@ -64,7 +64,8 @@ class _OrderCardOwnersWindowState extends State<OrderCardOwnersWindow> {
                   fontWeight: FontWeight.bold,
                   color: Color.fromARGB(255, 152, 152, 152),
                 ),
-              ),Text(
+              ),
+              Text(
                 'Deliver to: ${widget.orderLocation}',
                 style: const TextStyle(
                   fontSize: 18,

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
 import 'package:pixandrix/helpers/secure_storage.dart';
@@ -52,14 +53,16 @@ class _OrdersPageState extends State<OrdersPage> {
 
   List<OrderData> _sortOrders(List<OrderData> orders) {
     if (_selectedSortOption == 'Last Order') {
-      orders.sort((a, b) => b.lastOrderTimeUpdate.compareTo(a.lastOrderTimeUpdate));
+      orders.sort(
+          (a, b) => b.lastOrderTimeUpdate.compareTo(a.lastOrderTimeUpdate));
     } else if (_selectedSortOption == 'Status') {
       const statusOrder = {
         'OrderStatus.pending': 0,
         'OrderStatus.inProgress': 1,
         'OrderStatus.delivered': 2,
       };
-      orders.sort((a, b) => statusOrder[a.status]!.compareTo(statusOrder[b.status]!));
+      orders.sort(
+          (a, b) => statusOrder[a.status]!.compareTo(statusOrder[b.status]!));
     }
     return orders;
   }
@@ -88,8 +91,8 @@ class _OrdersPageState extends State<OrdersPage> {
                 },
               ),
               const SizedBox(height: 10),
-              StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance.collection('orders').snapshots(),
+              StreamBuilder(
+                stream: FirebaseDatabase.instance.ref().child('orders').onValue,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -97,13 +100,18 @@ class _OrdersPageState extends State<OrdersPage> {
                   if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  if (!snapshot.hasData ||
+                      snapshot.data!.snapshot.value == null) {
                     return const Center(child: Text('No orders available'));
                   }
 
-                  _orders = snapshot.data!.docs.map((doc) {
-                    return OrderData.fromDocument(doc);
-                  }).toList();
+                  // Convert the snapshot data to a list of OrderData
+                  final Map<dynamic, dynamic> orderMap =
+                      snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
+                  _orders = orderMap.values
+                      .map((order) =>
+                          OrderData.fromMap(Map<String, dynamic>.from(order)))
+                      .toList();
 
                   final sortedOrders = _sortOrders(_orders);
 
@@ -118,7 +126,9 @@ class _OrdersPageState extends State<OrdersPage> {
                         const SizedBox(height: 10),
                         Row(
                           children: [
-                            const Text('Sort by:',),
+                            const Text(
+                              'Sort by:',
+                            ),
                             const SizedBox(width: 10),
                             DropdownButton<String>(
                               value: _selectedSortOption,
@@ -147,31 +157,42 @@ class _OrdersPageState extends State<OrdersPage> {
                               return Column(
                                 children: [
                                   OrderCard(
-                                    orderTime: sortedOrders[index].orderTime,
-                                    orderLocation: sortedOrders[index].orderLocation,
-                                    status: sortedOrders[index].status,
-                                    driverInfo: sortedOrders[index].driverInfo,
-                                    storeInfo: sortedOrders[index].storeInfo,
-                                    lastOrderTimeUpdate: sortedOrders[index].lastOrderTimeUpdate,
-                                    orderNumber: sortedOrders[index].orderID,
-                                    press: () {
-                                      String orderID = sortedOrders[index].orderID;
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) => OrderCardWindow(
-                                          driverName: sortedOrders[index].driverInfo,
-                                          orderID: orderID,
-                                          ownerName: sortedOrders[index].storeInfo,
-                                          orderLocation: sortedOrders[index].orderLocation,
-                                          lastOrderTimeUpdate: sortedOrders[index].lastOrderTimeUpdate,
-                                        ),
-                                      );
-                                    },
-                                    onChangeStatus: () {},
-                                    onCancel: () {
-                                      _removeOrder(sortedOrders[index].orderID);
-                                    }
-                                  ),
+                                      orderTime: sortedOrders[index].orderTime,
+                                      orderLocation:
+                                          sortedOrders[index].orderLocation,
+                                      status: sortedOrders[index].status,
+                                      driverInfo:
+                                          sortedOrders[index].driverInfo,
+                                      storeInfo: sortedOrders[index].storeInfo,
+                                      lastOrderTimeUpdate: sortedOrders[index]
+                                          .lastOrderTimeUpdate,
+                                      orderNumber: sortedOrders[index].orderID,
+                                      press: () {
+                                        String orderID =
+                                            sortedOrders[index].orderID;
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => OrderCardWindow(
+                                            driverName:
+                                                sortedOrders[index].driverInfo,
+                                            orderID: orderID,
+                                            ownerName:
+                                                sortedOrders[index].storeInfo,
+                                            orderLocation: sortedOrders[index]
+                                                .orderLocation,
+                                            lastOrderTimeUpdate:
+                                                sortedOrders[index]
+                                                    .lastOrderTimeUpdate,
+                                                    orderTimePlaced: 
+                                                sortedOrders[index].orderTime.toDate().toString().split('.')[0],
+                                          ),
+                                        );
+                                      },
+                                      onChangeStatus: () {},
+                                      onCancel: () {
+                                        _removeOrder(
+                                            sortedOrders[index].orderID);
+                                      }),
                                   const SizedBox(height: 20),
                                 ],
                               );

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/notification_bell.dart';
@@ -159,109 +160,112 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
             onRefresh: () async {
               setState(() {});
             },
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('orders').snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  // No orders
-                }
+            child: StreamBuilder(
+  stream: FirebaseDatabase.instance.ref().child('orders').onValue,
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (snapshot.hasError) {
+      return Center(child: Text('Error: ${snapshot.error}'));
+    }
+    if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+      // No orders
+      return const Center(child: Text('No orders found'));
+    }
 
-                final orders = snapshot.data!.docs.map((doc) {
-                  return OrderData.fromDocument(doc);
-                }).toList();
+    final Map<dynamic, dynamic> ordersMap = snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
+    final orders = ordersMap.entries.map((entry) {
+      final data = entry.value as Map<dynamic, dynamic>;
+      return OrderData.fromMap(data);
+    }).toList();
 
-                // Filter orders to include only those related to the owner's store
-                final ownerOrders = orders.where((order) => order.storeInfo == ownerInfo?.name).toList();
+    // Filter orders to include only those related to the owner's store
+    final ownerOrders = orders.where((order) => order.storeInfo == ownerInfo?.name).toList();
 
-                // Sort orders by status
-                ownerOrders.sort((a, b) {
-                  const statusOrder = {
-                    'OrderStatus.pending': 0,
-                    'OrderStatus.inProgress': 1,
-                    'OrderStatus.delivered': 2,
-                  };
-                  return statusOrder[a.status]!.compareTo(statusOrder[b.status]!);
-                });
-                isButtonDisabled = requestDriverCheck.shouldDisableButton(ownerOrders);
+    // Sort orders by status
+    ownerOrders.sort((a, b) {
+      const statusOrder = {
+        'OrderStatus.pending': 0,
+        'OrderStatus.inProgress': 1,
+        'OrderStatus.delivered': 2,
+      };
+      return statusOrder[a.status]!.compareTo(statusOrder[b.status]!);
+    });
+    isButtonDisabled = requestDriverCheck.shouldDisableButton(ownerOrders);
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                      child: CustomButton(
-                        onPressed: isButtonDisabled
-                            ? null
-                            : () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => OrderForm(ownerInfo: ownerInfo),
-                                  ),
-                                );
-                              },
-                        text: 'Request a Driver',
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 20),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          child: CustomButton(
+            onPressed: isButtonDisabled
+                ? null
+                : () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => OrderForm(ownerInfo: ownerInfo),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Orders: ${ownerOrders.length}',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: ownerOrders.length,
-                        itemBuilder: (context, index) {
-                          requestDriverCheck.shouldDisableButton(orders);
-                          return Column(
-                            children: [
-                              OrderCardOwners(
-                                orderTime: ownerOrders[index].orderTime,
-                                orderLocation: ownerOrders[index].orderLocation,
-                                status: ownerOrders[index].status,
-                                driverInfo: ownerOrders[index].driverInfo,
-                                storeInfo: ownerOrders[index].storeInfo,
-                                orderID: ownerOrders[index].orderID,
-                                lastOrderTimeUpdate: ownerOrders[index].lastOrderTimeUpdate,
-                                orders: ownerOrders,
-                                press: () {
-                                  String orderID = ownerOrders[index].orderID;
-                                  String orderLocation = ownerOrders[index].orderLocation;
-                                  if (orderID.isEmpty) {
-                                    orderID = 'No driver';
-                                  }
-                                  notificationService.subscribeToChangedOrders(ownerInfo!.name, ownerOrders[index].orderID);
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => OrderCardOwnersWindow(
-                                      driverName: ownerOrders[index].driverInfo,
-                                      orderID: orderID,
-                                      orderLocation: orderLocation,
-                                    ),
-                                  );
-                                },
-                                onCancel: () {
-                                  _removeOrder(ownerOrders[index].orderID, ownerOrders[index].status);
-                                },
-                              ),
-                              const SizedBox(height: 20),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
+                    );
+                  },
+            text: 'Request a Driver',
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'Orders: ${ownerOrders.length}',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        Expanded(
+          child: ListView.builder(
+            itemCount: ownerOrders.length,
+            itemBuilder: (context, index) {
+              requestDriverCheck.shouldDisableButton(orders);
+              return Column(
+                children: [
+                  OrderCardOwners(
+                    orderTime: ownerOrders[index].orderTime,
+                    orderLocation: ownerOrders[index].orderLocation,
+                    status: ownerOrders[index].status,
+                    driverInfo: ownerOrders[index].driverInfo,
+                    storeInfo: ownerOrders[index].storeInfo,
+                    orderID: ownerOrders[index].orderID,
+                    lastOrderTimeUpdate: ownerOrders[index].lastOrderTimeUpdate,
+                    orders: ownerOrders,
+                    press: () {
+                      String orderID = ownerOrders[index].orderID;
+                      String orderLocation = ownerOrders[index].orderLocation;
+                      if (orderID.isEmpty) {
+                        orderID = 'No driver';
+                      }
+                      notificationService.subscribeToChangedOrders(ownerInfo!.name, ownerOrders[index].orderID);
+                      showDialog(
+                        context: context,
+                        builder: (context) => OrderCardOwnersWindow(
+                          driverName: ownerOrders[index].driverInfo,
+                          orderID: orderID,
+                          orderLocation: orderLocation,
+                        ),
+                      );
+                    },
+                    onCancel: () {
+                      _removeOrder(ownerOrders[index].orderID, ownerOrders[index].status);
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  },
+),
           ),
         ),
       ),

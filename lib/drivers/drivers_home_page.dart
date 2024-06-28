@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:pixandrix/drivers/ask_for_help.dart';
 import 'package:pixandrix/drivers/help_driver_list.dart';
@@ -185,6 +186,84 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
 
         }
 
+        int _sortOrders(OrderData a, OrderData b) {
+  const statusOrder = {
+    'OrderStatus.pending': 0,
+    'OrderStatus.inProgress': 1,
+    'OrderStatus.delivered': 2,
+  };
+  return statusOrder[a.status]!.compareTo(statusOrder[b.status]!);
+}
+
+Widget _buildDriverAvailabilityBanner() {
+  return Container(
+    color: Colors.green,
+    padding: const EdgeInsets.all(10),
+    child: const Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.check, color: Colors.white),
+        SizedBox(width: 8),
+        Text(
+          'You are available!',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildHelpButton(BuildContext context) {
+  return helpButton(
+    text: 'Ask for Help',
+    onPressed: () {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => AskForHelpPage(driverInfo: driverInfo),
+        ),
+      );
+    },
+  );
+}
+
+Widget _buildDriverInfoRow(List<OrderData> orders, BuildContext context) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: [
+      Text(
+        'Orders: ${_countDriverOrders(driverInfo?.name ?? '', orders)} ',
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      HelpDriverButton(
+        helpRequests: helpRequest ?? [],
+        onHelped: () => setState(() {
+          loadHelpRequests(driverInfo!.name);
+        }),
+      ),
+      Column(
+        children: [
+          Switch(
+            value: driverInfo?.isAvailable ?? false,
+            onChanged: (value) {
+              if (driverInfo != null) {
+                setState(() {
+                  changeDriverStatus(value);
+                });
+              }
+            },
+            activeColor: Colors.green,
+            inactiveThumbColor: Colors.red,
+          ),
+          const Text('Status'),
+        ],
+      ),
+    ],
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -275,160 +354,84 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
                   onRefresh: () async {
                     setState(() {});
                   },
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('orders')
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      }
-                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                        //No orders
-                      }
+                  child: StreamBuilder(
+  stream: FirebaseDatabase.instance.ref('orders').onValue,
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (snapshot.hasError) {
+      return Center(child: Text('Error: ${snapshot.error}'));
+    }
+    if (!snapshot.hasData || (snapshot.data as DatabaseEvent).snapshot.value == null) {
+      // No orders
+      return const Center(child: Text('No orders available.'));
+    }
 
-                      final orders = snapshot.data!.docs.map((doc) {
-                        return OrderData.fromDocument(doc);
-                      }).toList();
+    final ordersMap = (snapshot.data as DatabaseEvent).snapshot.value as Map<dynamic, dynamic>;
+    final orders = ordersMap.entries.map((entry) {
+      return OrderData.fromMap(entry.value);
+    }).toList();
 
-                      orders.sort((a, b) {
-                        const statusOrder = {
-                          'OrderStatus.pending': 0,
-                          'OrderStatus.inProgress': 1,
-                          'OrderStatus.delivered': 2,
-                        };
-                        return statusOrder[a.status]!
-                            .compareTo(statusOrder[b.status]!);
-                      });
+    orders.sort(_sortOrders);
 
-                      return Column(
-                        children: [
-                          // Banner to display when driver is available
-                          if (driverInfo!.isAvailable)
-                            Container(
-                              color: Colors.green,
-                              padding: const EdgeInsets.all(10),
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.check, color: Colors.white),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'You are available!',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          helpButton(
-                            text: 'Ask for Help',
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      AskForHelpPage(driverInfo: driverInfo),
-                                ),
-                              );
-                            },
+    return Column(
+      children: [
+        if (driverInfo!.isAvailable) _buildDriverAvailabilityBanner(),
+        _buildHelpButton(context),
+        _buildDriverInfoRow(orders, context),
+        const SizedBox(height: 10),
+        Expanded(
+          child: ListView.builder(
+            itemCount: orders.length,
+            itemBuilder: (context, index) {
+              if (orders[index].driverInfo == '' || orders[index].driverInfo == driverInfo?.name) {
+                return Column(
+                  children: [
+                    OrderCardDrivers(
+                      orderTime: orders[index].orderTime,
+                      orderLocation: orders[index].orderLocation,
+                      status: orders[index].status,
+                      driverInfo: orders[index].driverInfo,
+                      storeInfo: orders[index].storeInfo,
+                      press: () {
+                        String orderID = orders[index].orderID;
+                        String orderAddress = orders[index].orderLocation;
+                        if (orderID.isEmpty) {
+                          orderID = 'No driver';
+                        }
+                        showDialog(
+                          context: context,
+                          builder: (context) => OrderCardDriversWindow(
+                            ownerName: orders[index].storeInfo,
+                            orderID: orderID,
+                            orderAddress: orderAddress,
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Text(
-                                'Orders: ${_countDriverOrders(driverInfo?.name ?? '', orders)} ',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              HelpDriverButton(
-                                helpRequests: helpRequest ?? [],
-                                onHelped: () => setState(() {
-                                  loadHelpRequests(driverInfo!.name);
-                                }),
-                              ),
-                              Column(
-                                children: [
-                                  Switch(
-                                    value: driverInfo?.isAvailable ?? false,
-                                    onChanged: (value) {
-                                      if (driverInfo != null) {
-                                        setState(() {
-                                          changeDriverStatus(value);
-                                        });
-                                      }
-                                    },
-                                    activeColor: Colors.green,
-                                    inactiveThumbColor: Colors.red,
-                                  ),
-                                  const Text('Status'),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: orders.length,
-                              itemBuilder: (context, index) {
-                                if (orders[index].driverInfo == '' ||
-                                    orders[index].driverInfo ==
-                                        driverInfo?.name) {
-                                  return Column(
-                                    children: [
-                                      OrderCardDrivers(
-                                        orderTime: orders[index].orderTime,
-                                        orderLocation:
-                                            orders[index].orderLocation,
-                                        status: orders[index].status,
-                                        driverInfo: orders[index].driverInfo,
-                                        storeInfo: orders[index].storeInfo,
-                                        press: () {
-                                          String orderID =
-                                              orders[index].orderID;
-                                          String orderAddress =
-                                              orders[index].orderLocation;
-                                          if (orderID.isEmpty) {
-                                            orderID = 'No driver';
-                                          }
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) =>
-                                                OrderCardDriversWindow(
-                                              ownerName:
-                                                  orders[index].storeInfo,
-                                              orderID: orderID,
-                                              orderAddress: orderAddress,
-                                            ),
-                                          );
-                                        },
-                                        onChangeStatus: () async {
-  await Future.delayed(const Duration(seconds: 4), () {
-    loadDriverInfo();
-    handleChangeStatus(index, orders, context, driverInfo);
-  });
-},
-                                        onCancel: () {
-                                          _cancelOrderStatus(index, orders);
-                                        },
-                                      ),
-                                      const SizedBox(height: 20),
-                                    ],
-                                  );
-                                } else {
-                                  return const SizedBox.shrink();
-                                }
-                              },
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+                        );
+                      },
+                      onChangeStatus: () async {
+                        loadDriverInfo();
+                        handleChangeStatus(index, orders, context, driverInfo);
+                      },
+                      onCancel: () {
+                        _cancelOrderStatus(index, orders);
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  },
+),
+
+
                 ),
               ),
       ),

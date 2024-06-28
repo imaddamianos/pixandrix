@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:pixandrix/first_page.dart';
 import 'package:pixandrix/helpers/alert_dialog.dart';
@@ -124,21 +125,22 @@ OwnerData submitFormStore({
   required int orderNumber,
   required DateTime lastOrderTimeUpdate,
   required DateTime orderTimeTaken,
-
 }) async {
   try {
+    // Get a reference to the Firebase Realtime Database
+    DatabaseReference ref = FirebaseDatabase.instance.ref('orders').child('ORD$orderNumber');
 
-    // Save order data to Firestore
-    await FirebaseFirestore.instance.collection('orders').add({
+    // Save order data to Firebase Realtime Database
+    await ref.set({
       'orderID': 'ORD$orderNumber', // Use order number as the ID
-      'orderTime': orderTime,
+      'orderTime': orderTime.toIso8601String(),
       'orderLocation': orderLocation,
       'status': status.toString(),
       'isTaken': isTaken,
       'driverInfo': driverInfo,
       'storeInfo': storeInfo,
-      'lastOrderTimeUpdate': lastOrderTimeUpdate,
-      'orderTimeTaken': orderTimeTaken,
+      'lastOrderTimeUpdate': lastOrderTimeUpdate.toIso8601String(),
+      'orderTimeTaken': orderTimeTaken.toIso8601String(),
       // You can add more fields here if needed
     });
 
@@ -149,6 +151,7 @@ OwnerData submitFormStore({
     rethrow;
   }
 }
+
 
 Future<int> getNextOrderNumber() async {
   try {
