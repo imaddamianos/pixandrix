@@ -397,6 +397,7 @@ Widget _buildDriverInfoRow(List<OrderData> orders, BuildContext context) {
                       press: () {
                         String orderID = orders[index].orderID;
                         String orderAddress = orders[index].orderLocation;
+                        String orderTime = orders[index].orderTime.toDate().toString().split('.')[0];
                         if (orderID.isEmpty) {
                           orderID = 'No driver';
                         }
@@ -406,6 +407,7 @@ Widget _buildDriverInfoRow(List<OrderData> orders, BuildContext context) {
                             ownerName: orders[index].storeInfo,
                             orderID: orderID,
                             orderAddress: orderAddress,
+                            orderTimePlaced: orderTime,
                           ),
                         );
                       },

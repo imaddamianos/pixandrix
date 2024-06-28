@@ -239,6 +239,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
                     press: () {
                       String orderID = ownerOrders[index].orderID;
                       String orderLocation = ownerOrders[index].orderLocation;
+                      String orderTime = ownerOrders[index].orderTime.toDate().toString().split('.')[0];
                       if (orderID.isEmpty) {
                         orderID = 'No driver';
                       }
@@ -249,6 +250,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
                           driverName: ownerOrders[index].driverInfo,
                           orderID: orderID,
                           orderLocation: orderLocation,
+                          orderTimePlaced: orderTime,
                         ),
                       );
                     },

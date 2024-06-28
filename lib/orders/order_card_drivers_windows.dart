@@ -8,12 +8,14 @@ class OrderCardDriversWindow extends StatefulWidget {
   final String ownerName;
   final String orderID;
   final String orderAddress;
+  final String orderTimePlaced;
 
   const OrderCardDriversWindow({
     super.key,
     required this.ownerName,
     required this.orderID,
     required this.orderAddress,
+     required this.orderTimePlaced,
   });
 
   @override
@@ -74,6 +76,14 @@ class _OrderCardDriversWindowState extends State<OrderCardDriversWindow> {
                   color: Color.fromARGB(255, 152, 152, 152),
                 ),
               ),
+               Text(
+                  'Placed at: ${widget.orderTimePlaced}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 152, 152, 152),
+                  ),
+                ),
               const SizedBox(
                 height: 5,
               ),
