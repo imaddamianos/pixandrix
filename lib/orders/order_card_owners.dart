@@ -154,10 +154,10 @@ class OrderCardOwners extends StatelessWidget {
   String twoDigitMinutes = twoDigits(timeLeft.inMinutes.remainder(60));
   String twoDigitSeconds = twoDigits(timeLeft.inSeconds.remainder(60));
 
-  if (timeSinceLastUpdate.inMinutes >= 10) {
+  if (timeSinceLastUpdate.inMinutes >= 7) {
     FirebaseOperations.changeOrderTaken(orderId);
     requestDriverCheck.shouldDisableButton(orders);
-    return 'Check order $twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
+    return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds Check order';
   } else {
     return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
   }

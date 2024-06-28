@@ -14,7 +14,6 @@ import 'package:pixandrix/orders/order_card_drivers.dart';
 import 'package:pixandrix/orders/order_card_drivers_windows.dart';
 import 'package:pixandrix/settings_page.dart';
 import 'package:pixandrix/theme/buttons/add_button.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 final _secureStorage = SecureStorage();
 
@@ -397,7 +396,7 @@ Widget _buildDriverInfoRow(List<OrderData> orders, BuildContext context) {
                       press: () {
                         String orderID = orders[index].orderID;
                         String orderAddress = orders[index].orderLocation;
-                        String orderTime = orders[index].orderTime.toDate().toString().split('.')[0];
+                        String orderTime = orders[index].orderTimeTaken.toDate().toString().split('.')[0];
                         if (orderID.isEmpty) {
                           orderID = 'No driver';
                         }

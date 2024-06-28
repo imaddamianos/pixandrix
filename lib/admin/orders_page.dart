@@ -38,7 +38,7 @@ class _OrdersPageState extends State<OrdersPage> {
     );
   }
 
-  Future<void> _resetOrderNumber() async {
+  Future<void> resetOrderNumber() async {
     try {
       int currentOrderNumber = 0;
       await FirebaseFirestore.instance
@@ -86,7 +86,7 @@ class _OrdersPageState extends State<OrdersPage> {
                     context,
                     'Reset Orders Number',
                     'Are you sure you want to reset the order number?',
-                    _resetOrderNumber,
+                    resetOrderNumber(),
                   );
                 },
               ),
@@ -184,7 +184,7 @@ class _OrdersPageState extends State<OrdersPage> {
                                                 sortedOrders[index]
                                                     .lastOrderTimeUpdate,
                                                     orderTimePlaced: 
-                                                sortedOrders[index].orderTime.toDate().toString().split('.')[0],
+                                                sortedOrders[index].orderTimeTaken.toDate().toString().split('.')[0],
                                           ),
                                         );
                                       },

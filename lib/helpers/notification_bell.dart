@@ -147,26 +147,31 @@ class NotificationService {
   }
 
   void _showNotificationAdd(Map<String, dynamic>? data) async {
+    addNotificationCount();
     _showNotification(
         'new_order', 'New Order', "New Order", "A new order has been added.");
   }
 
   void _showNotificationReturned(Map<String, dynamic>? data) async {
+    addNotificationCount();
     _showNotification('order_Returned', 'Order Returned', "Order Returned",
         "An order has been returned.");
   }
 
   void _showNotificationTaking(Map<String, dynamic>? data) async {
+    addNotificationCount();
     _showNotification(
         'order_Take', 'Order Take', "Order Taken", "Order has been taken.");
   }
 
   void _orderTimeExceed(Map<String, dynamic>? data) async {
+    addNotificationCount();
     _showNotification('order_Exceed', 'Order Exceed', "Order exceed 10 minutes",
         "An order has been exceeded the 10 minutes.");
   }
 
   void _showNewHelpRequest(Map<String, dynamic>? data) async {
+    addNotificationCount();
     _showNotification(
         'help_driver', 'help driver', "Help!", "A driver need your help");
   }
