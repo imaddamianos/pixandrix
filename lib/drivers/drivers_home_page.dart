@@ -336,6 +336,7 @@ Widget _buildDriverInfoRow(List<OrderData> orders, BuildContext context) {
                 IconButton(
                   icon: const Icon(Icons.logout),
                   onPressed: () {
+                    _secureStorage.setAutoLoginStatus(true, '');
                     notificationService.stopListeningToNotifications();
                     showAlertWithDestination(context, 'Log Out',
                         'Are you sure you want to Log out?', const FirstPage());

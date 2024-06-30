@@ -1,6 +1,8 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:pixandrix/admin/admin_pass.dart';
 import 'package:pixandrix/drivers/drivers_login.dart';
+import 'package:pixandrix/helpers/permission_handler.dart';
 import 'package:pixandrix/owners/owners_login.dart';
 
 class FirstPage extends StatefulWidget {
@@ -9,6 +11,14 @@ class FirstPage extends StatefulWidget {
   _FirstPageState createState() => _FirstPageState();
 }
 class _FirstPageState extends State<FirstPage> {
+
+   @override
+  void initState() {
+    super.initState();
+    FirebaseMessaging.instance.requestPermission();
+    getLocationPermission();
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
