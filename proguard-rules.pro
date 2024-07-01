@@ -1,0 +1,9 @@
+-keep class com.google.firebase.** { *; }
+-keep class androidx.** { *; }
+-keep class com.google.android.gms.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*
+-dontwarn com.google.**
+-dontwarn androidx.**
+-dontwarn javax.annotation.**
+-dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
