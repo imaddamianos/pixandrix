@@ -1,10 +1,32 @@
-// settings_page.dart
 import 'package:flutter/material.dart';
+import 'package:pixandrix/helpers/notification_bell.dart';
 import 'package:pixandrix/sound_selection_page.dart';
 import 'package:pixandrix/volume_control_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  _SettingsPageState createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  String selectedSound = 'Select Ringtone';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSelectedSound();
+  }
+
+  Future<void> _loadSelectedSound() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedSound = prefs.getString('selectedSound')!;
+      NotificationService.selectedSound = prefs.getString('selectedSound');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,17 +57,22 @@ class SettingsPage extends StatelessWidget {
             const Divider(),
             const Text(
               'Ringtone',
-               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
             ),
             ListTile(
-              title: const Text('Select Ringtone'), textColor: Colors.white,
+              title: Text(selectedSound, style: const TextStyle(color: Colors.white),),
               trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white,),
-              onTap: () {
-               Navigator.of(context).push(
+              onTap: () async {
+                final result = await Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => SoundSelectionPage(),
+                    builder: (context) => const SoundSelectionPage(),
                   ),
                 );
+                if (result != null) {
+                  setState(() {
+                    selectedSound = result;
+                  });
+                }
               },
             ),
           ],

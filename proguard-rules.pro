@@ -1,6 +1,7 @@
 -keep class com.google.firebase.** { *; }
 -keep class androidx.** { *; }
 -keep class com.google.android.gms.** { *; }
+-keep class dev.impsdev.pixandrix.** { *; }
 -keepattributes Signature
 -keepattributes *Annotation*
 -dontwarn com.google.**

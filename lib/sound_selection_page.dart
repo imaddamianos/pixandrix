@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:pixandrix/helpers/notification_bell.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SoundSelectionPage extends StatefulWidget {
@@ -11,8 +11,7 @@ class SoundSelectionPage extends StatefulWidget {
 }
 
 class _SoundSelectionPageState extends State<SoundSelectionPage> {
-  String selectedSound = 'collectring.mp3'; // Default selected sound
-  String customSoundPath = ''; // Custom sound path
+  String selectedSound = 'digitalphonering.mp3'; // Default selected sound
 
   // List of available sounds
   List<String> sounds = [
@@ -20,6 +19,12 @@ class _SoundSelectionPageState extends State<SoundSelectionPage> {
     'digitalphonering.mp3',
     // Add more sounds as needed
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    loadSelectedSound();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,34 +48,28 @@ class _SoundSelectionPageState extends State<SoundSelectionPage> {
                     onChanged: (value) {
                       setState(() {
                         selectedSound = value!;
-                        customSoundPath = '';
+                        NotificationService.selectedSound = selectedSound;
                         _playSound(selectedSound);
-                        _saveSelectedSound(selectedSound);
                       });
                     },
                   ),
+                  onTap: () {
+                    setState(() {
+                      selectedSound = sound;
+                      NotificationService.selectedSound = selectedSound;
+                      _playSound(selectedSound);
+                    });
+                  },
                 );
               },
             ),
-          ),
-          ListTile(
-            title: const Text('Choose from gallery', style: TextStyle(color: Colors.white)),
-            leading: Radio(
-              value: customSoundPath,
-              activeColor: Colors.red,
-              groupValue: selectedSound,
-              onChanged: (value) {
-                _pickSoundFromGallery();
-              },
-            ),
-            onTap: _pickSoundFromGallery,
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Pass back the selected sound to the previous page
-          Navigator.pop(context, customSoundPath.isNotEmpty ? customSoundPath : selectedSound);
+          _saveSelectedSound(selectedSound);
+          Navigator.pop(context, selectedSound);
         },
         child: const Icon(Icons.check),
       ),
@@ -82,46 +81,47 @@ class _SoundSelectionPageState extends State<SoundSelectionPage> {
     await prefs.setString('selectedSound', sound);
   }
 
-  void _playSound(String sound) {
-    if (customSoundPath.isNotEmpty) {
-      // Play the custom sound
-      // Note: FlutterRingtonePlayer does not support playing arbitrary file paths
-      // You might need to use a different plugin to play local files
-      // Example: audioplayers package
-    } else {
-      switch (sound) {
-        case 'collectring.mp3':
-          FlutterRingtonePlayer.playRingtone(
-            looping: false,
-            volume: 0.1,
-            asAlarm: false,
-          );
-          break;
-        case 'digitalphonering.mp3':
-          FlutterRingtonePlayer.playRingtone(
-            looping: false,
-            volume: 0.1,
-            asAlarm: false,
-          );
-          break;
-        // Add more cases for additional sounds
-      }
-    }
+  Future<void> loadSelectedSound() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedSound = prefs.getString('selectedSound') ?? 'collectring.mp3';
+    });
   }
 
-  Future<void> _pickSoundFromGallery() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.audio);
-    if (result != null) {
-      setState(() {
-        customSoundPath = result.files.single.path!;
-        selectedSound = customSoundPath;
-        _playSound(customSoundPath);
-      });
+  void _playSound(String sound) {
+    // Stop any currently playing sound
+    FlutterRingtonePlayer.stop();
+
+    // Play the new selected sound
+    switch (sound) {
+      case 'collectring.mp3':
+        FlutterRingtonePlayer.playRingtone(
+          looping: false,
+          volume: 0.1,
+          asAlarm: false,
+        );
+        break;
+      case 'digitalphonering.mp3':
+        FlutterRingtonePlayer.playRingtone(
+          looping: false,
+          volume: 0.1,
+          asAlarm: false,
+        );
+        break;
+      // Add more cases for additional sounds
+      default:
+        FlutterRingtonePlayer.playRingtone(
+          looping: false,
+          volume: 0.1,
+          asAlarm: false,
+        );
+        break;
     }
   }
 
   @override
   void dispose() {
+    // Stop the ringtone when disposing the widget
     FlutterRingtonePlayer.stop();
     super.dispose();
   }

@@ -79,9 +79,9 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
   void changeDriverStatus(bool value) {
     driverInfo!.isAvailable = value;
     FirebaseOperations.changeDriverAvailable(driverInfo!.name, value);
-    notificationSubscribe();
     if (value) {
-      notificationService.showOngoingNotification();
+      notificationSubscribe();
+      // notificationService.showOngoingNotification();
     } else {
       notificationService.stopListeningToNotifications();
     }
@@ -92,6 +92,7 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
       notificationService.initializeNotifications(context, 'driver');
       notificationService.subscribeToaddOrders();
       notificationService.subscribeToHelp(driverInfo!.name);
+      notificationService.subscribeToDriversReturnedOrders();
     } else {
       notificationService.stopListeningToNotifications();
     }

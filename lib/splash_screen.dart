@@ -18,17 +18,11 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-     _loadSelectedSound();
     _navigateToFirstPage();
   }
 
 
-  Future<void> _loadSelectedSound() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      NotificationService.selectedSound = prefs.getString('selectedSound');
-    });
-  }
+ 
 
   Future<void> autoLogin(BuildContext context) async {
     String? isLoggedOut = await _secureStorage.getLogoutStatus();

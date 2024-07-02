@@ -8,12 +8,13 @@ import 'package:pixandrix/admin/admin_panel.dart';
 import 'package:pixandrix/drivers/drivers_home_page.dart';
 import 'package:pixandrix/helpers/location_helper.dart';
 import 'package:pixandrix/owners/owners_home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final notificationService = NotificationService();
-bool _hasSubscribedToOrderTimeExceed = false; // Flag to track subscription
+ String? selectedSound;
 
 class NotificationService {
-  int _notificationCount = 0;
+   int _notificationCount = 0;
   final ValueNotifier<int> notificationCountNotifier = ValueNotifier<int>(0);
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -22,7 +23,7 @@ class NotificationService {
   static String? selectedSound;
   final List<StreamSubscription> _databaseSubscriptions = [];
 
-  Future<void> initializeNotifications(
+   Future<void> initializeNotifications(
       BuildContext context, String type) async {
     await Firebase.initializeApp();
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -47,32 +48,37 @@ class NotificationService {
         }
       },
     );
+    await loadSelectedSound();
     configureFirebaseMessaging();
+  }
+
+  Future<void> loadSelectedSound() async {
+    final prefs = await SharedPreferences.getInstance();
+      selectedSound = prefs.getString('selectedSound');
   }
 
   void configureFirebaseMessaging() {
     _foregroundMessageSubscription =
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Received message: ${message.notification?.title}');
       if (message.notification != null) {
         _showNotification(
           message.data['channelId'] ?? 'default_channel',
           message.data['channelName'] ?? 'Default Channel',
           message.notification?.title ?? 'Notification',
-          message.notification?.body ?? 'You have a new notification',
+          message.notification?.body ?? 'You have a new notification'
         );
       }
     });
   }
 
-  static Future<void> _firebaseMessagingBackgroundHandler(
+ static Future<void> _firebaseMessagingBackgroundHandler(
       RemoteMessage message) async {
     if (message.notification != null) {
       _showNotification(
         message.data['channelId'] ?? 'default_channel',
         message.data['channelName'] ?? 'Default Channel',
         message.notification?.title ?? 'Notification',
-        message.notification?.body ?? 'You have a new notification',
+        message.notification?.body ?? 'You have a new notification'
       );
     }
   }
@@ -102,47 +108,43 @@ class NotificationService {
   }
 
   static void _showNotification(
-      String channelId, String channelName, String title, String body) async {
-    final AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-      channelId,
-      channelName,
-      importance: Importance.max,
-      priority: Priority.high,
-      ticker: 'ticker',
-      // sound: const RawResourceAndroidNotificationSound('collectring.mp3'), // Custom sound added here
-    );
-    final NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-
+    String channelId,
+    String channelName,
+    String title,
+    String body,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final customSoundPath = prefs.getString('selectedSound');
+    AndroidNotificationDetails androidPlatformChannelSpecifics;
+     if (customSoundPath == null || customSoundPath.isEmpty) {
+      // Use default notification sound
+      androidPlatformChannelSpecifics = AndroidNotificationDetails(
+        channelId,
+        channelName,
+        importance: Importance.max,
+        priority: Priority.high,
+        ticker: 'ticker',
+        playSound: true,
+      //  sound: const RawResourceAndroidNotificationSound('default_sound'), // This uses the default system notification sound
+      );
+     }else{
+      androidPlatformChannelSpecifics = AndroidNotificationDetails(
+        channelId,
+        channelName,
+        importance: Importance.max,
+        priority: Priority.high,
+        ticker: 'ticker',
+        playSound: true,
+       sound: RawResourceAndroidNotificationSound(customSoundPath.split('/').last.split('.').first),
+      );
+     }
+     NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
     await FlutterLocalNotificationsPlugin().show(
-      0, // Replace with a unique ID for the notification
+      0,
       title,
       body,
       platformChannelSpecifics,
-      payload: "driverHomePage", // Optional payload data as a String or Map
-    );
-  }
-
-  Future<void> showOngoingNotification() async {
-    var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
-      'your_channel_id',
-      'your_channel_name',
-      importance: Importance.max,
-      priority: Priority.high,
-      ongoing: true, // This makes the notification ongoing
-      autoCancel:
-          false, // This prevents the user from dismissing the notification
-    );
-
-    var platformChannelSpecifics = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-    );
-    await flutterLocalNotificationsPlugin.show(
-      0,
-      'Ongoing Notification',
-      'You are currently available for orders.',
-      platformChannelSpecifics,
+      payload: 'Default_Sound',
     );
   }
 
