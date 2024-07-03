@@ -2,7 +2,7 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
 // Load service account key from environment variable
-const serviceAccount = require("/Users/imad/serviceAccountKey.json");
+const serviceAccount = require("./config/serviceAccountKey.json");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://pixandrix-a51e4-default-rtdb.firebaseio.com/",
