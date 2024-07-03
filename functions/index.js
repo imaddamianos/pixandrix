@@ -1,61 +1,62 @@
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
-admin.initializeApp();
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+
+// Load service account key from environment variable
+const serviceAccount = require("./config/serviceAccountKey.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://pixandrix-a51e4-default-rtdb.firebaseio.com/",
+});
+
+// Firestore reference
 const firestore = admin.firestore();
 
-// Function to send a notification when a new document is added to the "orders" collection
-exports.sendNotification = functions.firestore
-  .document('orders/{orderId}')
-  .onCreate((snapshot, context) => {
-    const newData = snapshot.data();
+// Function to send notifications to drivers
+async function sendNotificationToDrivers(notificationData) {
+  try {
+    const driversSnapshot = await firestore
+      .collection("drivers")
+      .where("isAvailable", "==", true)
+      .get();
 
-    const payload = {
-      notification: {
-        title: 'New Document Added',
-        body: 'A new document has been added to your collection.',
-      },
-    };
+    const tokens = [];
+    driversSnapshot.forEach((doc) => {
+      const driverData = doc.data();
+      if (driverData.fcmToken) {
+        tokens.push(driverData.fcmToken);
+      }
+    });
 
-    return admin.messaging().sendToTopic('new_document_notifications', payload);
-  });
+    if (tokens.length > 0) {
+      const payload = {
+        notification: {
+          title: notificationData.title,
+          body: notificationData.body,
+        },
+      };
 
-// Helper function to send a notification to a specific user
-async function sendNotification(userId, notification) {
-  const userRef = firestore.collection('users').doc(userId);
-  const userDoc = await userRef.get();
-
-  if (userDoc.exists) {
-    const userData = userDoc.data();
-    const tokens = userData.fcmTokens || [];
-
-    const payload = {
-      notification: notification,
-    };
-
-    return admin.messaging().sendToDevice(tokens, payload);
+      await admin.messaging().sendToDevice(tokens, payload);
+      console.log("Notifications sent successfully to drivers.");
+    } else {
+      console.log("No drivers available to receive notifications.");
+    }
+  } catch (error) {
+    console.error("Error sending notifications:", error);
   }
 }
 
-// Function to check the order time and send a notification when the time left crosses a threshold
-exports.checkOrderTime = functions.firestore
-  .document('orders/{orderId}')
-  .onWrite(async (change, context) => {
-    const newOrderData = change.after.data();
-    const oldOrderData = change.before.data();
-
-    if (!newOrderData || !oldOrderData) return null;
-
-    const timeThreshold = 10 * 60 * 1000; // 10 minutes in milliseconds
-    const currentTime = Date.now();
-
-    if (oldOrderData.timeLeft < timeThreshold && newOrderData.timeLeft >= timeThreshold) {
-      // Time left just crossed the threshold - send notification
-      const notification = {
-        title: 'Order Approaching Deadline!',
-        body: `Check order ${newOrderData.orderId}`,
+// Cloud Function to trigger on new document creation in Realtime Database
+exports.sendNotificationToDrivers = functions.database
+  .ref("orders/{orderId}")
+  .onCreate(async (snapshot, context) => {
+    try {
+      const notificationData = {
+        title: "New Order",
+        body: `Order ID: ${context.params.orderId} has been created.`,
       };
-      await sendNotification(newOrderData.userId, notification);
-    }
 
-    return null;
+      await sendNotificationToDrivers(notificationData);
+    } catch (error) {
+      console.error("Error in onCreate function:", error);
+    }
   });
