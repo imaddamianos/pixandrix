@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pixandrix/helpers/whatsapp_redirect.dart';
 
 class DriverCardWindow extends StatelessWidget {
   final String driverName;
@@ -41,13 +42,19 @@ class DriverCardWindow extends StatelessWidget {
               const SizedBox(
                 height: 10,
               ),
-              Text(
-                'Mobile: $driverMobile ',
+              InkWell(
+              onTap: () {
+                redirectToWhatsApp(driverMobile);
+              },
+              child: Text(
+                driverMobile,
                 style: const TextStyle(
                   fontSize: 16,
-                  color: Color.fromARGB(255, 152, 152, 152),
+                  color: Color.fromARGB(255, 0, 162, 255),
+                  decoration: TextDecoration.underline, // Optional: to underline the text
                 ),
               ),
+            ),
               const SizedBox(
                 height: 15,
               ),

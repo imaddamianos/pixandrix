@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
+import 'package:pixandrix/helpers/whatsapp_redirect.dart';
 import 'package:pixandrix/models/owner_model.dart';
 import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'package:pixandrix/widgets/google_maps_view.dart';
@@ -114,12 +115,18 @@ class _OrderCardDriversWindowState extends State<OrderCardDriversWindow> {
                           const SizedBox(
                             height: 5,
                           ),
-                          Text(
-                            'Number: ${ownerData!.phoneNumber}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 152, 152, 152),
+                          InkWell(
+                            onTap: () {
+                              redirectToWhatsApp(ownerData!.phoneNumber);
+                            },
+                            child: Text(
+                              ownerData!.phoneNumber,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Color.fromARGB(255, 0, 162, 255),
+                                decoration: TextDecoration
+                                    .underline, // Optional: to underline the text
+                              ),
                             ),
                           ),
                           const SizedBox(

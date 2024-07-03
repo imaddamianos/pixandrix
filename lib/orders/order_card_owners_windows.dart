@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
+import 'package:pixandrix/helpers/whatsapp_redirect.dart';
 import 'package:pixandrix/models/driver_model.dart';
 
 class OrderCardOwnersWindow extends StatefulWidget {
@@ -118,14 +119,20 @@ class _OrderCardOwnersWindowState extends State<OrderCardOwnersWindow> {
                           children: [
                             const SizedBox(height: 5),
                             if (widget.driverName.isNotEmpty)
-                              Text(
-                                'Number: ${driverData!.phoneNumber}',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(255, 152, 152, 152),
-                                ),
+                              InkWell(
+                            onTap: () {
+                              redirectToWhatsApp(driverData!.phoneNumber);
+                            },
+                            child: Text(
+                              driverData!.phoneNumber,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Color.fromARGB(255, 0, 162, 255),
+                                decoration: TextDecoration
+                                    .underline, // Optional: to underline the text
                               ),
+                            ),
+                          ),
                             const SizedBox(height: 20),
                             if (widget.driverName.isNotEmpty)
                               CircleAvatar(

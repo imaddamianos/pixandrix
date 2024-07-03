@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pixandrix/helpers/whatsapp_redirect.dart';
 import 'package:pixandrix/theme/buttons/main_button.dart';
 import 'package:pixandrix/widgets/google_maps_view.dart';
 
@@ -44,11 +45,18 @@ class OwnerCardWindow extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10,),
-              Text(
-                'Mobile: $ownerMobile',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Color.fromARGB(255, 152, 152, 152),
+              InkWell(
+                onTap: () {
+                  redirectToWhatsApp(ownerMobile);
+                },
+                child: Text(
+                  ownerMobile,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Color.fromARGB(255, 0, 162, 255),
+                    decoration: TextDecoration
+                        .underline, // Optional: to underline the text
+                  ),
                 ),
               ),
               const SizedBox(height: 10,),
