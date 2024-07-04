@@ -21,9 +21,23 @@ async function sendNotificationToDrivers(notificationData) {
 
     const tokens = [];
     driversSnapshot.forEach((doc) => {
-      const driverData = doc.data();
-      if (driverData.fcmToken) {
-        tokens.push(driverData.fcmToken);
+      const data = doc.data();
+
+      const driverInfo = {
+        driverID: data["driverID"],
+        name: data["name"],
+        phoneNumber: data["phoneNumber"],
+        driverImage: data["driverImage"],
+        verified: data["verified"],
+        isAvailable: data["isAvailable"],
+        password: data["password"],
+      };
+
+      if (data.fcmToken) {
+        tokens.push({
+          fcmToken: data.fcmToken,
+          driverInfo: driverInfo,
+        });
       }
     });
 
@@ -35,7 +49,7 @@ async function sendNotificationToDrivers(notificationData) {
         },
       };
 
-      await admin.messaging().sendToDevice(tokens, payload);
+      await admin.messaging().send(payload);
       console.log("Notifications sent successfully to drivers.");
     } else {
       console.log("No drivers available to receive notifications.");

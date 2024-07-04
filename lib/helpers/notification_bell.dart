@@ -25,7 +25,7 @@ class NotificationService {
 
    Future<void> initializeNotifications(
       BuildContext context, String type) async {
-    await Firebase.initializeApp();
+
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
     const AndroidInitializationSettings initializationSettingsAndroid =
@@ -49,7 +49,7 @@ class NotificationService {
       },
     );
     await loadSelectedSound();
-    configureFirebaseMessaging();
+    // configureFirebaseMessaging();
   }
 
   Future<void> loadSelectedSound() async {
@@ -57,30 +57,35 @@ class NotificationService {
       selectedSound = prefs.getString('selectedSound');
   }
 
-  void configureFirebaseMessaging() {
-    _foregroundMessageSubscription =
-        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      if (message.notification != null) {
-        _showNotification(
-          message.data['channelId'] ?? 'default_channel',
-          message.data['channelName'] ?? 'Default Channel',
-          message.notification?.title ?? 'Notification',
-          message.notification?.body ?? 'You have a new notification'
-        );
-      }
-    });
-  }
+  // void configureFirebaseMessaging() {
+  //   _foregroundMessageSubscription =
+  //       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  //     if (message.notification != null) {
+  //       _showNotification(
+  //         message.data['channelId'] ?? 'default_channel',
+  //         message.data['channelName'] ?? 'Default Channel',
+  //         message.notification?.title ?? 'Notification',
+  //         message.notification?.body ?? 'You have a new notification'
+  //       );
+  //     }
+  //   });
+  // }
 
- static Future<void> _firebaseMessagingBackgroundHandler(
-      RemoteMessage message) async {
-    if (message.notification != null) {
-      _showNotification(
-        message.data['channelId'] ?? 'default_channel',
-        message.data['channelName'] ?? 'Default Channel',
-        message.notification?.title ?? 'Notification',
-        message.notification?.body ?? 'You have a new notification'
-      );
-    }
+//  static Future<void> _firebaseMessagingBackgroundHandler(
+//       RemoteMessage message) async {
+//     if (message.notification != null) {
+//       _showNotification(
+//         message.data['channelId'] ?? 'default_channel',
+//         message.data['channelName'] ?? 'Default Channel',
+//         message.notification?.title ?? 'Notification',
+//         message.notification?.body ?? 'You have a new notification'
+//       );
+//     }
+//   }
+
+   static Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+    await Firebase.initializeApp();
+    print('Message received while the app is in the background: ${message.messageId}');
   }
 
   void addNotificationCount() {
