@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
+import 'package:pixandrix/helpers/whatsapp_redirect.dart';
 import 'package:pixandrix/models/helpRequest_model.dart';
 import 'package:pixandrix/widgets/google_maps_view.dart';
 
@@ -43,7 +44,21 @@ class HelpDriverButton extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(unhelpedRequests[index].driverInfo),
-                          Text(unhelpedRequests[index].driverNumber),
+                          InkWell(
+                            onTap: () {
+                              redirectToWhatsApp(
+                                  unhelpedRequests[index].driverNumber);
+                            },
+                            child: Text(
+                              unhelpedRequests[index].driverNumber,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Color.fromARGB(255, 0, 162, 255),
+                                decoration: TextDecoration
+                                    .underline, // Optional: to underline the text
+                              ),
+                            ),
+                          ),
                           Text(
                               'Time: ${TimeOfDay.fromDateTime(unhelpedRequests[index].timestamp.toDate()).format(context)}'),
                         ],
@@ -74,7 +89,7 @@ class HelpDriverButton extends StatelessWidget {
                                 ),
                               );
                         }, icon: const Icon(Icons.navigation),
-                         label: const Text('Open Map')),
+                         label: const Text('Map')),
                       ],
                     ),
                     const Divider(),

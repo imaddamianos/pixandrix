@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -49,39 +50,12 @@ class NotificationService {
       },
     );
     await loadSelectedSound();
-    // configureFirebaseMessaging();
   }
 
   Future<void> loadSelectedSound() async {
     final prefs = await SharedPreferences.getInstance();
       selectedSound = prefs.getString('selectedSound');
   }
-
-  // void configureFirebaseMessaging() {
-  //   _foregroundMessageSubscription =
-  //       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-  //     if (message.notification != null) {
-  //       _showNotification(
-  //         message.data['channelId'] ?? 'default_channel',
-  //         message.data['channelName'] ?? 'Default Channel',
-  //         message.notification?.title ?? 'Notification',
-  //         message.notification?.body ?? 'You have a new notification'
-  //       );
-  //     }
-  //   });
-  // }
-
-//  static Future<void> _firebaseMessagingBackgroundHandler(
-//       RemoteMessage message) async {
-//     if (message.notification != null) {
-//       _showNotification(
-//         message.data['channelId'] ?? 'default_channel',
-//         message.data['channelName'] ?? 'Default Channel',
-//         message.notification?.title ?? 'Notification',
-//         message.notification?.body ?? 'You have a new notification'
-//       );
-//     }
-//   }
 
    static Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     await Firebase.initializeApp();
@@ -152,6 +126,20 @@ class NotificationService {
       payload: 'Default_Sound',
     );
   }
+///----------------------------------------------------------------------------///
+  /////DRIVERS/////
+
+  void subscribeToaddOrders() {
+    var subscription =
+        FirebaseDatabase.instance.ref('orders').onChildAdded.listen((event) {
+      var newData = Map<String, dynamic>.from(
+          event.snapshot.value as Map); // Safe type cast
+      if (newData['status'] == 'OrderStatus.pending') {
+        _showNotificationAdd(newData);
+      }
+    });
+    _databaseSubscriptions.add(subscription);
+  }
 
   void _showNotificationAdd(Map<String, dynamic>? data) async {
     addNotificationCount();
@@ -159,22 +147,21 @@ class NotificationService {
         'new_order', 'New Order', "New Order", "A new order has been added.");
   }
 
-  void _showNotificationReturned(Map<String, dynamic>? data) async {
-    addNotificationCount();
-    _showNotification('order_Returned', 'Order Returned', "Order Returned",
-        "An order has been returned.");
-  }
+  void subscribeToHelp() {
+    var subscription = FirebaseFirestore.instance
+        .collection('helpRequests')
+        .where('isHelped', isEqualTo: false)
+        .snapshots()
+        .listen((snapshot) {
+      for (var document in snapshot.docChanges) {
+        if (document.type == DocumentChangeType.added) {
+          var newData = document.doc.data() as Map<String, dynamic>;
+          _showNewHelpRequest(newData);
+        }
+      }
+    });
 
-  void _showNotificationTaking(Map<String, dynamic>? data) async {
-    addNotificationCount();
-    _showNotification(
-        'order_Take', 'Order Take', "Order Taken", "Order has been taken.");
-  }
-
-  void _orderTimeExceed(Map<String, dynamic>? data) async {
-    addNotificationCount();
-    _showNotification('order_Exceed', 'Order Exceed', "Order exceed 10 minutes",
-        "An order has been exceeded the 10 minutes.");
+    _databaseSubscriptions.add(subscription);
   }
 
   void _showNewHelpRequest(Map<String, dynamic>? data) async {
@@ -183,6 +170,81 @@ class NotificationService {
         'help_driver', 'help driver', "Help!", "A driver need your help");
   }
 
+  void subscribeToDriversReturnedOrders() {
+    var subscription =
+        FirebaseDatabase.instance.ref('orders').onChildChanged.listen((event) {
+      var newData = Map<String, dynamic>.from(
+          event.snapshot.value as Map); // Safe type cast
+      if (newData['status'] == 'OrderStatus.pending') {
+        _showNotificationReturned(newData);
+      }
+    });
+    _databaseSubscriptions.add(subscription);
+  }
+
+  void _showNotificationReturned(Map<String, dynamic>? data) async {
+    addNotificationCount();
+    _showNotification('order_Returned', 'Order Returned', "Order Returned",
+        "An order has been returned.");
+  }
+
+  /////DRIVERS/////
+
+  ///----------------------------------------------------------------------------///
+
+  /////OWNERS/////
+
+  void subscribeToRequestButton(String orderNumber) {
+
+    var subscription = FirebaseDatabase.instance
+        .ref('orders')
+        .orderByChild('orderID')
+        .onValue
+        .listen((event) {
+      for (var change in event.snapshot.children) {
+        var newData =
+            Map<String, dynamic>.from(change.value as Map); // Safe type cast
+        if (newData['orderID'] == orderNumber) {
+          _subscribeToRequestButton();
+        }
+      }
+    });
+    _databaseSubscriptions.add(subscription);
+  }
+
+  void _subscribeToRequestButton() async {
+    _showNotification('request_Order', 'request Order', "Order Now",
+        "You can place an order.");
+  }
+
+  void subscribeToChangedOrders(String storeInfo, String orderID) {
+    var subscription = FirebaseDatabase.instance
+        .ref('orders')
+        .orderByChild('orderID')
+        .equalTo(orderID)
+        .onChildChanged
+        .listen((event) {
+      var newData = Map<String, dynamic>.from(
+          event.snapshot.value as Map); // Safe type cast
+      if (newData['storeInfo'] == storeInfo &&
+          newData['status'] == 'OrderStatus.pending') {
+        _showNotificationTaking(newData);
+      }
+    });
+    _databaseSubscriptions.add(subscription);
+  }
+
+  void _showNotificationTaking(Map<String, dynamic>? data) async {
+    addNotificationCount();
+    _showNotification(
+        'order_Take', 'Order Take', "Order Taken", "Order has been taken.");
+  }
+
+    /////OWNERS/////
+
+    ///----------------------------------------------------------------------------///
+
+    /////ADMIN/////
   void subscribeTotimeExceed() {
     var subscription = FirebaseDatabase.instance
         .ref('orders')
@@ -200,102 +262,11 @@ class NotificationService {
     _databaseSubscriptions.add(subscription);
   }
 
-  void subscribeToHelp(String driver) {
-    var subscription = FirebaseDatabase.instance
-        .ref('helpRequests')
-        .onChildAdded
-        .listen((event) {
-      var newData = Map<String, dynamic>.from(
-          event.snapshot.value as Map); // Safe type cast
-      if (newData['isHelped'] == false) {
-        _showNewHelpRequest(newData);
-      }
-    });
-    _databaseSubscriptions.add(subscription);
+  void _orderTimeExceed(Map<String, dynamic>? data) async {
+    addNotificationCount();
+    _showNotification('order_Exceed', 'Order Exceed', "Order exceed 10 minutes",
+        "An order has been exceeded the 10 minutes.");
   }
 
-  void subscribeToDriverChangeOrders(String driver) {
-    var subscription = FirebaseDatabase.instance
-        .ref('orders')
-        .orderByChild('driverInfo')
-        .equalTo(driver)
-        .onChildAdded
-        .listen((event) {
-      var newData = Map<String, dynamic>.from(
-          event.snapshot.value as Map); // Safe type cast
-      if (newData['driverInfo'] == driver) {
-        _showNotificationTaking(newData);
-      }
-    });
-    _databaseSubscriptions.add(subscription);
-  }
-
-  void subscribeToaddOrders() {
-    var subscription =
-        FirebaseDatabase.instance.ref('orders').onChildAdded.listen((event) {
-      var newData = Map<String, dynamic>.from(
-          event.snapshot.value as Map); // Safe type cast
-      if (newData['status'] == 'OrderStatus.pending') {
-        _showNotificationAdd(newData);
-      }
-    });
-    _databaseSubscriptions.add(subscription);
-  }
-
-  void subscribeToDriversReturnedOrders() {
-    var subscription =
-        FirebaseDatabase.instance.ref('orders').onChildChanged.listen((event) {
-      var newData = Map<String, dynamic>.from(
-          event.snapshot.value as Map); // Safe type cast
-      if (newData['orderTimeTaken'] != newData['lastOrderTimeUpdate']) {
-        _showNotificationReturned(newData);
-      }
-    });
-    _databaseSubscriptions.add(subscription);
-  }
-
-  void subscribeToOrderStatusChanges(String owner) {
-    var subscription = FirebaseDatabase.instance
-        .ref('orders')
-        .orderByChild('storeInfo')
-        .equalTo(owner)
-        .onChildChanged
-        .listen((event) {
-      var newData = Map<String, dynamic>.from(
-          event.snapshot.value as Map); // Safe type cast
-      if (newData['storeInfo'] == owner) {
-        _showNotificationTaking(newData);
-      }
-    });
-    _databaseSubscriptions.add(subscription);
-  }
-
-  void subscribeToChangedOrders(String storeInfo, String orderID) {
-    var subscription = FirebaseDatabase.instance
-        .ref('orders')
-        .orderByChild('orderID')
-        .equalTo(orderID)
-        .onChildChanged
-        .listen((event) {
-      var newData = Map<String, dynamic>.from(
-          event.snapshot.value as Map); // Safe type cast
-      if (newData['storeInfo'] == storeInfo &&
-          newData['status'] == 'OrderStatus.pending') {
-        _showNotificationReturned(newData);
-      }
-    });
-    _databaseSubscriptions.add(subscription);
-  }
-
-  void subscribeToTakenOrders() {
-    var subscription =
-        FirebaseDatabase.instance.ref('orders').onChildChanged.listen((event) {
-      var newData = Map<String, dynamic>.from(
-          event.snapshot.value as Map); // Safe type cast
-      if (newData['status'] == 'OrderStatus.inProgress') {
-        _showNotificationTaking(newData);
-      }
-    });
-    _databaseSubscriptions.add(subscription);
-  }
+    /////ADMIN/////
 }

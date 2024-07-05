@@ -52,7 +52,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
   Future<void> loadOwnerInfo() async {
     _secureStorage.setAutoLoginStatus(false, 'owner');
     ownerInfo = await _secureStorage.getOwnerInfo();
-    notificationService.subscribeToOrderStatusChanges(ownerInfo!.name);
+
     setState(() {});
   }
 
@@ -81,7 +81,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
     }).toList();
 
     final ownerOrders = orders.where((order) => order.storeInfo == ownerInfo?.name).toList();
-    
+
     ownerOrders.sort((a, b) {
       const statusOrder = {
         'OrderStatus.pending': 0,
@@ -98,6 +98,30 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
 
     isButtonDisabled = requestDriverCheck.shouldDisableButton(ownerOrders);
     return ownerOrders;
+  }
+
+  Widget buildButtonRequest(){
+    return Column(
+      children: [
+          Padding(
+          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          child: CustomButton(
+            onPressed: isButtonDisabled
+                ? null
+                : () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => OrderForm(ownerInfo: ownerInfo),
+                      ),
+                    );
+                  },
+            text: 'Request a Driver',
+          ),
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
   }
 
   Widget buildOrderList(List<OrderData> ownerOrders) {
@@ -122,6 +146,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
           ),
         ),
         const SizedBox(height: 10),
+        const SizedBox(height: 20),
         Text(
           'Orders: ${ownerOrders.length}',
           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -176,11 +201,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
-      child: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: Center(
             child: Text(ownerInfo?.name ?? 'Owner Name'),
@@ -271,7 +292,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
                 if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
-                  return const Center(child: Text('No orders found'));
+                  return buildButtonRequest();
                 }
 
                 final Map<dynamic, dynamic> ordersMap = snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
@@ -302,7 +323,6 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }

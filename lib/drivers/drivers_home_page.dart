@@ -91,7 +91,7 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
     if (driverInfo!.isAvailable) {
       notificationService.initializeNotifications(context, 'driver');
       notificationService.subscribeToaddOrders();
-      notificationService.subscribeToHelp(driverInfo!.name);
+      notificationService.subscribeToHelp();
       notificationService.subscribeToDriversReturnedOrders();
     } else {
       notificationService.stopListeningToNotifications();
@@ -179,7 +179,7 @@ class _DriversHomePageState extends State<DriversHomePage> with RouteAware, Widg
                 await _changeOrderStatus(index, orders);
                 await loadDriverInfo();
             } else {
-                showAlertDialog(context, 'Alert!', 
+                showAlertDialog(context, 'Alert!',
                 'Hi $currentDriver, \nIt looks like you already have 2 orders assigned. Please wait for 20 minutes before accepting new orders.',
                  );
                }
@@ -267,11 +267,8 @@ Widget _buildDriverInfoRow(List<OrderData> orders, BuildContext context) {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
-      child: Scaffold(
+    return
+      Scaffold(
         appBar: AppBar(
           title: Center(
             child: Text(driverInfo?.name ?? ''),
@@ -437,7 +434,6 @@ Widget _buildDriverInfoRow(List<OrderData> orders, BuildContext context) {
 
                 ),
               ),
-      ),
-    );
+      );
   }
 }

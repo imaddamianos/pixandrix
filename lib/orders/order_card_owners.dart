@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pixandrix/firebase/firebase_operations.dart';
+import 'package:pixandrix/helpers/notification_bell.dart';
 import 'package:pixandrix/helpers/order_status_utils.dart';
 import 'package:pixandrix/models/order_model.dart';
 import 'package:pixandrix/owners/owners_home_page.dart';
@@ -106,7 +107,7 @@ class OrderCardOwners extends StatelessWidget {
                       padding: EdgeInsets.zero,
                     ),
                     child: Column(
-                      
+
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
@@ -144,6 +145,7 @@ class OrderCardOwners extends StatelessWidget {
 
   Duration timeLeft = orderTime.difference(now);
   Duration timeSinceLastUpdate = now.difference(lastOrderTime);
+  var notificationSent = false;
 
   if (timeLeft.isNegative) {
     return 'Expired';
@@ -154,9 +156,14 @@ class OrderCardOwners extends StatelessWidget {
   String twoDigitMinutes = twoDigits(timeLeft.inMinutes.remainder(60));
   String twoDigitSeconds = twoDigits(timeLeft.inSeconds.remainder(60));
 
-  if (timeSinceLastUpdate.inMinutes >= 7) {
+  if (timeSinceLastUpdate.inMinutes >= 5) {
     FirebaseOperations.changeOrderTaken(orderId);
     requestDriverCheck.shouldDisableButton(orders);
+
+    if (notificationSent == false){
+      notificationService.subscribeToRequestButton(orderId);
+      notificationSent = true;
+    }
     return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds Check order';
   } else {
     return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';
