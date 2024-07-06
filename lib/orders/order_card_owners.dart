@@ -145,7 +145,6 @@ class OrderCardOwners extends StatelessWidget {
 
   Duration timeLeft = orderTime.difference(now);
   Duration timeSinceLastUpdate = now.difference(lastOrderTime);
-  var notificationSent = false;
 
   if (timeLeft.isNegative) {
     return 'Expired';
@@ -159,11 +158,6 @@ class OrderCardOwners extends StatelessWidget {
   if (timeSinceLastUpdate.inMinutes >= 5) {
     FirebaseOperations.changeOrderTaken(orderId);
     requestDriverCheck.shouldDisableButton(orders);
-
-    if (notificationSent == false){
-      notificationService.subscribeToRequestButton(orderId);
-      notificationSent = true;
-    }
     return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds Check order';
   } else {
     return '$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds';

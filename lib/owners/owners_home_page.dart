@@ -174,7 +174,7 @@ class _OwnersHomePageState extends State<OwnersHomePage> with RouteAware, Widget
                       if (orderID.isEmpty) {
                         orderID = 'No driver';
                       }
-                      notificationService.subscribeToChangedOrders(ownerInfo!.name, ownerOrders[index].orderID);
+                      // notificationService.subscribeToChangedOrders(ownerInfo!.name, ownerOrders[index].orderID);
                       showDialog(
                         context: context,
                         builder: (context) => OrderCardOwnersWindow(
