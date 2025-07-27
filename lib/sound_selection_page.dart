@@ -49,7 +49,7 @@ class _SoundSelectionPageState extends State<SoundSelectionPage> {
                       setState(() {
                         selectedSound = value!;
                         NotificationService.selectedSound = selectedSound;
-                        _playSound(selectedSound);
+                        // _playSound(selectedSound);
                       });
                     },
                   ),
@@ -57,7 +57,7 @@ class _SoundSelectionPageState extends State<SoundSelectionPage> {
                     setState(() {
                       selectedSound = sound;
                       NotificationService.selectedSound = selectedSound;
-                      _playSound(selectedSound);
+                      // _playSound(selectedSound);cd ..
                     });
                   },
                 );
@@ -88,41 +88,41 @@ class _SoundSelectionPageState extends State<SoundSelectionPage> {
     });
   }
 
-  void _playSound(String sound) {
-    // Stop any currently playing sound
-    FlutterRingtonePlayer.stop();
+  // void _playSound(String sound) {
+  //   // Stop any currently playing sound
+  //   FlutterRingtonePlayer.stop();
 
-    // Play the new selected sound
-    switch (sound) {
-      case 'collectring.mp3':
-        FlutterRingtonePlayer.playRingtone(
-          looping: false,
-          volume: 0.1,
-          asAlarm: false,
-        );
-        break;
-      case 'digitalphonering.mp3':
-        FlutterRingtonePlayer.playRingtone(
-          looping: false,
-          volume: 0.1,
-          asAlarm: false,
-        );
-        break;
-      // Add more cases for additional sounds
-      default:
-        FlutterRingtonePlayer.playRingtone(
-          looping: false,
-          volume: 0.1,
-          asAlarm: false,
-        );
-        break;
-    }
-  }
+  //   // Play the new selected sound
+  //   switch (sound) {
+  //     case 'collectring.mp3':
+  //       FlutterRingtonePlayer.playRingtone(
+  //         looping: false,
+  //         volume: 0.1,
+  //         asAlarm: false,
+  //       );
+  //       break;
+  //     case 'digitalphonering.mp3':
+  //       FlutterRingtonePlayer.playRingtone(
+  //         looping: false,
+  //         volume: 0.1,
+  //         asAlarm: false,
+  //       );
+  //       break;
+  //     // Add more cases for additional sounds
+  //     default:
+  //       FlutterRingtonePlayer.playRingtone(
+  //         looping: false,
+  //         volume: 0.1,
+  //         asAlarm: false,
+  //       );
+  //       break;
+  //   }
+  // }
 
   @override
   void dispose() {
     // Stop the ringtone when disposing the widget
-    FlutterRingtonePlayer.stop();
+    // FlutterRingtonePlayer.stop();
     super.dispose();
   }
 }

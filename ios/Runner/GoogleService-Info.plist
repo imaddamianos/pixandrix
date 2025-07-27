@@ -26,5 +26,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:923862953721:ios:ad9c104a0c5748e7a3fc28</string>
+	<key>DATABASE_URL</key>
+	<string>https://pixandrix-a51e4-default-rtdb.firebaseio.com</string>
 </dict>
 </plist>

@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -24,17 +22,7 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<key>GOOGLE_MAPS_API_KEY</key>
-	<string>AIzaSyA7WqNu_0k1pAPipnlxZUFzey1416x9o0I</string>
 	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Your location is used to display your current position on the map.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Your location is used to display your current position on the map.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Your location is used to display your current position on the map.</string>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
@@ -43,32 +31,19 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>io.flutter.embedded_views_preview</key>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
-    <key>CFBundleURLTypes</key>
-      <array>
-          <dict>
-              <key>CFBundleTypeRole</key>
-              <string>Editor</string>
-              <key>CFBundleURLSchemes</key>
-              <array>
-                  <string>YOUR_REVERSED_CLIENT_ID</string>
-              </array>
-          </dict>
-      </array>
-      <key>FirebaseAppDelegateProxyEnabled</key>
-      <false/>
-      <key>NSAppTransportSecurity</key>
-      <dict>
-          <key>NSAllowsArbitraryLoads</key>
-          <true/>
-      </dict>
-      
-      <!-- Keychain Access -->
-      <key>keychain-access-groups</key>
-      <array>
-          <string>$(AppIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-      </array>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 </dict>
 </plist>
